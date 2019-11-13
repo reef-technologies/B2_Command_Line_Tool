@@ -1555,8 +1555,8 @@ class TestConsoleTool(TestBase):
 
         # ignore any references to specific api version
         if remove_version:
-            actual_stdout = self._remove_api_version_number(stdout.getvalue())
-            actual_stderr = self._remove_api_version_number(stderr.getvalue())
+            actual_stdout = self._remove_api_version_number(actual_stdout)
+            actual_stderr = self._remove_api_version_number(actual_stderr)
 
         if expected_stdout != actual_stdout:
             print('EXPECTED STDOUT:', repr(expected_stdout))
