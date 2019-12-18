@@ -749,6 +749,13 @@ def sync_down_helper(b2_tool, bucket_name, folder_in_bucket):
         b2_tool.should_succeed(['sync', b2_sync_point, local_path])
         should_equal(['a', 'b'], sorted(os.listdir(local_path)))
 
+        b2_tool.should_succeed(['hide_file', bucket_name, b2_file_prefix + 'a'])
+        b2_tool.should_succeed(['sync', b2_sync_point, local_path])
+        should_equal(['a', 'b'], sorted(os.listdir(local_path)))
+
+        b2_tool.should_succeed(['sync', '--delete', b2_sync_point, local_path])
+        should_equal(['b'], sorted(os.listdir(local_path)))
+
 
 def sync_long_path_test(b2_tool, bucket_name):
     """

@@ -376,6 +376,7 @@ class ClearAccount(Command):
         Erases everything in {B2_ACCOUNT_INFO_DEFAULT_FILE}.  Location
         of file can be overridden by setting {B2_ACCOUNT_INFO_ENV_VAR}.
     """
+
     def run(self, args):
         self.api.account_info.clear()
         return 0
@@ -664,6 +665,7 @@ class GetAccountInfo(Command):
         Shows the account ID, key, auth token, URLs, and what capabilities
         the current application keys has.
     """
+
     def run(self, args):
         account_info = self.api.account_info
         data = dict(
@@ -872,6 +874,7 @@ class ListBuckets(Command):
 
         Requires capability: listBuckets
     """
+
     def run(self, args):
         for b in self.api.list_buckets():
             self._print('%s  %-10s  %s' % (b.id_, b.type_, b.name))
@@ -1423,6 +1426,7 @@ class Version(Command):
 
         Prints the version number of this tool.
     """
+
     def run(self, args):
         self._print('b2 command line tool, version', VERSION)
         return 0
@@ -1436,6 +1440,7 @@ class ConsoleTool(object):
     Uses the StoredAccountInfo object to keep account data in
     {B2_ACCOUNT_INFO_DEFAULT_FILE} between runs.
     """
+
     def __init__(self, b2_api, stdout, stderr):
         self.api = b2_api
         self.stdout = stdout
@@ -1604,6 +1609,7 @@ class InvalidArgument(B2Error):
     """
     Raised when one or more arguments are invalid
     """
+
     def __init__(self, parameter_name, message):
         """
         :param parameter_name: name of the function argument
