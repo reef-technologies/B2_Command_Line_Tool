@@ -10,6 +10,7 @@
 
 from __future__ import absolute_import, print_function
 
+import argparse
 import copy
 import datetime
 import functools
@@ -240,6 +241,62 @@ class Command(object):
 
     def __str__(self):
         return '%s.%s' % (self.__class__.__module__, self.__class__.__name__)
+
+
+class ArgParseCommand(Command):
+    @classmethod
+    def _get_arg_type(cls, argument):
+        return cls.ARG_PARSER.get(argument)
+
+    @classmethod
+    def get_parser(cls):
+        description = super(ArgParseCommand, cls).command_usage()
+        parser = argparse.ArgumentParser(
+            prog='b2', description=description, formatter_class=argparse.RawTextHelpFormatter
+        )
+
+        for option_flag in cls.OPTION_FLAGS + cls.GLOBAL_OPTION_FLAGS:
+            parser.add_argument('--%s' % option_flag, action='store_true')
+
+        for option_arg in cls.OPTION_ARGS + cls.GLOBAL_OPTION_ARGS:
+            parser.add_argument('--%s' % option_arg, type=cls._get_arg_type(option_arg))
+
+        for list_arg in cls.LIST_ARGS:
+            parser.add_argument(
+                '--%s' % list_arg, type=cls._get_arg_type(option_flag), default=[], nargs='?'
+            )
+
+        for optional_before in cls.OPTIONAL_BEFORE:
+            parser.add_argument(optional_before, type=cls._get_arg_type(option_flag), nargs='?')
+
+        for required in cls.REQUIRED:
+            parser.add_argument(required, type=cls._get_arg_type(required))
+
+        for optional in cls.OPTIONAL:
+            parser.add_argument(optional, type=cls._get_arg_type(option_flag), nargs='?')
+
+        return parser
+
+    @classmethod
+    def summary_line(cls):
+        """
+        Returns the one-line summary of how to call the command.
+        """
+        usage = ' '.join(line.strip() for line in cls.get_parser().format_usage().splitlines())
+        return usage[len('usage: '):]
+
+    @classmethod
+    def command_usage(cls):
+        """
+        Returns the command line argument for this command
+        """
+        return cls.get_parser().format_help()
+
+    def parse_arg_list(self, arg_list):
+        try:
+            return self.get_parser().parse_args(arg_list)
+        except SystemExit:
+            return None
 
 
 class AuthorizeAccount(Command):
@@ -1156,16 +1213,8 @@ class MakeFriendlyUrl(Command):
         return 0
 
 
-class Sync(Command):
+class Sync(ArgParseCommand):
     """
-    b2 sync [--delete] [--keepDays N] [--skipNewer] [--replaceNewer] \\
-            [--compareVersions <option>] [--compareThreshold N] \\
-            [--threads N] [--noProgress] [--dryRun ] [--allowEmptySource ] \\
-            [--excludeRegex <regex> [--includeRegex <regex>]] \\
-            [--excludeDirRegex <regex>] \\
-            [--excludeAllSymlinks ] \\
-            <source> <destination>
-
         Copies multiple files from source to destination.  Optionally
         deletes or hides destination files that the source does not have.
 
@@ -1457,8 +1506,11 @@ class ConsoleTool(object):
         self.stderr = stderr
 
         # a *magic* registry of commands
+        subclassess = Command.__subclasses__() + ArgParseCommand.__subclasses__()
+        subclassess.remove(ArgParseCommand)
+
         self.command_name_to_class = dict(
-            (mixed_case_to_hyphens(cls.__name__), cls) for cls in Command.__subclasses__()
+            (mixed_case_to_hyphens(cls.__name__), cls) for cls in subclassess
         )
 
     def run_command(self, argv):
@@ -1481,7 +1533,8 @@ class ConsoleTool(object):
         args = command.parse_arg_list(arg_list)
         if args is None:
             logger.info('ConsoleTool \'args is None\' - printing usage')
-            self._print_stderr(command.command_usage())
+            if not isinstance(command, ArgParseCommand):
+                self._print_stderr(command.command_usage())
             return 1
         elif [args.logConfig, args.verbose, args.debugLogs].count(True) > 1:
             logger.info(
