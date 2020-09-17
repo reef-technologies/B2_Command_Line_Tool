@@ -641,7 +641,8 @@ class DownloadFileById(Command):
     def run(self, args):
         progress_listener = make_progress_listener(args.localFileName, args.noProgress)
         download_dest = DownloadDestLocalFile(args.localFileName)
-        self.api.download_file_by_id(args.fileId, download_dest, progress_listener)
+        with progress_listener:
+            self.api.download_file_by_id(args.fileId, download_dest, progress_listener)
         self.console_tool._print_download_info(download_dest)
         return 0
 
@@ -669,7 +670,8 @@ class DownloadFileByName(Command):
         bucket = self.api.get_bucket_by_name(args.bucketName)
         progress_listener = make_progress_listener(args.localFileName, args.noProgress)
         download_dest = DownloadDestLocalFile(args.localFileName)
-        bucket.download_file_by_name(args.b2FileName, download_dest, progress_listener)
+        with progress_listener:
+            bucket.download_file_by_name(args.b2FileName, download_dest, progress_listener)
         self.console_tool._print_download_info(download_dest)
         return 0
 
@@ -1442,18 +1444,20 @@ class UploadFile(Command):
         self.api.services.upload_manager.set_thread_pool_size(args.threads)
 
         bucket = self.api.get_bucket_by_name(args.bucketName)
-        file_info = bucket.upload_local_file(
-            local_file=args.localFilePath,
-            file_name=args.b2FileName,
-            content_type=args.contentType,
-            file_infos=file_infos,
-            sha1_sum=args.sha1,
-            min_part_size=args.minPartSize,
-            progress_listener=make_progress_listener(args.localFilePath, args.noProgress),
-        )
-        if not args.quiet:
-            self._print("URL by file name: " + bucket.get_download_url(args.b2FileName))
-            self._print("URL by fileId: " + self.api.get_download_url_for_fileid(file_info.id_))
+        progress_listener = make_progress_listener(args.localFilePath, args.noProgress)
+        with progress_listener:
+            file_info = bucket.upload_local_file(
+                local_file=args.localFilePath,
+                file_name=args.b2FileName,
+                content_type=args.contentType,
+                file_infos=file_infos,
+                sha1_sum=args.sha1,
+                min_part_size=args.minPartSize,
+                progress_listener=progress_listener,
+            )
+            if not args.quiet:
+                self._print("URL by file name: " + bucket.get_download_url(args.b2FileName))
+                self._print("URL by fileId: " + self.api.get_download_url_for_fileid(file_info.id_))
         self._print_json(file_info)
         return 0
 
