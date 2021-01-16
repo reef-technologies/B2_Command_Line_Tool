@@ -527,6 +527,46 @@ def account_test(b2_tool, bucket_name):
     b2_tool.should_succeed(['authorize-account', b2_tool.account_id, b2_tool.application_key])
     tearDown_envvar_test('B2_ACCOUNT_INFO')
 
+    # Testing B2_USE_INMEMORY_ACCOUNTINFO and (B2_APPLICATION_KEY,B2_APPLICATION_KEY_ID) for commands other than
+    # authorize-account
+    new_creds = os.path.join(tempfile.gettempdir(), 'b2_account_info')
+    setup_envvar_test('B2_ACCOUNT_INFO', new_creds)
+    os.remove(new_creds)
+
+    # first, let's make sure "create-bucket" doesn't work without auth data - i.e. that the sqlite file hs been
+    # successfully removed
+    bucket_name = b2_tool.bucket_name_prefix + '-' + random_hex(8)
+    b2_tool.should_fail(
+        ['create-bucket', bucket_name, 'allPrivate'],
+        r'ERROR: Missing account data: \'NoneType\' object is not subscriptable  '
+        r'Use: b2 authorize-account or provide auth data with "B2_APPLICATION_KEY_ID" and '
+        r'"B2_APPLICATION_KEY" environment variables'
+    )
+    os.remove(new_creds)
+
+    # then, let's see that auth data from env vars works in memory
+    os.environ['B2_APPLICATION_KEY'] = os.environ['B2_TEST_APPLICATION_KEY']
+    os.environ['B2_APPLICATION_KEY_ID'] = os.environ['B2_TEST_APPLICATION_KEY_ID']
+    os.environ['B2_USE_INMEMORY_ACCOUNTINFO'] = '1'
+    bucket_name = b2_tool.bucket_name_prefix + '-' + random_hex(8)
+
+    b2_tool.should_succeed(['create-bucket', bucket_name, 'allPrivate'])
+    b2_tool.should_succeed(['delete-bucket', bucket_name])
+    assert not os.path.exists(new_creds), 'sqlite file created when running in memory'
+
+    # last but not least, let's see that auth data from env vars works with sqlite
+    os.environ['B2_USE_INMEMORY_ACCOUNTINFO'] = '0'
+
+    bucket_name = b2_tool.bucket_name_prefix + '-' + random_hex(8)
+    b2_tool.should_succeed(['create-bucket', bucket_name, 'allPrivate'])
+    b2_tool.should_succeed(['delete-bucket', bucket_name])
+    assert os.path.exists(new_creds), 'sqlite file not created'
+
+    os.environ.pop('B2_APPLICATION_KEY')
+    os.environ.pop('B2_APPLICATION_KEY_ID')
+
+    tearDown_envvar_test('B2_ACCOUNT_INFO')
+
 
 def file_version_summary(list_of_files):
     """
