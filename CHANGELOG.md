@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Improve setup and teardown for the integration tests
 * Use `setuptools-scm` for versioning
 * Improve CLI and RTD descriptions of the commands
+* testing ci
 
 ### Fixed
 * Fix for the Windows bundled version
