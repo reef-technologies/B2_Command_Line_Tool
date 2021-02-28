@@ -84,7 +84,7 @@ def parse_millis_from_float_timestamp(s):
     """
     Parse timestamp, e.g. 1367900664 or 1367900664.152
     """
-    return arrow.get(float(s)).timestamp
+    return arrow.get(float(s)).int_timestamp
 
 
 def parse_range(s):
