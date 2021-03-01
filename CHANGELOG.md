@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+* Sign OSX binary
+
 ### Changed
 * Improve setup and teardown for the integration tests
 * Use `setuptools-scm` for versioning
