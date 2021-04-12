@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * Exclude packages inside the test package when installing
+* Nothing
 
 ## [2.3.0] - 2021-03-25
 
