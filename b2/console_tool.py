@@ -31,24 +31,11 @@ from b2sdk.progress import make_progress_listener
 from b2sdk.raw_api import MetadataDirectiveMode, SRC_LAST_MODIFIED_MILLIS
 from b2sdk.version import VERSION as b2sdk_version
 from b2sdk.v1 import (
-    parse_sync_folder,
-    AuthInfoCache,
-    B2Api,
-    B2Http,
-    B2RawApi,
-    Synchronizer,
-    SyncReport,
-    NewerFileSyncMode,
-    CompareVersionMode,
-    KeepOrDeleteMode,
-    DownloadDestLocalFile,
-    FileVersionInfo,
-    SqliteAccountInfo,
-    ScanPoliciesManager,
-    DEFAULT_SCAN_MANAGER,
-    EncryptionAlgorithm,
-    EncryptionMode,
-    EncryptionSetting,
+    parse_sync_folder, AuthInfoCache, B2Api, B2Http, B2RawApi, Synchronizer, SyncReport,
+    NewerFileSyncMode, CompareVersionMode, KeepOrDeleteMode, DownloadDestLocalFile, FileVersionInfo,
+    SqliteAccountInfo, ScanPoliciesManager, DEFAULT_SCAN_MANAGER, EncryptionAlgorithm,
+    EncryptionMode, EncryptionSetting, BasicSyncEncryptionSettingsProvider as
+    BasicEncryptionSettingsProvider
 )
 from b2sdk.v1.exception import B2Error, BadFileInfo, MissingAccountData
 from b2.arg_parser import ArgumentParser, parse_comma_separated_list, \
