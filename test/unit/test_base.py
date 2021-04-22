@@ -11,6 +11,7 @@
 from contextlib import contextmanager
 import re
 import unittest
+import voluptuous as vol
 
 
 class TestBase(unittest.TestCase):
@@ -34,3 +35,67 @@ class TestBase(unittest.TestCase):
                 assert False, "expected message '%s', but got '%s'" % (expected_regexp, str(e))
         else:
             assert False, 'should have thrown %s' % (expected_exception,)
+
+
+class Elo:
+    @staticmethod
+    def from_dict(dict):
+        if dict is None:
+            raise ValueError('nope')
+
+        return 0
+
+
+class Coerce(object):
+    def __call__(self, v):
+        if v is None:
+            raise vol.Invalid('nope')
+        return v
+
+    def __repr__(self):
+        return 'Coerce(%s, msg=%r)' % (self.type_name, self.msg)
+
+
+class TestVol(TestBase):
+    def test_vol(self):
+        s = vol.Schema({
+            'a': int,
+            'b': vol.Coerce(float),
+        })
+        d = {'a': 7, 'b': '9.5'}
+
+        self.assertEqual({'a': 7, 'b': 9.5}, s(d))
+
+        s = vol.Schema(
+            {
+                'a': int,
+                vol.Optional('b', default=None): vol.Any(vol.Coerce(float), None),
+            }
+        )
+
+        self.assertEqual({'a': 7, 'b': 9.5}, s({'a': 7, 'b': 9.5}))
+        self.assertEqual({'a': 7, 'b': 9.5}, s({'a': 7, 'b': '9.5'}))
+        self.assertEqual({'a': 7, 'b': None}, s({'a': 7, 'b': None}))
+        self.assertEqual({'a': 7, 'b': None}, s({'a': 7}))
+
+        s = vol.Schema([{
+            'a': int,
+            vol.Optional('b', default=None): Coerce(),
+        }])
+        self.assertEqual(
+            [{
+                'a': 7,
+                'b': 1
+            }, {
+                'a': 8,
+                'b': 9
+            }], s([{
+                'a': 7,
+                'b': 1
+            }, {
+                'a': 8,
+                'b': 9
+            }])
+        )
+        with self.assertRaises(vol.MultipleInvalid, "nope for dictionary value @ data[1]['b']"):
+            s([{'a': 7, 'b': 1}, {'a': 8, 'b': None}])

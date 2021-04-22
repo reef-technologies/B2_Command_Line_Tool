@@ -49,7 +49,6 @@ from b2sdk.v1 import (
     EncryptionAlgorithm,
     EncryptionMode,
     EncryptionSetting,
-    BasicEncryptionSettingsProvider,
 )
 from b2sdk.v1.exception import B2Error, BadFileInfo, MissingAccountData
 from b2.arg_parser import ArgumentParser, parse_comma_separated_list, \
