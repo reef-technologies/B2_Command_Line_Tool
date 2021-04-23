@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add integration test for sync within one bucket with different encryption
+* Add support for new-style b2sdk sync exceptions
 
 ## [2.4.0] - 2021-04-22
 
