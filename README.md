@@ -20,6 +20,8 @@ This tool can be installed with:
 
 # Usage
 
+[comment]: <> (usage text start)
+
     b2 authorize-account [-h]  [applicationKeyId] [applicationKey]
     b2 cancel-all-unfinished-large-files [-h] bucketName
     b2 cancel-large-file [-h] fileId
@@ -86,6 +88,7 @@ This tool can be installed with:
                    bucketName localFilePath b2FileName
     b2 version [-h]
 
+[comment]: <> (usage text stop)
 
 The environment variable `B2_ACCOUNT_INFO` specifies the sqlite
 file to use for caching authentication information.
