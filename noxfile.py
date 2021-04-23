@@ -10,6 +10,7 @@
 
 import os
 import platform
+import re
 import subprocess
 from glob import glob
 
@@ -244,3 +245,29 @@ def doc_cover(session):
         # If there is no undocumented files, the report should have only 2 lines (header)
         if sum(1 for _ in fd) != 2:
             session.error('sphinx coverage has failed')
+
+
+@nox.session
+def update_readme(session):
+    """Dump help text into the README file."""
+    help_text = subprocess.check_output(['b2', '-h'], env={
+        **os.environ, 'LINE_WIDTH': '1000'
+    }).decode()
+    commands_re = re.compile(r'.*usages:(.*)', re.DOTALL)
+    match = commands_re.match(help_text)
+    assert match
+    new_commands_text = match.group(1)
+    new_commands_text = '\n'.join('  ' + line for line in new_commands_text.splitlines())
+    with open('README.md', 'r') as readme_file:
+        readme_text = readme_file.read()
+
+    readme_usage_re = re.compile(
+        r'(.*\[comment]: <> \(usage text start\))\s*.*?\s*(\[comment]: <> \(usage text stop\).*)',
+        re.DOTALL
+    )
+    new_readme_text, number_of_subs_made = readme_usage_re.subn(
+        r'\1\n%s\n\n\2' % (new_commands_text,), readme_text
+    )
+    assert number_of_subs_made == 1
+    with open('README.md', 'w') as readme_file:
+        readme_file.write(new_readme_text)

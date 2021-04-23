@@ -10,6 +10,7 @@
 
 import argparse
 import textwrap
+import os
 
 import arrow
 from rst2ansi import rst2ansi
@@ -21,6 +22,12 @@ class RawTextHelpFormatter(argparse.RawTextHelpFormatter):
 
     It removes default "usage: " text and prints usage for all subcommands.
     """
+
+    def __init__(self, *a, **kw):
+        super().__init__(*a, **kw)
+        requested_width = os.environ.get('LINE_WIDTH')
+        if requested_width:
+            self._width = int(requested_width)
 
     def add_usage(self, usage, actions, groups, prefix=None):
         if prefix is None:

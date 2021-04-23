@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+* Add nox session for dumping command usage to README.md 
+
 ## [2.4.0] - 2021-04-22
 
 ### Added
