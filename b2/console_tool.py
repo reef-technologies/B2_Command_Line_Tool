@@ -53,6 +53,10 @@ from b2sdk.v1 import (
     EncryptionKey,
     BasicSyncEncryptionSettingsProvider,
     SSE_C_KEY_ID_FILE_INFO_KEY_NAME,
+    LegalHoldSerializer,
+    RetentionMode,
+    FileRetentionSetting,
+    BucketRetentionSetting,
 )
 from b2sdk.v1.exception import B2Error, BadFileInfo, MissingAccountData
 from b2.arg_parser import ArgumentParser, parse_comma_separated_list, \
@@ -266,6 +270,55 @@ class DestinationSseMixin(Described):
         return None
 
 
+class FileRetentionSettingMixin(Described):
+    """
+    TODO
+
+    Updating file retention settings requires the **writeFileRetentions** capability.
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument('--fileRetentionMode', default=None,
+                            choices=(RetentionMode.COMPLIANCE.value, RetentionMode.GOVERNANCE.value))
+
+        parser.add_argument('--retainUntil',
+                            type=parse_millis_from_float_timestamp,
+                            default=None,
+                            metavar='TIMESTAMP')
+        super()._setup_parser(parser)  # noqa
+
+    @classmethod
+    def _get_file_retention_setting(cls, args):
+        if (args.fileRetentionMode is None) != (args.retainUntil is None):
+            raise ValueError('provide either both --retainUntil and --fileRetentionMode or none of them')
+
+        file_retention_mode = apply_or_none(RetentionMode, args.fileRetentionMode)
+        if file_retention_mode is None:
+            return None
+
+        return FileRetentionSetting(file_retention_mode, args.retainUntil)
+
+
+class LegalHoldMixin(Described):
+    """
+    TODO
+
+    Updating legal holds requires the **writeFileLegalHolds** capability.
+
+
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument('--legalHold', default=None, choices=(LegalHoldSerializer.ON, LegalHoldSerializer.OFF))
+        super()._setup_parser(parser)  # noqa
+
+    @classmethod
+    def _get_legal_hold_setting(cls, args):
+        return LegalHoldSerializer.from_string_or_none(args.legalHold)
+
+
 class SourceSseMixin(Described):
     """
     To access SSE-C encrypted files,
@@ -427,6 +480,10 @@ class Command(Described):
             args = [arg.encode('ascii', 'backslashreplace').decode() for arg in args]
             descriptor.write(' '.join(args))
         descriptor.write('\n')
+
+    def _get_file_name_from_file_id(self, file_id):
+        file_info = self.api.get_file_info(file_id)
+        return file_info['fileName']
 
     def __str__(self):
         return '%s.%s' % (self.__class__.__module__, self.__class__.__name__)
@@ -649,7 +706,7 @@ class ClearAccount(Command):
 
 
 @B2.register_subcommand
-class CopyFileById(DestinationSseMixin, SourceSseMixin, Command):
+class CopyFileById(DestinationSseMixin, SourceSseMixin, FileRetentionSettingMixin, LegalHoldMixin, Command):
     """
     Copy a file version to the given bucket (server-side, **not** via download+upload).
     Copies the contents of the source B2 file to destination bucket
@@ -708,6 +765,8 @@ class CopyFileById(DestinationSseMixin, SourceSseMixin, Command):
         bucket = self.api.get_bucket_by_name(args.destinationBucketName)
         destination_encryption_setting = self._get_destination_sse_setting(args)
         source_encryption_setting = self._get_source_sse_setting(args)
+        legal_hold = self._get_legal_hold_setting(args)
+        file_retention = self._get_file_retention_setting(args)
         response = bucket.copy_file(
             args.sourceFileId,
             args.b2FileName,
@@ -717,6 +776,8 @@ class CopyFileById(DestinationSseMixin, SourceSseMixin, Command):
             file_info=file_infos,
             destination_encryption=destination_encryption_setting,
             source_encryption=source_encryption_setting,
+            legal_hold=legal_hold,
+            file_retention=file_retention,
         )
         self._print_json(response)
         return 0
@@ -868,10 +929,6 @@ class DeleteFileVersion(Command):
         file_info = self.api.delete_file_version(args.fileId, file_name)
         self._print_json(file_info)
         return 0
-
-    def _get_file_name_from_file_id(self, file_id):
-        file_info = self.api.get_file_info(file_id)
-        return file_info['fileName']
 
 
 @B2.register_subcommand
@@ -1593,6 +1650,7 @@ class Sync(DestinationSseMixin, SourceSseMixin, Command):
     - **writeFiles** (for uploading)
     """
 
+    #TODO: file lock args
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--noProgress', action='store_true')
@@ -1745,10 +1803,15 @@ class UpdateBucket(DefaultSseMixin, Command):
     Requires capability:
 
     - **writeBuckets**
-    - **readBucketEncryption**
+    - **readBucketEncryption**  TODO: -really? I think not
+
+    and for some operations:
+
+    - **writeBucketRetentions**
     - **writeBucketEncryption**
     """
 
+    # TODO: file lock args
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--bucketInfo', type=json.loads)
@@ -1774,7 +1837,7 @@ class UpdateBucket(DefaultSseMixin, Command):
 
 
 @B2.register_subcommand
-class UploadFile(DestinationSseMixin, Command):
+class UploadFile(DestinationSseMixin, LegalHoldMixin, FileRetentionSettingMixin, Command):
     """
     Uploads one file to the given bucket.  Uploads the contents
     of the local file, and assigns the given name to the B2 file.
@@ -1835,6 +1898,8 @@ class UploadFile(DestinationSseMixin, Command):
 
         bucket = self.api.get_bucket_by_name(args.bucketName)
         encryption_setting = self._get_destination_sse_setting(args)
+        legal_hold = self._get_legal_hold_setting(args)
+        file_retention = self._get_file_retention_setting(args)
         file_info = bucket.upload_local_file(
             local_file=args.localFilePath,
             file_name=args.b2FileName,
@@ -1844,11 +1909,83 @@ class UploadFile(DestinationSseMixin, Command):
             min_part_size=args.minPartSize,
             progress_listener=make_progress_listener(args.localFilePath, args.noProgress),
             encryption=encryption_setting,
+            file_retention=file_retention,
+            legal_hold=legal_hold,
         )
         if not args.quiet:
             self._print("URL by file name: " + bucket.get_download_url(args.b2FileName))
             self._print("URL by fileId: " + self.api.get_download_url_for_fileid(file_info.id_))
         self._print_json(file_info)
+        return 0
+
+
+@B2.register_subcommand
+class UpdateFileLegalHold(Command):
+    """
+    Requires capability:
+
+    - **writeFileLegalHolds**
+
+    TODO:
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument('fileName', nargs='?')
+        parser.add_argument('fileId')
+        parser.add_argument('legalHold', choices=(LegalHoldSerializer.ON, LegalHoldSerializer.OFF))
+        super()._setup_parser(parser)
+
+    def run(self, args):
+        if args.fileName is not None:
+            file_name = args.fileName
+        else:
+            file_name = self._get_file_name_from_file_id(args.fileId)
+
+        legal_hold = LegalHoldSerializer.from_string(args.legalHold)
+
+        file_id_legal_hold = self.api.update_file_legal_hold(args.fileId, file_name, legal_hold)
+        self._print_json(file_id_legal_hold)
+        return 0
+
+
+@B2.register_subcommand
+class UpdateFileRetention(Command):
+    """
+    Requires capability:
+
+    - **writeFileRetentions**
+
+    and optionally:
+
+    - **bypassGovernance**
+
+    TODO:
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument('fileName', nargs='?')
+        parser.add_argument('fileId')
+        parser.add_argument('retentionMode', choices=(RetentionMode.GOVERNANCE.value, RetentionMode.COMPLIANCE.value))
+        parser.add_argument('retainUntil',
+                            type=parse_millis_from_float_timestamp,
+                            metavar='TIMESTAMP')
+        parser.add_argument('--bypassGovernance',
+                            action='store_true',
+                            default=False)
+        super()._setup_parser(parser)
+
+    def run(self, args):
+        if args.fileName is not None:
+            file_name = args.fileName
+        else:
+            file_name = self._get_file_name_from_file_id(args.fileId)
+
+        file_retention = FileRetentionSetting(RetentionMode(args.retentionMode), args.retainUntil)
+
+        file_id_retention = self.api.update_file_retention(args.fileId, file_name, file_retention, args.bypassGovernance)
+        self._print_json(file_id_retention)
         return 0
 
 
