@@ -53,14 +53,15 @@ from b2sdk.v1 import (
     EncryptionKey,
     BasicSyncEncryptionSettingsProvider,
     SSE_C_KEY_ID_FILE_INFO_KEY_NAME,
-    LegalHoldSerializer,
+    LegalHold,
+    NO_RETENTION_BUCKET_SETTING,
     RetentionMode,
     FileRetentionSetting,
     BucketRetentionSetting,
 )
 from b2sdk.v1.exception import B2Error, BadFileInfo, MissingAccountData
 from b2.arg_parser import ArgumentParser, parse_comma_separated_list, \
-    parse_millis_from_float_timestamp, parse_range
+    parse_millis_from_float_timestamp, parse_range, parse_default_retention_period
 from b2.json_encoder import B2CliJsonEncoder
 from b2.version import VERSION
 
@@ -311,12 +312,12 @@ class LegalHoldMixin(Described):
 
     @classmethod
     def _setup_parser(cls, parser):
-        parser.add_argument('--legalHold', default=None, choices=(LegalHoldSerializer.ON, LegalHoldSerializer.OFF))
+        parser.add_argument('--legalHold', default=None, choices=(LegalHold.ON.value, LegalHold.OFF.value))
         super()._setup_parser(parser)  # noqa
 
     @classmethod
-    def _get_legal_hold_setting(cls, args):
-        return LegalHoldSerializer.from_string_or_none(args.legalHold)
+    def _get_legal_hold_setting(cls, args) -> LegalHold:
+        return LegalHold.from_string_or_none(args.legalHold)
 
 
 class SourceSseMixin(Described):
@@ -798,6 +799,7 @@ class CreateBucket(DefaultSseMixin, Command):
     - **writeBuckets**
     - **readBucketEncryption**
     - **writeBucketEncryption**
+    - **writeBucketRetentions**
     """
 
     @classmethod
@@ -805,6 +807,7 @@ class CreateBucket(DefaultSseMixin, Command):
         parser.add_argument('--bucketInfo', type=json.loads)
         parser.add_argument('--corsRules', type=json.loads)
         parser.add_argument('--lifecycleRules', type=json.loads)
+        parser.add_argument('--fileLockEnabled', action='store_true', help="If given, the bucket will have the file lock mechanism enabled. This parameter cannot be changed after bucket creation.")
         parser.add_argument('bucketName')
         parser.add_argument('bucketType')
 
@@ -818,7 +821,8 @@ class CreateBucket(DefaultSseMixin, Command):
             bucket_info=args.bucketInfo,
             cors_rules=args.corsRules,
             lifecycle_rules=args.lifecycleRules,
-            default_server_side_encryption=encryption_setting
+            default_server_side_encryption=encryption_setting,
+            is_file_lock_enabled=args.fileLockEnabled,
         )
         self._print(bucket.id_)
         return 0
@@ -1800,6 +1804,9 @@ class UpdateBucket(DefaultSseMixin, Command):
 
     {DEFAULTSSEMIXIN}
 
+    To set a default retention for files in the bucket ``--defaultRetentionMode`` and
+    ``--defaultRetentionPeriod`` have to be specified. The latter one is of the form "X days|years"
+
     Requires capability:
 
     - **writeBuckets**
@@ -1809,6 +1816,7 @@ class UpdateBucket(DefaultSseMixin, Command):
 
     - **writeBucketRetentions**
     - **writeBucketEncryption**
+    - **writeBucketEncryption**
     """
 
     # TODO: file lock args
@@ -1817,12 +1825,32 @@ class UpdateBucket(DefaultSseMixin, Command):
         parser.add_argument('--bucketInfo', type=json.loads)
         parser.add_argument('--corsRules', type=json.loads)
         parser.add_argument('--lifecycleRules', type=json.loads)
+        parser.add_argument('--defaultRetentionMode',
+                            choices=(
+                                RetentionMode.COMPLIANCE.value,
+                                RetentionMode.GOVERNANCE.value,
+                                'none',
+                            ),
+                            default=None,
+                            )
+        parser.add_argument('--defaultRetentionPeriod',
+                            type=parse_default_retention_period,
+                            metavar='period',
+                            )
         parser.add_argument('bucketName')
         parser.add_argument('bucketType')
 
         super()._setup_parser(parser)  # add parameters from the mixins
 
     def run(self, args):
+        if args.defaultRetentionMode is not None:
+            if args.defaultRetentionMode == 'none':
+                default_retention = NO_RETENTION_BUCKET_SETTING
+            else:
+                default_retention = BucketRetentionSetting(RetentionMode(args.defaultRetentionMode),
+                                                           args.defaultRetentionPeriod)
+        else:
+            default_retention = None
         encryption_setting = self._get_default_sse_setting(args)
         bucket = self.api.get_bucket_by_name(args.bucketName)
         response = bucket.update(
@@ -1830,7 +1858,8 @@ class UpdateBucket(DefaultSseMixin, Command):
             bucket_info=args.bucketInfo,
             cors_rules=args.corsRules,
             lifecycle_rules=args.lifecycleRules,
-            default_server_side_encryption=encryption_setting
+            default_server_side_encryption=encryption_setting,
+            default_retention=default_retention,
         )
         self._print_json(response)
         return 0
@@ -1933,7 +1962,7 @@ class UpdateFileLegalHold(Command):
     def _setup_parser(cls, parser):
         parser.add_argument('fileName', nargs='?')
         parser.add_argument('fileId')
-        parser.add_argument('legalHold', choices=(LegalHoldSerializer.ON, LegalHoldSerializer.OFF))
+        parser.add_argument('legalHold', choices=(LegalHold.ON.value, LegalHold.OFF.value))
         super()._setup_parser(parser)
 
     def run(self, args):
@@ -1942,10 +1971,9 @@ class UpdateFileLegalHold(Command):
         else:
             file_name = self._get_file_name_from_file_id(args.fileId)
 
-        legal_hold = LegalHoldSerializer.from_string(args.legalHold)
+        legal_hold = LegalHold.from_string(args.legalHold)
 
-        file_id_legal_hold = self.api.update_file_legal_hold(args.fileId, file_name, legal_hold)
-        self._print_json(file_id_legal_hold)
+        self.api.update_file_legal_hold(args.fileId, file_name, legal_hold)
         return 0
 
 
@@ -1984,8 +2012,7 @@ class UpdateFileRetention(Command):
 
         file_retention = FileRetentionSetting(RetentionMode(args.retentionMode), args.retainUntil)
 
-        file_id_retention = self.api.update_file_retention(args.fileId, file_name, file_retention, args.bypassGovernance)
-        self._print_json(file_id_retention)
+        self.api.update_file_retention(args.fileId, file_name, file_retention, args.bypassGovernance)
         return 0
 
 

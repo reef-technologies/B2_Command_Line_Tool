@@ -31,6 +31,7 @@ from typing import Optional
 
 from b2sdk.v1 import B2Api, InMemoryAccountInfo, InMemoryCache, fix_windows_path_limit
 from b2sdk.v1 import EncryptionAlgorithm, EncryptionMode, EncryptionSetting, EncryptionKey, SSE_C_KEY_ID_FILE_INFO_KEY_NAME
+from b2sdk.v1 import BucketRetentionSetting, FileLockConfiguration, RetentionMode, RetentionPeriod
 
 SSE_NONE = EncryptionSetting(mode=EncryptionMode.NONE,)
 SSE_B2_AES = EncryptionSetting(
@@ -1563,29 +1564,86 @@ def sse_c_test(b2_tool, bucket_name):
     )
 
 
+def file_lock_test(b2_tool, bucket_name):
+    no_file_lock_bucket_name = b2_tool.bucket_name_prefix + '-' + random_hex(8)
+    b2_tool.should_succeed(
+        [
+            'create-bucket', no_file_lock_bucket_name, 'allPrivate',
+        ],
+    )
+    b2_tool.should_fail(
+        [
+            'update-bucket', no_file_lock_bucket_name, 'allPrivate', '--defaultRetentionMode', 'compliance'
+        ],
+        'ValueError: must specify period for retention mode RetentionMode.COMPLIANCE'
+    )
+    b2_tool.should_fail(
+        [
+            'update-bucket', no_file_lock_bucket_name, 'allPrivate', '--defaultRetentionMode', 'compliance',
+            '--defaultRetentionPeriod', '7 days'
+        ],
+        'ERROR: The bucket is not file lock enabled \(bucket_missing_file_lock\)'
+    )
+    lock_bucket_name = b2_tool.bucket_name_prefix + '-' + random_hex(8)
+    b2_tool.should_succeed(
+        [
+            'create-bucket', lock_bucket_name, 'allPrivate', '--fileLockEnabled',
+        ],
+    )
+    b2_tool.should_succeed(
+        [
+            'update-bucket', lock_bucket_name, 'allPrivate', '--defaultRetentionMode', 'governance',
+            '--defaultRetentionPeriod', '1 days'
+        ],
+    )
+    updated_bucket = b2_tool.should_succeed_json(
+        [
+            'update-bucket', lock_bucket_name, 'allPrivate', '--defaultRetentionMode', 'governance',
+            '--defaultRetentionPeriod', '1 days'
+        ],
+    )
+    new_file_lock_configuration = FileLockConfiguration.from_bucket_dict(updated_bucket)
+    expected_file_lock_configuration = FileLockConfiguration(
+        BucketRetentionSetting(
+            RetentionMode.GOVERNANCE, RetentionPeriod(days=1),
+         ), True
+    )
+    assert expected_file_lock_configuration == new_file_lock_configuration
+
+
+    # bad_key_name = 'clt-testKey-01' + random_hex(6)
+    # b2_tool.should_succeed(
+    #     [
+    #         'create-key',
+    #         key_one_name,
+    #         'listFiles,listBuckets,readFiles,writeKeys',
+    #     ]
+    # )
+
 def main(bucket_name_prefix):
     test_map = {  # yapf: disable
-        'account': account_test,
-        'basic': basic_test,
-        'keys': key_restrictions_test,
-        'sync_down': sync_down_test,
-        'sync_down_sse_c': sync_down_sse_c_test_no_prefix,
-        'sync_down_no_prefix': sync_down_test_no_prefix,
-        'sync_up': sync_up_test,
-        'sync_up_sse_b2': sync_up_sse_b2_test,
-        'sync_up_sse_c': sync_up_sse_c_test,
-        'sync_up_no_prefix': sync_up_test_no_prefix,
-        'sync_long_path': sync_long_path_test,
-        'sync_copy': sync_copy_test,
-        'sync_copy_test_no_prefix_default_encryption': sync_copy_test_no_prefix_default_encryption,
-        # 'sync_copy_test_no_prefix_no_encryption': sync_copy_test_no_prefix_no_encryption, # not supported by the server
-        'sync_copy_test_no_prefix_sse_b2': sync_copy_test_no_prefix_sse_b2,
-        'sync_copy_test_no_prefix_sse_c': sync_copy_test_no_prefix_sse_c,
-        'sync_copy_test_sse_c_single_bucket': sync_copy_test_sse_c_single_bucket,
-        'download': download_test,
-        'default_sse_b2': default_sse_b2_test,
-        'sse_b2': sse_b2_test,
-        'sse_c': sse_c_test,
+        # 'account': account_test,
+        # 'basic': basic_test,
+        'file_lock': file_lock_test,
+        # 'keys': key_restrictions_test,
+        # 'sync_down': sync_down_test,
+        # 'sync_down_sse_c': sync_down_sse_c_test_no_prefix,
+        # 'sync_down_no_prefix': sync_down_test_no_prefix,
+        # 'sync_up': sync_up_test,
+        # 'sync_up_sse_b2': sync_up_sse_b2_test,
+        # 'sync_up_sse_c': sync_up_sse_c_test,
+        # 'sync_up_no_prefix': sync_up_test_no_prefix,
+        # 'sync_long_path': sync_long_path_test,
+        # 'sync_copy': sync_copy_test,
+        # 'sync_copy_test_no_prefix_default_encryption': sync_copy_test_no_prefix_default_encryption,
+        # # 'sync_copy_test_no_prefix_no_encryption': sync_copy_test_no_prefix_no_encryption, # not supported by the server
+        # 'sync_copy_test_no_prefix_sse_b2': sync_copy_test_no_prefix_sse_b2,
+        # 'sync_copy_test_no_prefix_sse_c': sync_copy_test_no_prefix_sse_c,
+        # 'sync_copy_test_sse_c_single_bucket': sync_copy_test_sse_c_single_bucket,
+        # 'download': download_test,
+        # 'default_sse_b2': default_sse_b2_test,
+        # 'sse_b2': sse_b2_test,
+        # 'sse_c': sse_c_test,
     }
 
     args = parse_args(tests=sorted(test_map))
