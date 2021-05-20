@@ -29,9 +29,10 @@ import threading
 import pytest
 from typing import Optional
 
+from b2.console_tool import current_time_millis
 from b2sdk.v1 import B2Api, InMemoryAccountInfo, InMemoryCache, fix_windows_path_limit
 from b2sdk.v1 import EncryptionAlgorithm, EncryptionMode, EncryptionSetting, EncryptionKey, SSE_C_KEY_ID_FILE_INFO_KEY_NAME
-from b2sdk.v1 import BucketRetentionSetting, FileLockConfiguration, RetentionMode, RetentionPeriod
+from b2sdk.v1 import BucketRetentionSetting, FileLockConfiguration, LegalHold, RetentionMode, RetentionPeriod, FileRetentionSetting, NO_RETENTION_FILE_SETTING
 
 SSE_NONE = EncryptionSetting(mode=EncryptionMode.NONE,)
 SSE_B2_AES = EncryptionSetting(
@@ -240,13 +241,36 @@ class Api:
         buckets = self.api.list_buckets()
         for bucket in buckets:
             if bucket.name.startswith(self.bucket_name_prefix):
-                print('Removing bucket:', bucket.name)
+                print('Trying to remove bucket:', bucket.name)
+                files_leftover = False
                 file_versions = bucket.ls(show_versions=True, recursive=True)
                 for file_version_info, _ in file_versions:
+                    if file_version_info.file_retention:
+                        if file_version_info.file_retention.mode == RetentionMode.GOVERNANCE:
+                            print('Removing retention from file version:', file_version_info.id_)
+                            self.api.update_file_retention(file_version_info.id_, file_version_info.file_name,
+                                                           NO_RETENTION_FILE_SETTING, True)
+                        elif file_version_info.file_retention.mode == RetentionMode.COMPLIANCE:
+                            if file_version_info.file_retention.retain_until > current_time_millis():
+                                print('File version: %s cannot be removed due to compliance mode retention' % (file_version_info.id_,))
+                                files_leftover = True
+                                continue
+                        elif file_version_info.file_retention.mode == RetentionMode.NONE:
+                            pass
+                        else:
+                            raise ValueError('Unknown retention mode: %s' % (file_version_info.file_retention.mode,))
+                    if file_version_info.legal_hold.is_on():
+                        print('Removing legal hold from file version:', file_version_info.id_)
+                        self.api.update_file_legal_hold(file_version_info.id_, file_version_info.file_name,
+                                                        LegalHold.OFF)
                     print('Removing file version:', file_version_info.id_)
                     self.api.delete_file_version(file_version_info.id_, file_version_info.file_name)
 
-                self.api.delete_bucket(bucket)
+                if files_leftover:
+                    print('Unable to remove bucket because some retained files remain')
+                else:
+                    print('Removing bucket:', bucket.name)
+                    self.api.delete_bucket(bucket)
                 print()
 
 
@@ -1590,12 +1614,6 @@ def file_lock_test(b2_tool, bucket_name):
             'create-bucket', lock_bucket_name, 'allPrivate', '--fileLockEnabled',
         ],
     )
-    b2_tool.should_succeed(
-        [
-            'update-bucket', lock_bucket_name, 'allPrivate', '--defaultRetentionMode', 'governance',
-            '--defaultRetentionPeriod', '1 days'
-        ],
-    )
     updated_bucket = b2_tool.should_succeed_json(
         [
             'update-bucket', lock_bucket_name, 'allPrivate', '--defaultRetentionMode', 'governance',
@@ -1610,6 +1628,62 @@ def file_lock_test(b2_tool, bucket_name):
     )
     assert expected_file_lock_configuration == new_file_lock_configuration
 
+    file_to_upload = 'README.md'
+
+    uploaded_file = b2_tool.should_succeed_json(
+        ['upload-file', '--noProgress', '--quiet', lock_bucket_name, file_to_upload, 'a']
+    )
+    now_millis = current_time_millis()
+    one_hour_millis = 60 * 60 * 1000
+    one_day_millis = one_hour_millis * 24
+    b2_tool.should_succeed(
+        ['update-file-retention', uploaded_file['fileName'], uploaded_file['fileId'], RetentionMode.GOVERNANCE.value,
+         str(now_millis + one_day_millis + one_hour_millis)]
+    )
+
+    _assert_file_version_retention(b2_tool, uploaded_file['fileId'], RetentionMode.GOVERNANCE,
+                                   now_millis + one_day_millis + one_hour_millis)
+
+    b2_tool.should_succeed(
+        ['update-file-retention', uploaded_file['fileId'], RetentionMode.GOVERNANCE.value,
+         str(now_millis + one_day_millis + 2 * one_hour_millis)]
+    )
+
+    _assert_file_version_retention(b2_tool, uploaded_file['fileId'], RetentionMode.GOVERNANCE, now_millis + one_day_millis + 2 * one_hour_millis)
+
+    b2_tool.should_fail(
+        ['update-file-retention', uploaded_file['fileId'], RetentionMode.GOVERNANCE.value,
+         str(now_millis + one_hour_millis)],
+        "ERROR: Auth token not authorized to write retention or file already in 'compliance' mode or bypassGovernance=true parameter missing",
+    )
+    b2_tool.should_succeed(
+        ['update-file-retention', uploaded_file['fileId'], RetentionMode.GOVERNANCE.value,
+         str(now_millis + one_hour_millis), '--bypassGovernance'],
+    )
+
+    _assert_file_version_retention(b2_tool, uploaded_file['fileId'], RetentionMode.GOVERNANCE, now_millis + one_hour_millis)
+
+    b2_tool.should_succeed(
+        ['update-file-legal-hold', uploaded_file['fileId'], LegalHold.ON.value],
+    )
+
+    file_version = b2_tool.should_succeed_json(['get-file-info', uploaded_file['fileId']])
+    actual_file_retention = LegalHold.from_file_version_dict(file_version)
+    assert LegalHold.ON == actual_file_retention
+
+    b2_tool.should_succeed(
+        ['update-file-legal-hold', uploaded_file['fileId'], LegalHold.OFF.value],
+    )
+
+    file_version = b2_tool.should_succeed_json(['get-file-info', uploaded_file['fileId']])
+    actual_file_retention = LegalHold.from_file_version_dict(file_version)
+    assert LegalHold.OFF == actual_file_retention
+
+
+
+
+
+
 
     # bad_key_name = 'clt-testKey-01' + random_hex(6)
     # b2_tool.should_succeed(
@@ -1619,6 +1693,14 @@ def file_lock_test(b2_tool, bucket_name):
     #         'listFiles,listBuckets,readFiles,writeKeys',
     #     ]
     # )
+
+
+def _assert_file_version_retention(b2_tool, file_id, retention_mode, retain_until):
+    file_version = b2_tool.should_succeed_json(['get-file-info', file_id])
+    actual_file_retention = FileRetentionSetting.from_file_version_dict(file_version)
+    expected_file_retention = FileRetentionSetting(retention_mode, retain_until)
+    assert expected_file_retention == actual_file_retention
+
 
 def main(bucket_name_prefix):
     test_map = {  # yapf: disable

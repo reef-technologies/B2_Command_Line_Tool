@@ -43,6 +43,7 @@ from b2sdk.v1 import (
     CompareVersionMode,
     KeepOrDeleteMode,
     DownloadDestLocalFile,
+    PreSeekedDownloadDest,
     FileVersionInfo,
     SqliteAccountInfo,
     ScanPoliciesManager,
@@ -1810,7 +1811,7 @@ class UpdateBucket(DefaultSseMixin, Command):
     Requires capability:
 
     - **writeBuckets**
-    - **readBucketEncryption**  TODO: -really? I think not
+    - **readBucketEncryption**
 
     and for some operations:
 
@@ -1971,7 +1972,7 @@ class UpdateFileLegalHold(Command):
         else:
             file_name = self._get_file_name_from_file_id(args.fileId)
 
-        legal_hold = LegalHold.from_string(args.legalHold)
+        legal_hold = LegalHold(args.legalHold)
 
         self.api.update_file_legal_hold(args.fileId, file_name, legal_hold)
         return 0
