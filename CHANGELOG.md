@@ -8,9 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add integration test for sync within one bucket with different encryption
+* File lock arguments and new commands
 
 ### Fixed
 * Fixed breaking integration test case
+* Removing old buckets in integration tests
 
 ## [2.4.0] - 2021-04-22
 
