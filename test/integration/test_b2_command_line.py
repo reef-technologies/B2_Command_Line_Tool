@@ -2135,7 +2135,8 @@ def main(realm, general_bucket_name_prefix, this_run_bucket_name_prefix):
 
 
 def cleanup_hook(
-    application_key_id, application_key, realm, general_bucket_name_prefix, this_run_bucket_name_prefix
+    application_key_id, application_key, realm, general_bucket_name_prefix,
+    this_run_bucket_name_prefix
 ):
     print()
     print('#')
@@ -2167,13 +2168,14 @@ def test_integration(sut, cleanup):
     general_bucket_name_prefix = 'test-b2-cli-'
     this_run_bucket_name_prefix = general_bucket_name_prefix + random_hex(8)
 
-    if cleanup:
-        atexit.register(
-            cleanup_hook, application_key_id, application_key, realm,
-            general_bucket_name_prefix, this_run_bucket_name_prefix
-        )
-
-    main(realm, general_bucket_name_prefix, this_run_bucket_name_prefix)
+    try:
+        main(realm, general_bucket_name_prefix, this_run_bucket_name_prefix)
+    finally:
+        if cleanup:
+            cleanup_hook(
+                application_key_id, application_key, realm, general_bucket_name_prefix,
+                this_run_bucket_name_prefix
+            )
 
 
 if __name__ == '__main__':
