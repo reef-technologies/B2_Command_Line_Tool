@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Add possibility to change realm during integration tests
 * Add possibility to install SDK from local folder instead of pypi when running tests
+* Nothing
 
 ### Fixed
 * Fix integration tests on non-production environments
