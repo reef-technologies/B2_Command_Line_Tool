@@ -1506,18 +1506,35 @@ class Ls(Command):
         )
 
         if args.json:
-            self._print_json([file_version_info for file_version_info, _ in generator])
+            self._print_json([file_version for file_version, _ in generator])
             return 0
 
-        for file_version_info, folder_name in generator:
+        for file_version, folder_name in generator:
             if not args.long:
-                self._print(folder_name or file_version_info.file_name)
+                self._print(folder_name or file_version.file_name)
             elif folder_name is not None:
-                self._print(FileVersionInfo.format_folder_ls_entry(folder_name))
+                self._print(self.format_folder_ls_entry(folder_name))
             else:
-                self._print(file_version_info.format_ls_entry())
+                self._print(self.format_ls_entry(file_version))
 
         return 0
+
+    def format_folder_ls_entry(self, name):
+        return self.LS_ENTRY_TEMPLATE % ('-', '-', '-', '-', 0, name)
+
+    def format_ls_entry(self, file_version: FileVersion):
+        dt = datetime.datetime.utcfromtimestamp(file_version.upload_timestamp / 1000)
+        date_str = dt.strftime('%Y-%m-%d')
+        time_str = dt.strftime('%H:%M:%S')
+        size = file_version.size or 0  # required if self.action == 'hide'
+        return self.LS_ENTRY_TEMPLATE % (
+            file_version.id_,
+            file_version.action,
+            date_str,
+            time_str,
+            size,
+            file_version.file_name,
+        )
 
 
 @B2.register_subcommand
