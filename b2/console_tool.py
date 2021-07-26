@@ -400,7 +400,7 @@ class FileIdAndOptionalFileNameMixin(Described):
         if args.fileName is not None:
             return args.fileName
         file_info = self.api.get_file_info(args.fileId)
-        return file_info['fileName']
+        return file_info.file_name
 
 
 class Command(Described):
@@ -1226,8 +1226,8 @@ class GetFileInfo(Command):
         parser.add_argument('fileId')
 
     def run(self, args):
-        response = self.api.get_file_info(args.fileId)
-        self._print_json(response)
+        file_version = self.api.get_file_info(args.fileId)
+        self._print_json(file_version)
         return 0
 
 
@@ -1515,6 +1515,8 @@ class Ls(Command):
 
     - **listFiles**
     """
+
+    LS_ENTRY_TEMPLATE = '%83s  %6s  %10s  %8s  %9d  %s'  # order is file_id, action, date, time, size, name
 
     @classmethod
     def _setup_parser(cls, parser):
