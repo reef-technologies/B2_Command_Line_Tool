@@ -30,9 +30,10 @@ import pytest
 from typing import Optional
 
 from b2.console_tool import current_time_millis
-from b2sdk.v1 import B2Api, Bucket, InMemoryAccountInfo, InMemoryCache, fix_windows_path_limit
-from b2sdk.v1 import EncryptionAlgorithm, EncryptionMode, EncryptionSetting, EncryptionKey, SSE_C_KEY_ID_FILE_INFO_KEY_NAME
-from b2sdk.v1 import BucketRetentionSetting, FileLockConfiguration, LegalHold, RetentionMode, RetentionPeriod, FileRetentionSetting, NO_RETENTION_FILE_SETTING
+from b2sdk.v2 import B2Api, Bucket, InMemoryAccountInfo, InMemoryCache, fix_windows_path_limit, SqliteAccountInfo
+from b2sdk.v2 import EncryptionAlgorithm, EncryptionMode, EncryptionSetting, EncryptionKey
+from b2sdk.http_constants import SSE_C_KEY_ID_FILE_INFO_KEY_NAME
+from b2sdk.v2 import UNKNOWN_FILE_RETENTION_SETTING, LegalHold, RetentionMode, FileRetentionSetting, NO_RETENTION_FILE_SETTING
 
 SSE_NONE = EncryptionSetting(mode=EncryptionMode.NONE,)
 SSE_B2_AES = EncryptionSetting(
