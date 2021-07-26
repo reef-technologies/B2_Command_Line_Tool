@@ -372,7 +372,9 @@ class SourceSseMixin(Described):
                         'Using SSE-C requires providing an encryption key via %s env var' %
                         B2_SOURCE_SSE_C_KEY_B64_ENV_VAR
                     )
-                key = EncryptionKey(secret=base64.b64decode(encryption_key_b64), key_id=None)
+                key = EncryptionKey(
+                    secret=base64.b64decode(encryption_key_b64), key_id=UNKNOWN_KEY_ID
+                )
             else:
                 raise NotImplementedError(
                     'Encryption modes other than %s are not supported in reads' %
