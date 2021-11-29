@@ -20,9 +20,11 @@ import locale
 import logging
 import logging.config
 import os
+import pathlib
 import platform
 import re
 import signal
+import subprocess
 import sys
 import time
 from tabulate import tabulate
@@ -30,6 +32,7 @@ from tabulate import tabulate
 from typing import Optional, Tuple, List, Any, Dict
 from enum import Enum
 
+import b2sdk
 from b2sdk.v2 import (
     ALL_CAPABILITIES,
     B2_ACCOUNT_INFO_DEFAULT_FILE,
@@ -69,6 +72,7 @@ from b2sdk.v2 import (
     Synchronizer,
     SyncReport,
     current_time_millis,
+    get_included_sources,
     make_progress_listener,
     parse_sync_folder,
     ReplicationMonitor,
@@ -94,6 +98,10 @@ from b2.arg_parser import (
 )
 from b2.json_encoder import B2CliJsonEncoder
 from b2.version import VERSION
+
+import piplicenses
+import prettytable
+import rst2ansi
 
 logger = logging.getLogger(__name__)
 
@@ -2624,6 +2632,102 @@ class Version(Command):
     def run(self, args):
         self._print('b2 command line tool, version', VERSION)
         return 0
+
+
+@B2.register_subcommand
+class License(Command):
+    """
+    Prints the license of B2 Command line tool and all libraries shipped with it.
+    """
+
+    REQUIRES_AUTH = False
+
+    def __init__(self, console_tool):
+        super().__init__(console_tool)
+        self._ignore_modules = {'b2', 'distlib'}
+        self._modules_to_override_license_text = {
+            'rst2ansi', 'b2sdk'
+        }  # in case of some modules, we provide manual
+        # overrides to the license text extracted by piplicenses. Thanks to this set, we make sure the module is
+        # still used
+
+    def run(self, args):
+
+        licenses_output = subprocess.check_output(
+            [
+                'pip-licenses', '--format=j', '--with-system', '--with-authors', '--with-urls',
+                '--with-license-file'
+            ]
+        ).decode()
+        licenses = json.loads(licenses_output)
+
+        license_table = prettytable.PrettyTable(
+            ['Module name', 'License text'], hrules=prettytable.ALL
+        )
+        summary_table = prettytable.PrettyTable(
+            ['Module name', 'Version', 'License', 'Author', 'URL'], hrules=prettytable.ALL
+        )
+
+        for module_info in licenses:
+            if module_info['Name'] in self._ignore_modules:
+                continue
+            summary_table.add_row(
+                [
+                    module_info['Name'], module_info['Version'],
+                    module_info['License'].replace(';',
+                                                   '\n'), module_info['Author'], module_info['URL']
+                ]
+            )
+            license_table.add_row([module_info['Name'], self._get_license_text(module_info)])
+
+        assert not self._modules_to_override_license_text, str(
+            self._modules_to_override_license_text
+        )
+        self._print('Licenses of all modules used by %s, shipped with it in binary form:' % (NAME,))
+        self._print(str(license_table))
+        self._print(
+            '\n\nSummary of all modules used by %s, shipped with it in binary form:' % (NAME,)
+        )
+        self._print(str(summary_table))
+
+        included_sources = get_included_sources()
+        if included_sources:
+            self._print(
+                '\n\nThird party libraries modified and included in %s or %s' %
+                (NAME, b2sdk.__name__)
+            )
+        for src in included_sources:
+            self._print()
+            self._print(src.name)
+            self._print(src.comment)
+            self._print('Files included for legal compliance reasons:')
+            files_table = prettytable.PrettyTable(['File name', 'Content'], hrules=prettytable.ALL)
+            for file_name, file_content in src.files.items():
+                files_table.add_row([file_name, file_content])
+            self._print(str(files_table))
+        self._print('\n\n%s license:' % (NAME,))
+        with (pathlib.Path(__file__).parent / 'LICENSE').open() as b2_license_file:
+            self._print(b2_license_file.read())
+
+        return 0
+
+    def _get_license_text(self, module_dict: dict):
+        license_ = module_dict['LicenseText']
+        module_name = module_dict['Name']
+        if module_name == 'rst2ansi':
+            # this one module is problematic, we need to extract the license text from it's docstring
+            assert license_ == piplicenses.LICENSE_UNKNOWN  # let's make sure they didn't fix it
+            self._modules_to_override_license_text.remove('rst2ansi')
+            license_ = rst2ansi.__doc__
+            assert 'MIT License' in license_  # let's make sure the license is still there
+        elif module_name == 'b2sdk':
+            self._modules_to_override_license_text.remove('b2sdk')
+            with (pathlib.Path(b2sdk.__file__).parent / 'LICENSE').open() as license_file:
+                license_ = license_file.read()
+
+        assert license_ != piplicenses.LICENSE_UNKNOWN, module_name
+
+        return license_
 
 
 class ConsoleTool(object):
