@@ -1107,7 +1107,7 @@ class DownloadFileById(SourceSseMixin, Command):
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--noProgress', action='store_true')
-        parser.add_argument('--threads', type=int)
+        parser.add_argument('--threads', type=int, default=10)
         parser.add_argument('fileId')
         parser.add_argument('localFileName')
         super()._setup_parser(parser)
@@ -1116,7 +1116,8 @@ class DownloadFileById(SourceSseMixin, Command):
         progress_listener = make_progress_listener(args.localFileName, args.noProgress)
         encryption_setting = self._get_source_sse_setting(args)
         if args.threads:
-            # FIXME: This is using non-public API. It should be done via B2Api constructor.
+            # FIXME: This is using deprecated API. It should be be replaced when moving to b2sdk apiver 3.
+            #        There is `max_download_workers` param in B2Api constructor for this.
             self.api.services.download_manager.set_thread_pool_size(args.threads)
         downloaded_file = self.api.download_file_by_id(
             args.fileId, progress_listener, encryption=encryption_setting
@@ -1146,7 +1147,7 @@ class DownloadFileByName(SourceSseMixin, Command):
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--noProgress', action='store_true')
-        parser.add_argument('--threads', type=int)
+        parser.add_argument('--threads', type=int, default=10)
         parser.add_argument('bucketName')
         parser.add_argument('b2FileName')
         parser.add_argument('localFileName')
@@ -1154,7 +1155,8 @@ class DownloadFileByName(SourceSseMixin, Command):
 
     def run(self, args):
         if args.threads:
-            # FIXME: This is using non-public API. It should be done via B2Api constructor.
+            # FIXME: This is using deprecated API. It should be be replaced when moving to b2sdk apiver 3.
+            #        There is `max_download_workers` param in B2Api constructor for this.
             self.api.services.download_manager.set_thread_pool_size(args.threads)
         bucket = self.api.get_bucket_by_name(args.bucketName)
         progress_listener = make_progress_listener(args.localFileName, args.noProgress)
@@ -1837,8 +1839,10 @@ class Sync(DestinationSseMixin, SourceSseMixin, Command):
     def run(self, args):
         policies_manager = self.get_policies_manager_from_args(args)
 
-        # FIXME: This is using non-public API. It should be done via B2Api constructor.
+        # FIXME: This is using deprecated API. It should be be replaced when moving to b2sdk apiver 3.
+        #        There are `max_X_workers` params in B2Api constructor for this.
         self.api.services.upload_manager.set_thread_pool_size(args.threads)
+        self.api.services.download_manager.set_thread_pool_size(args.threads)
 
         source = parse_sync_folder(args.source, self.console_tool.api)
         destination = parse_sync_folder(args.destination, self.console_tool.api)
@@ -2088,7 +2092,8 @@ class UploadFile(DestinationSseMixin, LegalHoldMixin, FileRetentionSettingMixin,
                 int(os.path.getmtime(args.localFilePath) * 1000)
             )
 
-        # FIXME: This is using non-public API. It should be done via B2Api constructor.
+        # FIXME: This is using deprecated API. It should be be replaced when moving to b2sdk apiver 3.
+        #        There is `max_upload_workers` param in B2Api constructor for this.
         self.api.services.upload_manager.set_thread_pool_size(args.threads)
 
         bucket = self.api.get_bucket_by_name(args.bucketName)
