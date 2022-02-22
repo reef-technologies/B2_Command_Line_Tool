@@ -8,10 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add `--threads` parameter to `download-file-by-name` and `download-file-by-id` 
-* Add `--uploadThreads` and `--downloadThreads` parameters for `--sync`
-
-### Changed
-* Rename `--threads` parameter for `--sync` to `--syncThreads`
+* Add `--syncThreads`, `--uploadThreads`, and `--downloadThreads` parameters for `--sync`
 
 ## [3.2.0] - 2021-12-23
 
