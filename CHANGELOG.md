@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add `--threads` parameter to `download-file-by-name` and `download-file-by-id` 
-* Add `--syncThreads`, `--uploadThreads`, and `--downloadThreads` parameters for `--sync`
+* Add `--syncThreads`, `--uploadThreads`, and `--downloadThreads` parameters to `sync`
 
 ## [3.2.0] - 2021-12-23
 
@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * Fallback to `ascii` decoder when printing help in case the locales are not properly set
-* Make `--threads` parameter for `sync` apply to downloader threads as well
+* Apply the value of `--threads` parameter to `sync` downloader threads
 
 ## [3.1.0] - 2021-11-02
 
