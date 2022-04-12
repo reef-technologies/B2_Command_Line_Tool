@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Add `--profile` switch support
 
+### Removed
+* Remove official support for python 3.5
+* Remove official support for python 3.6
+
 ## [3.2.1] - 2022-02-23
 
 ### Fixed
@@ -75,9 +79,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Downloaded file's metadata is complete and is displayed before the file is downloaded, a `Download finished` message
   is issued at the end
 * `contentLength` changed to `size` where appropriate
-* Log configuration: stack traces are not printed in case of errors by default, `--verbose` changes that 
+* Log configuration: stack traces are not printed in case of errors by default, `--verbose` changes that
 * Log configuration arguments behaviour altered: `--logConfig` is exclusive with `--verbose` and `--debugLogs`
-* Log configuration arguments behaviour altered: `--verbose` and `--debugLogs` can be used at the same time 
+* Log configuration arguments behaviour altered: `--verbose` and `--debugLogs` can be used at the same time
   (and they will both be taken into account)
 
 ### Removed
@@ -123,7 +127,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.0] - 2021-03-15
 
 ### Added
-* Option to automatically authorize account when running commands other than `authorize-account` via 
+* Option to automatically authorize account when running commands other than `authorize-account` via
   `B2_APPLICATION_KEY_ID` and `B2_APPLICATION_KEY` env vars
 
 ### Changed
@@ -189,8 +193,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Make parameters of `list-file-names` and `list-file-versions` optional (use an empty string like this: `""`)
 * (b2sdk) Fix sync when used with a key restricted to filename prefix
-* When authorizing with application keys, optional application key ID and 
-  application key can be added using environment variables 
+* When authorizing with application keys, optional application key ID and
+  application key can be added using environment variables
   B2_APPLICATION_KEY_ID and B2_APPLICATION_KEY respectively.
 
 ## [1.4.0] - 2019-04-25
