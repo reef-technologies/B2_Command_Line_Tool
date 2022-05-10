@@ -498,6 +498,10 @@ class Command(Described):
                 common_parser.add_argument('--verbose', action='store_true', help=argparse.SUPPRESS)
                 common_parser.add_argument('--logConfig', help=argparse.SUPPRESS)
                 common_parser.add_argument('--profile', default=None)
+                common_parser.add_argument('--write-buffer-size', type=int, help=argparse.SUPPRESS)
+                common_parser.add_argument(
+                    '--check-download-hash', action='store_true', help=argparse.SUPPRESS
+                )
                 parents = [common_parser]
 
             subparsers = parser.add_subparsers(prog=parser.prog, title='usages', dest='command')
@@ -2355,26 +2359,36 @@ class ConsoleTool(object):
         args = B2.get_parser().parse_args(argv[1:])
         self._setup_logging(args, argv)
 
-        b2_api_kwargs = {
-            'api_config':
-                B2HttpApiConfig(user_agent_append=os.environ.get(B2_USER_AGENT_APPEND_ENV_VAR)),
-        }
-
-        if args.profile:
-            if self.api:
-                self._print_stderr('ERROR: cannot switch profile on already initialized object')
+        if self.api:
+            if args.profile or args.write_buffer_size or args.check_download_hash:
+                self._print_stderr(
+                    'ERROR: cannot change configuration on already initialized object'
+                )
                 return 1
 
-            account_info = SqliteAccountInfo(profile=args.profile)
-            logger.info('Using profile "%s" (%s)', args.profile, account_info.filename)
-            b2_api_kwargs.update(
-                {
-                    'account_info': account_info,
-                    'cache': AuthInfoCache(account_info),
-                }
-            )
+        else:
+            b2_api_kwargs = {
+                'api_config':
+                    B2HttpApiConfig(user_agent_append=os.environ.get(B2_USER_AGENT_APPEND_ENV_VAR)),
+            }
 
-        self.api = self.api or B2Api(**b2_api_kwargs)
+            if args.profile:
+                account_info = SqliteAccountInfo(profile=args.profile)
+                logger.info('Using profile "%s" (%s)', args.profile, account_info.filename)
+                b2_api_kwargs.update(
+                    {
+                        'account_info': account_info,
+                        'cache': AuthInfoCache(account_info),
+                    }
+                )
+
+            if args.write_buffer_size:
+                b2_api_kwargs['save_to_buffer_size'] = args.write_buffer_size
+
+            if args.check_download_hash:
+                b2_api_kwargs['check_download_hash'] = True
+
+            self.api = B2Api(**b2_api_kwargs)
 
         b2_command = B2(self)
         command_class = b2_command.run(args)
