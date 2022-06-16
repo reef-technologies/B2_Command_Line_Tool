@@ -2410,6 +2410,10 @@ class ReplicationStatus(Command):
     """
     Inspects files in only source or both source and destination buckets
     (potentially from different accounts) and provides detailed replication statistics.
+
+    "Console" output format is meant to be human-readable and is subject to change
+    in any further release. One should use "json" for reliable "no-breaking-changes"
+    output format.
     """
 
     @classmethod
@@ -2419,7 +2423,7 @@ class ReplicationStatus(Command):
         parser.add_argument('--rule', metavar='REPLICATION_RULE_NAME', default=None)
         parser.add_argument('--destination-profile', default=None)
         parser.add_argument('--dont-scan-destination', action='store_true')
-        parser.add_argument('--output-format', default='table', choices=('table', 'json'))
+        parser.add_argument('--output-format', default='console', choices=('console', 'json'))
 
     def run(self, args):
         destination_api = args.destination_profile and _get_b2api_for_profile(
@@ -2431,7 +2435,6 @@ class ReplicationStatus(Command):
         except IndexError:
             self._print_stderr(f'ERROR: bucket "{args.source}" not found')
             return 1
-
 
         rules = bucket.replication.rules
         if args.rule:
@@ -2458,7 +2461,7 @@ class ReplicationStatus(Command):
 
         if args.output_format == 'json':
             self._print_json(results_by_rule_name)
-        elif args.output_format == 'table':
+        elif args.output_format == 'console':
             for rule_name, rule_results in results_by_rule_name.items():
                 self._print(f'Replication "{rule_name}":')
                 rule_results = [
