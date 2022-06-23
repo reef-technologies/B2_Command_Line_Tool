@@ -2693,7 +2693,7 @@ class License(Command):
         included_sources = get_included_sources()
         if included_sources:
             self._print(
-                '\n\nThird party libraries modified and included in %s or %s' %
+                '\n\nThird party libraries modified and included in %s or %s:' %
                 (NAME, b2sdk.__name__)
             )
         for src in included_sources:
