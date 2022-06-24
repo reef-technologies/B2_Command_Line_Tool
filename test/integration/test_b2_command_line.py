@@ -1820,7 +1820,7 @@ def file_lock_without_perms_test(
     )
 
 
-def test_profile_switch(b2_tool):
+def test_profile_switch(b2_tool, profile_env_var_inhibitor):
     # this test could be unit, but it adds a lot of complexity because of
     # necessarity to pass mocked B2Api to ConsoleTool; it's much easier to
     # just have an integration test instead
@@ -1840,45 +1840,12 @@ def test_profile_switch(b2_tool):
     b2_tool.should_succeed(['clear-account'])
     b2_tool.should_fail(['get-account-info'], expected_pattern=MISSING_ACCOUNT_PATTERN)
 
-    # in order to use --profile flag, we need to temporary
-    # delete B2_ACCOUNT_INFO_ENV_VAR
-    B2_ACCOUNT_INFO = os.environ.pop(B2_ACCOUNT_INFO_ENV_VAR, None)
-
-    # now authorize a different account
-    profile = 'profile-for-test-' + random_hex(6)
-    b2_tool.should_fail(
-        ['get-account-info', '--profile', profile],
-        expected_pattern=MISSING_ACCOUNT_PATTERN,
-    )
-    b2_tool.should_succeed(
-        [
-            'authorize-account',
-            '--environment',
-            b2_tool.realm,
-            '--profile',
-            profile,
-            b2_tool.account_id,
-            b2_tool.application_key,
-        ]
-    )
-
     account_info = b2_tool.should_succeed_json(['get-account-info', '--profile', profile])
     account_file_path = account_info['accountFilePath']
     assert profile in account_file_path, \
         'accountFilePath "{}" should contain profile name "{}"'.format(
             account_file_path, profile,
         )
-
-    b2_tool.should_succeed(['clear-account', '--profile', profile])
-    b2_tool.should_fail(
-        ['get-account-info', '--profile', profile],
-        expected_pattern=MISSING_ACCOUNT_PATTERN,
-    )
-    os.remove(account_file_path)
-
-    # restore B2_ACCOUNT_INFO_ENV_VAR, if existed
-    if B2_ACCOUNT_INFO:
-        os.environ[B2_ACCOUNT_INFO_ENV_VAR] = B2_ACCOUNT_INFO
 
 
 def test_replication_basic(b2_tool, bucket_name):
@@ -1907,6 +1874,34 @@ def test_replication_basic(b2_tool, bucket_name):
 
     # test that by default there's no `replicationConfiguration` key
     assert 'replicationConfiguration' not in destination_bucket
+
+    # ---------------- set up replication destination ----------------
+
+    # update destination bucket info
+    destination_replication_configuration = {
+        'asReplicationSource': None,
+        'asReplicationDestination': {
+            'sourceToDestinationKeyMapping': {
+                key_one_id: key_two_id,
+            },
+        },
+    }
+    destination_replication_configuration_json = json.dumps(destination_replication_configuration)
+    destination_bucket = b2_tool.should_succeed_json(
+        [
+            'update-bucket',
+            destination_bucket_name,
+            'allPublic',
+            '--replication',
+            destination_replication_configuration_json,
+        ]
+    )
+
+    # test that destination bucket is registered as replication destination
+    assert destination_bucket['replication'].get('asReplicationSource') is None
+    assert destination_bucket['replication'
+                             ]['asReplicationDestination'
+                              ] == destination_replication_configuration['asReplicationDestination']
 
     # ---------------- set up replication source ----------------
     source_replication_configuration = {
@@ -1956,34 +1951,6 @@ def test_replication_basic(b2_tool, bucket_name):
 
     # test that source bucket is not mentioned as replication destination
     assert source_bucket['replication'].get('asReplicationDestination') is None
-
-    # ---------------- set up replication destination ----------------
-
-    # update destination bucket info
-    destination_replication_configuration = {
-        'asReplicationSource': None,
-        'asReplicationDestination': {
-            'sourceToDestinationKeyMapping': {
-                key_one_id: key_two_id,
-            },
-        },
-    }
-    destination_replication_configuration_json = json.dumps(destination_replication_configuration)
-    destination_bucket = b2_tool.should_succeed_json(
-        [
-            'update-bucket',
-            destination_bucket_name,
-            'allPublic',
-            '--replication',
-            destination_replication_configuration_json,
-        ]
-    )
-
-    # test that destination bucket is registered as replication destination
-    assert destination_bucket['replication'].get('asReplicationSource') is None
-    assert destination_bucket['replication'
-                             ]['asReplicationDestination'
-                              ] == destination_replication_configuration['asReplicationDestination']
 
     # ---------------- remove replication source ----------------
 
@@ -2087,23 +2054,56 @@ def test_replication_setup(b2_tool, bucket_name):
             'asReplicationDestination']['sourceToDestinationKeyMapping']
 
 
-def test_replication_monitoring(b2_tool, bucket_name):
+def test_replication_monitoring(b2_tool, bucket_name, profile):
 
+    # ---------------- set up keys ----------------
     key_one_name = 'clt-testKey-01' + random_hex(6)
     created_key_stdout = b2_tool.should_succeed(
         [
             'create-key',
             key_one_name,
-            'listBuckets,readFiles,writeFiles',
+            'listBuckets,readFiles',
         ]
     )
     key_one_id, _ = created_key_stdout.split()
 
-    destination_bucket_name = bucket_name
-    destination_bucket = b2_tool.should_succeed_json(['get-bucket', destination_bucket_name])
+    key_two_name = 'clt-testKey-02' + random_hex(6)
+    created_key_stdout = b2_tool.should_succeed(
+        [
+            'create-key',
+            key_two_name,
+            'listBuckets,writeFiles',
+        ]
+    )
+    key_two_id, _ = created_key_stdout.split()
 
-    # test that by default there's no `replicationConfiguration` key
-    assert 'replicationConfiguration' not in destination_bucket
+    # ---------------- add test data ----------------
+    destination_bucket_name = bucket_name
+    uploaded_a = b2_tool.should_succeed_json(
+        ['upload-file', '--noProgress', '--quiet', destination_bucket_name, 'README.md', 'one/a']
+    )
+
+    # ---------------- set up replication destination ----------------
+
+    # update destination bucket info
+    destination_replication_configuration = {
+        'asReplicationSource': None,
+        'asReplicationDestination': {
+            'sourceToDestinationKeyMapping': {
+                key_one_id: key_two_id,
+            },
+        },
+    }
+    destination_replication_configuration_json = json.dumps(destination_replication_configuration)
+    destination_bucket = b2_tool.should_succeed_json(
+        [
+            'update-bucket',
+            destination_bucket_name,
+            'allPublic',
+            '--replication',
+            destination_replication_configuration_json,
+        ]
+    )
 
     # ---------------- set up replication source ----------------
     source_replication_configuration = {
@@ -2146,14 +2146,89 @@ def test_replication_monitoring(b2_tool, bucket_name):
         ]
     )
 
+    # make test data
+    uploaded_a = b2_tool.should_succeed_json(
+        ['upload-file', '--noProgress', '--quiet', source_bucket_name, 'CHANGELOG.md', 'one/a']
+    )
+    uploaded_b = b2_tool.should_succeed_json(
+        [
+            'upload-file',
+            '--noProgress',
+            '--quiet',
+            source_bucket_name,
+            '--legalHold',
+            'on',
+            'README.md',
+            'two/b',
+        ]
+    )
+
+    # encryption
+    ## SSE-B2
+    upload_encryption_args = ['--destinationServerSideEncryption', 'SSE-B2']
+    upload_additional_env = {}
+    uploaded_c = b2_tool.should_succeed_json(
+        ['upload-file', '--noProgress', '--quiet', source_bucket_name, 'README.md', 'two/c'] +
+        upload_encryption_args,
+        additional_env=upload_additional_env,
+    )
+
+    ## SSE-C - TODO: something doesn't work yet
+    #upload_encryption_args = ['--destinationServerSideEncryption', 'SSE-C']
+    #upload_additional_env = {
+    #    'B2_DESTINATION_SSE_C_KEY_B64': base64.b64encode(SSE_C_AES.key.secret).decode(),
+    #    'B2_DESTINATION_SSE_C_KEY_ID': SSE_C_AES.key.key_id,
+    #}
+    #uploaded_d = b2_tool.should_succeed_json(
+    #    ['upload-file', '--noProgress', '--quiet', source_bucket_name, 'README.md', 'two/d'] +
+    #    upload_encryption_args,
+    #    additional_env=upload_additional_env,
+    #)
+
+    # encryption + legal hold
+    uploaded_e = b2_tool.should_succeed_json(
+        [
+            'upload-file',
+            '--noProgress',
+            '--quiet',
+            source_bucket_name,
+            'README.md',
+            'two/e',
+            '--legalHold',
+            'on',
+        ] + upload_encryption_args,
+        additional_env=upload_additional_env,
+    )
+
+    # there is just one file, so clean after itself for faster execution
+    b2_tool.should_succeed(['delete-file-version', uploaded_a['fileName'], uploaded_a['fileId']])
+
     # run stats command
     b2_tool.should_succeed(
         [
             'replication-status',
-            source_bucket_name,
+            '--destination-profile',
+            profile,
             '--noProgress',
-            '--columns=count, hash differs',
-        ]
+            #'--columns=count, hash differs',
+            source_bucket_name,
+        ],
+        """
+Replication "replication-one":
+
+Replication "replication-two":
++---------------+----------+-----------+------------+-------------+----------+---------------+------------+-----------+---------+
+| source        | source   | source    | source     | source      | source   | destination   | metadata   | hash      |   count |
+| replication   | has      | has       | has        | has         | has      | replication   | differs    | differs   |         |
+| status        | hide     | sse       | large      | file        | legal    | status        |            |           |         |
+|               | marker   | c         | metadata   | retention   | hold     |               |            |           |         |
+|               |          | enabled   |            |             |          |               |            |           |         |
++===============+==========+===========+============+=============+==========+===============+============+===========+=========+
+| FAILED        | No       | No        | No         | No          | Yes      |               |            |           |       1 |
++---------------+----------+-----------+------------+-------------+----------+---------------+------------+-----------+---------+
+| PENDING       | No       | No        | No         | No          | Yes      |               |            |           |       1 |
++---------------+----------+-----------+------------+-------------+----------+---------------+------------+-----------+---------+
+"""
     )
 
 

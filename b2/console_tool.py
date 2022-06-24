@@ -2796,7 +2796,10 @@ class InvalidArgument(B2Error):
 
 
 def _get_b2api_for_profile(profile: Optional[str] = None, **kwargs):
+    B2_ACCOUNT_INFO = os.environ.pop(B2_ACCOUNT_INFO_ENV_VAR, None)
     account_info = SqliteAccountInfo(profile=profile)
+    if B2_ACCOUNT_INFO:
+        os.environ[B2_ACCOUNT_INFO_ENV_VAR] = B2_ACCOUNT_INFO
     return B2Api(
         api_config=_get_b2httpapiconfig(),
         account_info=account_info,

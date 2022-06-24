@@ -7,9 +7,10 @@
 # License https://www.backblaze.com/using_b2_code.html
 #
 ######################################################################
+import uuid
 import sys
 
-from os import environ, path
+from os import environ, path, remove
 from pathlib import Path
 from tempfile import TemporaryDirectory, gettempdir
 
@@ -18,7 +19,7 @@ import pytest
 from b2sdk.v2 import B2_ACCOUNT_INFO_ENV_VAR, XDG_CONFIG_HOME_ENV_VAR
 from filelock import FileLock
 
-from .helpers import Api, CommandLine, bucket_name_part
+from .helpers import Api, CommandLine, bucket_name_part, random_hex
 
 
 @pytest.hookimpl
@@ -101,14 +102,20 @@ def b2_api(
     )
 
 
+@pytest.fixture(scope='session', autouse=True)
+def testrun_uid():
+    return str(uuid.uuid4())
+
+
 @pytest.fixture(scope='module', autouse=True)
 def auto_clean_buckets(b2_api, request, testrun_uid):
     """ Automatically clean buckets before and after the whole module testing """
 
-    lock_file = Path(gettempdir()) / f'{testrun_uid}.lock'
+    temp_dir = Path(gettempdir())
+    lock_file = temp_dir / f'{testrun_uid}.lock'
 
     # lock file cannot be used to store info - use another file to track # of active workers
-    worker_count_file = Path(gettempdir()) / f'{testrun_uid}.active-workers-count.txt'
+    worker_count_file = temp_dir / f'{testrun_uid}.active-workers-count.txt'
 
     with FileLock(str(lock_file)):
         if not worker_count_file.is_file():
@@ -149,3 +156,45 @@ def b2_tool(
 def auto_reauthorize(request, b2_tool):
     """ Automatically reauthorize for each test (without check) """
     b2_tool.reauthorize(check_key_capabilities=False)
+
+
+@pytest.fixture
+def profile(b2_tool):
+    MISSING_ACCOUNT_PATTERN = 'Missing account data'
+
+    # in order to use --profile flag, we need to temporary
+    # delete B2_ACCOUNT_INFO_ENV_VAR
+    B2_ACCOUNT_INFO = environ.pop(B2_ACCOUNT_INFO_ENV_VAR, None)
+
+    # now authorize a different account
+    profile = 'profile-for-test-' + random_hex(6)
+    b2_tool.should_fail(
+        ['get-account-info', '--profile', profile],
+        expected_pattern=MISSING_ACCOUNT_PATTERN,
+    )
+    b2_tool.should_succeed(
+        [
+            'authorize-account',
+            '--environment',
+            b2_tool.realm,
+            '--profile',
+            profile,
+            b2_tool.account_id,
+            b2_tool.application_key,
+        ]
+    )
+    account_info = b2_tool.should_succeed_json(['get-account-info', '--profile', profile])
+    account_file_path = account_info['accountFilePath']
+
+    yield profile
+
+    b2_tool.should_succeed(['clear-account', '--profile', profile])
+    b2_tool.should_fail(
+        ['get-account-info', '--profile', profile],
+        expected_pattern=MISSING_ACCOUNT_PATTERN,
+    )
+    remove(account_file_path)
+
+    # restore B2_ACCOUNT_INFO_ENV_VAR, if existed
+    if B2_ACCOUNT_INFO:
+        environ[B2_ACCOUNT_INFO_ENV_VAR] = B2_ACCOUNT_INFO
