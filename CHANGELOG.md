@@ -15,8 +15,12 @@ This version is pinned strictly to `b2-sdk-python==1.17.0` for the same reason.
 * Add `--skip-hash-verification` parameter
 * Add `replication-status` command
 
+### Fixed
+* Reorder `replication-setup` steps to avoid permanent rule failures on interruption
+
 ### Infrastructure
 * Try not to crash tests due to bucket name collision
+* Avoid contention and failures in `SqliteAccountInfo` while running integration tests in parallel
 
 ## [3.4.0] - 2022-05-04
 
