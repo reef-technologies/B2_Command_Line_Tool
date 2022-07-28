@@ -156,8 +156,7 @@ def integration(session):
     """Run integration tests."""
     install_myself(session)
     session.install(*REQUIREMENTS_TEST)
-    #session.run('pytest', '-s', '-x', '-v', '-n', '4', *session.posargs, 'test/integration')
-    session.run('pytest', '-s', '-x', '-v', *session.posargs, 'test/integration')
+    session.run('pytest', '-s', '-x', '-v', '-n', '4', *session.posargs, 'test/integration')
 
 
 @nox.session(python=PYTHON_VERSIONS)
