@@ -2285,7 +2285,7 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
                         "source_has_hide_marker": None,
                         "source_has_large_metadata": None,
                         "source_has_legal_hold": None,
-                        "source_has_sse_c_enabled": None,
+                        "source_encryption_mode": None,
                         "source_replication_status": None,
                     }
                 ],
@@ -2300,7 +2300,7 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
                         "source_has_hide_marker": False,
                         "source_has_large_metadata": False,
                         "source_has_legal_hold": True,
-                        "source_has_sse_c_enabled": False,
+                        "source_encryption_mode": 'none',
                         "source_replication_status": first,
                     }, {
                         "count": 1,
@@ -2311,7 +2311,7 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
                         "source_has_hide_marker": False,
                         "source_has_large_metadata": False,
                         "source_has_legal_hold": False,
-                        "source_has_sse_c_enabled": False,
+                        "source_encryption_mode": 'SSE-B2',
                         "source_replication_status": second,
                     }, {
                         "count": 1,
@@ -2322,7 +2322,7 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
                         "source_has_hide_marker": False,
                         "source_has_large_metadata": False,
                         "source_has_legal_hold": False,
-                        "source_has_sse_c_enabled": True,
+                        "source_encryption_mode": 'SSE-C',
                         "source_replication_status": None,
                     }, {
                         "count": 1,
@@ -2333,7 +2333,7 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
                         "source_has_hide_marker": False,
                         "source_has_large_metadata": False,
                         "source_has_legal_hold": True,
-                        "source_has_sse_c_enabled": True,
+                        "source_encryption_mode": 'SSE-C',
                         "source_replication_status": None,
                     }
                 ]
