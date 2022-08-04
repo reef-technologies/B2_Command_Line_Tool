@@ -190,6 +190,25 @@ def apply_or_none(fcn, value):
         return fcn(value)
 
 
+def to_human_readable(value: Any) -> str:
+    if isinstance(value, Enum):
+        return value.name
+
+    if isinstance(value, bool):
+        return 'Yes' if value else 'No'
+
+    if isinstance(value, Bucket):
+        return value.name
+
+    if isinstance(value, ApplicationKey):
+        return value.id_
+
+    if value is None:
+        return ''
+
+    return str(value)
+
+
 class DescriptionGetter:
     def __init__(self, described_cls):
         self.described_cls = described_cls
@@ -2571,8 +2590,8 @@ class ReplicationUnpause(ReplicationRuleChanger):
 @B2.register_subcommand
 class ReplicationStatus(Command):
     """
-    Inspects files in only source or both source and destination buckets
-    (potentially from different accounts) and provides detailed replication statistics.
+    Inspect files in only source or both source and destination buckets
+    (potentially from different accounts) and provide detailed replication statistics.
 
     Please be aware that only latest file versions are inspected, so any previous
     file versions are not represented in these statistics.
@@ -2649,13 +2668,14 @@ class ReplicationStatus(Command):
             }
 
         if args.output_format == 'json':
-            self.output_json(results)
+            self._print_json(results)
         elif args.output_format == 'console':
-            self.output_console(results)
+            self._print_console(results)
         elif args.output_format == 'csv':
             self.output_csv(results)
         else:
             self._print_stderr(f'ERROR: format "{args.output_format}" is not supported')
+            return 1
 
         return 0
 
@@ -2683,29 +2703,13 @@ class ReplicationStatus(Command):
     def filter_results_columns(cls, results: List[dict], columns: List[str]) -> List[dict]:
         return [{key: result[key] for key in columns} for result in results]
 
-    @classmethod
-    def to_human_readable(cls, value: Any) -> str:
-        if isinstance(value, Enum):
-            return value.name
-
-        if isinstance(value, bool):
-            return 'Yes' if value else 'No'
-
-        if value is None:
-            return ''
-
-        return str(value)
-
-    def output_json(self, results: Dict[str, List[dict]]) -> None:
-        self._print_json(results)
-
-    def output_console(self, results: Dict[str, List[dict]]) -> None:
+    def _print_console(self, results: Dict[str, List[dict]]) -> None:
         for rule_name, rule_results in results.items():
             self._print(f'Replication "{rule_name}":')
             rule_results = [
                 {
                     key.replace('_', '\n'):  # split key to minimize column size
-                    self.to_human_readable(value)
+                    to_human_readable(value)
                     for key, value in result.items()
                 } for result in rule_results
             ]
@@ -2721,7 +2725,7 @@ class ReplicationStatus(Command):
                     'rule name': rule_name,
                     **{
                         key.replace('_', '\n'):  # split key to minimize column size
-                        self.to_human_readable(value)
+                        to_human_readable(value)
                         for key, value in result.items()
                     },
                 } for result in rule_results
