@@ -74,6 +74,8 @@ from b2sdk.v2 import (
     parse_sync_folder,
     ReplicationMonitor,
     ProgressReport,
+    TwoWayReplicationCheckGenerator,
+    CheckState,
 )
 from b2sdk.v2.exception import (
     B2Error,
@@ -2585,6 +2587,89 @@ class ReplicationUnpause(ReplicationRuleChanger):
         """ return None to delete rule """
         rule.is_enabled = True
         return rule
+
+
+@B2.register_subcommand
+class ReplicationInspect(Command):
+    """
+    Detect possible misconfigurations of replication by analyzing
+    replication rules, buckets and keys.
+
+    --output-format
+    "Console" output format is meant to be human-readable and is subject to change
+    in any further release. One should use "json" for reliable "no-breaking-changes"
+    output format.
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        super()._setup_parser(parser)
+        parser.add_argument('--source-profile', metavar='SOURCE_PROFILE')
+        parser.add_argument('--destination-profile', metavar='DESTINATION_PROFILE')
+        parser.add_argument('--source-bucket', metavar='SOURCE_BUCKET_NAME')
+        parser.add_argument('--destination-bucket', metavar='DESTINATION_BUCKET_NAME')
+        parser.add_argument('--rule', metavar='REPLICATION_RULE_NAME')
+        parser.add_argument('--file-name-prefix', metavar='FILE_NAME_PREFIX')
+        parser.add_argument('--show-all-checks', action='store_true')
+
+        parser.add_argument('--output-format', default='console', choices=('console', 'json'))
+
+    def run(self, args):
+        source_api = _get_b2api_for_profile(args.source_profile)
+        destination_api = _get_b2api_for_profile(args.destination_profile or args.source_profile)
+
+        troubleshooter = TwoWayReplicationCheckGenerator(
+            source_api=source_api,
+            destination_api=destination_api,
+            filter_source_bucket_name=args.source_bucket,
+            filter_destination_bucket_name=args.destination_bucket,
+            filter_replication_rule_name=args.rule,
+            file_name_prefix=args.file_name_prefix,
+        )
+
+        results = [check.as_dict() for check in troubleshooter.iter_checks()]
+
+        if args.output_format == 'json':
+            self._print_json(
+                [
+                    {key: to_human_readable(value)
+                     for key, value in result.items()} for result in results
+                ]
+            )
+        elif args.output_format == 'console':
+            self._print_console(results, show_all_checks=args.show_all_checks)
+        else:
+            self._print_stderr(f'ERROR: format "{args.output_format}" is not supported')
+            return 1
+
+        return 0
+
+    def _print_console(self, results: List[dict], show_all_checks: bool = False) -> None:
+        for result in results:
+
+            # print keys starting with `_` as text before table
+            self._print('Configuration:')
+            for key, value in result.items():
+                if key.startswith('_'):
+                    self._print(
+                        ' ' * 2 + key[1:].replace('_', ' ') + ': ' + to_human_readable(value)
+                    )
+
+            # print other keys as rows rows
+            rows = {
+                key.replace('_', ' '): to_human_readable(value)
+                for key, value in result.items()
+                if not key.startswith('_') and (value != CheckState.OK or show_all_checks)
+            }.items()
+            self._print('Checks:')
+
+            key = None
+            for key, value in rows:
+                self._print(' ' * 2 + key + ': ' + value)
+            if not key:  # loop was not entered
+                self._print(' ' * 2 + '-')
+
+            self._print('')
 
 
 @B2.register_subcommand
