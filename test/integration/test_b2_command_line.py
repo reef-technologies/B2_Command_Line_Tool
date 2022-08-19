@@ -2343,6 +2343,136 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
     b2_api.clean_bucket(source_bucket_name)
 
 
+def test_replication_troubleshooting(b2_tool, bucket_name, b2_api):
+    key_one_name = 'clt-testKey-01' + random_hex(6)
+    created_key_stdout = b2_tool.should_succeed(
+        [
+            'create-key',
+            key_one_name,
+            'listBuckets,readFiles',
+        ]
+    )
+    key_one_id, _ = created_key_stdout.split()
+
+    key_two_name = 'clt-testKey-02' + random_hex(6)
+    created_key_stdout = b2_tool.should_succeed(
+        [
+            'create-key',
+            key_two_name,
+            'listBuckets,writeFiles',
+        ]
+    )
+    key_two_id, _ = created_key_stdout.split()
+
+    # ---------------- add test data ----------------
+    destination_bucket_name = bucket_name
+    _ = b2_tool.should_succeed_json(
+        ['upload-file', '--noProgress', '--quiet', destination_bucket_name, 'README.md', 'one/a']
+    )
+
+    # ---------------- set up replication destination ----------------
+
+    # update destination bucket info
+    destination_replication_configuration = {
+        'asReplicationSource': None,
+        'asReplicationDestination': {
+            'sourceToDestinationKeyMapping': {
+                key_one_id: key_two_id,
+            },
+        },
+    }
+    destination_replication_configuration_json = json.dumps(destination_replication_configuration)
+    destination_bucket = b2_tool.should_succeed_json(
+        [
+            'update-bucket',
+            destination_bucket_name,
+            'allPublic',
+            '--replication',
+            destination_replication_configuration_json,
+        ]
+    )
+
+    # ---------------- set up replication source ----------------
+    source_replication_configuration = {
+        "asReplicationSource":
+            {
+                "replicationRules":
+                    [
+                        {
+                            "destinationBucketId": destination_bucket['bucketId'],
+                            "fileNamePrefix": "one/",
+                            "includeExistingFiles": False,
+                            "isEnabled": True,
+                            "priority": 1,
+                            "replicationRuleName": "replication-one"
+                        }, {
+                            "destinationBucketId": destination_bucket['bucketId'],
+                            "fileNamePrefix": "two/",
+                            "includeExistingFiles": False,
+                            "isEnabled": True,
+                            "priority": 2,
+                            "replicationRuleName": "replication-two"
+                        }
+                    ],
+                "sourceApplicationKeyId": key_one_id,
+            },
+    }
+    source_replication_configuration_json = json.dumps(source_replication_configuration)
+
+    # create a source bucket and set up replication to destination bucket
+    source_bucket_name = b2_tool.generate_bucket_name()
+    b2_tool.should_succeed(
+        [
+            'create-bucket',
+            source_bucket_name,
+            'allPublic',
+            '--fileLockEnabled',
+            '--replication',
+            source_replication_configuration_json,
+            *get_bucketinfo(),
+        ]
+    )
+
+    # make test data
+    _ = b2_tool.should_succeed_json(
+        ['upload-file', '--noProgress', '--quiet', source_bucket_name, 'CHANGELOG.md', 'one/a']
+    )
+
+    # run troubleshooter
+    troubleshooter_results_json = b2_tool.should_succeed_json(
+        [
+            'replication-inspect',
+            '--source-bucket',
+            source_bucket_name,
+            '--rule',
+            'replication-two',
+            '--output-format',
+            'json',
+        ]
+    )
+
+    assert troubleshooter_results_json == [
+        {
+            "_destination_application_key": key_two_id,
+            "_destination_bucket": destination_bucket_name,
+            "_source_application_key": key_one_id,
+            "_source_bucket": source_bucket_name,
+            "_source_rule_name": "replication-two",
+            "destination_key_bucket_match": "OK",
+            "destination_key_capabilities": "OK",
+            "destination_key_exists": "OK",
+            "destination_key_name_prefix_match": "OK",
+            "file_lock_match": "NOT_OK",
+            "source_is_enabled": "OK",
+            "source_key_accepted_in_target_bucket": "OK",
+            "source_key_bucket_match": "OK",
+            "source_key_capabilities": "OK",
+            "source_key_exists": "OK",
+            "source_key_name_prefix_match": "OK"
+        }
+    ]
+
+
 def _assert_file_lock_configuration(
     b2_tool,
     file_id,
