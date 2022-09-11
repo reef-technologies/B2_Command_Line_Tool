@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fix running tests on the CI with the latest SDK from the master branch
 * Fix bucket leaks in integration tests
 * Allow only one CI workflow at a time
+* Re-enable pytest-xdist for integration tests
 
 ## [3.5.0] - 2022-07-27
 
