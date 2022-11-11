@@ -524,13 +524,19 @@ class Command(Described):
             )
         else:
             name, alias = cls.name_and_alias()
-            parser = subparsers.add_parser(
-                name,
-                description=description,
-                parents=parents,
-                aliases=[alias] if alias is not None and not for_docs else (),
-                for_docs=for_docs,
-            )
+            try:
+                parser = subparsers.add_parser(
+                    name,
+                    description=description,
+                    parents=parents,
+                    aliases=[alias] if alias is not None and not for_docs else (),
+                    for_docs=for_docs,
+                )
+            except argparse.ArgumentError:
+                # In 3.11 a bug with duplicated subparsers was fixed https://github.com/python/cpython/issues/83897
+                # This leads to argument error, since all our parsers are registered for both name and alias.
+                # Whenever a name appears again an ArgumentError is raised, and we simply skip it.
+                return
 
         cls._setup_parser(parser)
 
