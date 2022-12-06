@@ -81,6 +81,7 @@ from b2sdk.v2.exception import (
     EmptyDirectory,
     MissingAccountData,
     NotADirectory,
+    RestrictedBucketMissing,
     UnableToCreateDirectory,
 )
 from b2sdk.version import VERSION as b2sdk_version
@@ -750,15 +751,17 @@ class AuthorizeAccount(Command):
                 )
                 self.api.account_info.clear()
                 return 1
-            if allowed['bucketId'] is not None and allowed['bucketName'] is None:
-                logger.error('ConsoleTool has bucket-restricted key and the bucket does not exist')
-                self._print_stderr(
-                    "ERROR: application key is restricted to bucket id '%s', which no longer exists"
-                    % (allowed['bucketId'],)
-                )
-                self.api.account_info.clear()
-                return 1
             return 0
+        except RestrictedBucketMissing:
+            # This is raised from authorize_account.
+            allowed = self.api.account_info.get_allowed()
+            logger.error('ConsoleTool has bucket-restricted key and the bucket does not exist')
+            self._print_stderr(
+                "ERROR: application key is restricted to bucket id '%s', which no longer exists" %
+                (allowed['bucketId'],)
+            )
+            self.api.account_info.clear()
+            return 1
         except B2Error as e:
             logger.exception('ConsoleTool account authorization error')
             self._print_stderr('ERROR: unable to authorize account: ' + str(e))
