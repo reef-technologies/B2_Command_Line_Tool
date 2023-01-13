@@ -18,6 +18,8 @@ Documentation index
 
    replication
 
+   whats_new
+
 #########################################
 Indices and tables
 #########################################

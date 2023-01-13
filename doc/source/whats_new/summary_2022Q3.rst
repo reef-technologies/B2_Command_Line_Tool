@@ -4,11 +4,11 @@
 .. _2022q3_in_b2_cli:
 
 ################
-2022Q3 in B2 CLI
+2022Q3
 ################
 
 
-.. _profiles:
+.. _2022q3_profiles:
 
 *****************
 Multiple profiles
@@ -34,7 +34,7 @@ New profiles are created using ``authorize-account`` with the ``--profile`` opti
 With multiple profiles it's easier than ever to use different accounts, keys and regions.
 
 
-.. _replication:
+.. _2022q3_replication:
 
 ***********
 Replication
@@ -111,7 +111,7 @@ Other commands connected to the replication include:
     $ b2 replication-status --help
 
 
-.. _controlling_downloads_parallelization:
+.. _2022q3_controlling_downloads_parallelization:
 
 *************************************
 Controlling downloads parallelization
@@ -122,7 +122,7 @@ So far the ``--threads`` option was only available to ``sync`` and ``upload-file
 Also, ``sync`` command now has better control over the threads, with addition of ``--syncThreads``, ``--downloadThreads`` and ``--uploadThreads``. While the last two are self-explanatory, ``--syncThreads`` defines a number of parallel threads that perform scanning and schedule actions. ``--threads`` can still be used, however it is incompatible with new options.
 
 
-.. _write_buffer_size:
+.. _2022q3_write_buffer_size:
 
 ******************************
 ``--write-buffer-size`` option
