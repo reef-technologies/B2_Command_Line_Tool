@@ -66,9 +66,9 @@ Removing files from B2 just became a lot easier. Using the same engine that powe
 
 .. todo: enter actual result of the command here.
 
-will remove every single ``.csv`` file from ``temp_dir`` directory.
+will remove every single ``.csv`` file from the ``temp_dir`` directory.
 
-To determine what files are to be removed, you have two options. First one is to use ``ls`` command, second one is to use ``--dryRun`` option to the ``rm`` command.
+To determine what files are to be removed, you have two options. First one is to use ``ls`` command, the second one is to use the ``--dryRun`` option to the ``rm`` command.
 
 .. code-block:: bash
 
@@ -76,7 +76,7 @@ To determine what files are to be removed, you have two options. First one is to
 
 .. todo: enter actual result of the command here.
 
-Removal happens in parallel in multiple threads. You can specify number of threads removing objects by providing ``--threads NUM_THREADS`` option. Also, if you want to e.g. check whether you have the proper rights you can add ``--failFast`` option to ensure that the command will stop after the first encountered issue. Otherwise it'll try to remove each and every file, hoping for the best.
+Removal happens in parallel in multiple threads. You can specify the number of threads removing objects by providing the ``--threads NUM_THREADS`` option. Also, if you want to e.g. check whether you have the proper rights you can add the ``--failFast`` option to ensure that the command will stop after the first encountered issue. Otherwise it'll try to remove each and every file, hoping for the best.
 
 
 .. _2023q1_incremental_upload:
@@ -85,9 +85,9 @@ Removal happens in parallel in multiple threads. You can specify number of threa
 Incremental upload / sync
 *************************
 
-Both ``upload-file`` and ``sync`` commands got a new option – ``--incremental``. This is perfect for files that are just appended, like logs. Whenever a file is uploaded with this option we first check whether hash of the start of the local file matches the hash of the file that's already on B2. If it does, the command will make a copy of it and upload only the new part at the end of the file.
+Both ``upload-file`` and ``sync`` commands got a new option – ``--incremental``. This is perfect for files that are just appended, like logs. Whenever a file is uploaded with this option we first check whether the hash of the start of the local file matches the hash of the file that's already on B2. If it does, the command will make a copy of it and upload only the new part at the end of the file.
 
-The question remains about large files – these doesn't have ``SHA1`` calculated by default. But whenever you upload a file with this new version of B2Cli, a file will have a new metadata called ``large_file_sha1`` – and the ``--incremental`` option will use it to compare files whenever applicable.
+The question remains about large files – these don't have ``SHA1`` calculated by default. But whenever you upload a file with this new version of B2Cli, a file will have a new metadata called ``large_file_sha1`` – and the ``--incremental`` option will use it to compare files whenever applicable.
 
 
 .. _2023q1_stdin_streaming:
@@ -96,7 +96,7 @@ The question remains about large files – these doesn't have ``SHA1`` calculate
 Streaming from STDIN
 ********************
 
-``upload-file`` command now has the ability to accept a stream of bytes from standard input when local file is specified as dash (``-``). Whatever you pipe into it will become content of the file in B2. You can e.g. compress content of the whole directory on the fly.
+``upload-file`` command now has the ability to accept a stream of bytes from standard input when the local file is specified as dash (``-``). Whatever you pipe into it will become the content of the file in B2. You can e.g. compress the content of the whole directory on the fly.
 
 .. code-block:: bash
 
@@ -111,11 +111,11 @@ Streaming from STDIN
 experimental libcurl support
 ****************************
 
-So far, ``b2`` console tool used ``urllib3`` for communication. With this new release you can also use ``libcurl`` as an alternative. One attractive option that ``libcurl`` provides over ``urllib3`` is full support for ``100-continue``.
+So far, ``b2`` console tool has used ``urllib3`` for communication. With this new release you can also use ``libcurl`` as an alternative. One attractive option that ``libcurl`` provides over ``urllib3`` is full support for ``100-continue``.
 
 If your system already has ``libcurl`` installed (e.g. on Ubuntu the package is ``libcurl4-openssl-dev``), the new ``b2`` will use it out of the box.
 
-You can control it by providing ``--urllib`` and ``--libcurl`` options. Note that ``--urllib`` will work always while providing ``--libcurl`` on a system where ``libcurl`` is not available or misconfigured will result in a an error.
+You can control it by providing ``--urllib`` and ``--libcurl`` options. Note that ``--urllib`` will always work while providing ``--libcurl`` on a system where ``libcurl`` is not available or misconfigured will result in an error.
 
 
 .. _2023q1_dockerfile:
