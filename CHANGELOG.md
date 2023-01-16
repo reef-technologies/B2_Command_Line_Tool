@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Summary about changes made in Q3 2022 to the documentation
+* Summary about changes made in Q1 2023 to the documentation
 
 ### Fixed
 * Stop using b2sdk.v1 in arg_parser.py
