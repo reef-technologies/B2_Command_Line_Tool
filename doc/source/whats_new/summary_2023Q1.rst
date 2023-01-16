@@ -16,21 +16,7 @@ LS command with wildcard
 
 So far you've been able to list the content of the bucket limiting ourselves to certain directories. Now you can specify a bash-like pattern that the files will match.
 
-Let's say that you have a bucket ``BUCKET`` that contains the following files:
-
-.. code-block:: bash
-
-    file_1.csv
-    file_2.csv
-    file_3.tsv
-    dir_1/file_1.csv
-    dir_1/file_2.csv
-    dir_1/file_3.tsv
-    dir_2/file_1.csv
-    dir_2/file_2.csv
-    dir_2/file_3.tsv
-
-If you want to list all the ``.csv`` files, you can simply run the following:
+Let's say that you have a bucket ``BUCKET`` that contains multiple ``.csv`` files among others. If you want to list all the ``.csv`` files, you can simply run the following:
 
 .. code-block:: bash
 
