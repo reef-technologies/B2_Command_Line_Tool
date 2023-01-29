@@ -48,6 +48,21 @@ def read_requirements(extra=None):
         return f.read().splitlines()
 
 
+_IS_POSIX = platform.system() != 'Windows'
+
+
+def _get_data_files():
+    if _IS_POSIX:
+        return [
+            ('share/bash-completion/completions', ['contrib/bash_completion/b2']),
+        ]
+    else:
+        return []
+
+
+data_files = _get_data_files()
+
+
 setup(
     name='b2',
     description='Command Line Tool for Backblaze B2',
@@ -121,10 +136,7 @@ setup(
     # Although 'package_data' is the preferred approach, in some case you may
     # need to place data files outside of your packages. See:
     # http://docs.python.org/3.10/distutils/setupscript.html#installing-additional-files # noqa
-    # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
-    data_files=[
-        #('my_data', ['data/data_file'])
-    ],
+    data_files=data_files,
 
     # To provide executable scripts, use entry points in preference to the
     # "scripts" keyword. Entry points provide cross-platform support and allow
