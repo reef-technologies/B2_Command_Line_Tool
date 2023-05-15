@@ -8,21 +8,20 @@
 #
 ######################################################################
 
-import base64
-import contextlib
 import sys
+import uuid
+from contextlib import suppress
 
 from os import environ, path
 from tempfile import TemporaryDirectory
 
 import pytest
 
-from b2sdk.v2 import B2_ACCOUNT_INFO_ENV_VAR, XDG_CONFIG_HOME_ENV_VAR
-from b2sdk.exception import BadRequest, BucketIdNotFound
+from b2sdk.v2 import B2_ACCOUNT_INFO_ENV_VAR, XDG_CONFIG_HOME_ENV_VAR, Bucket
+from b2sdk.exception import BucketIdNotFound
+from b2sdk.test.api_test_manager import ApiTestManager
 
-from .helpers import Api, CommandLine, bucket_name_part
-
-GENERAL_BUCKET_NAME_PREFIX = 'clitst'
+from test.integration.helpers import CommandLine
 
 
 @pytest.hookimpl
@@ -53,17 +52,10 @@ def realm() -> str:
 
 
 @pytest.fixture(scope='function')
-def bucket(b2_api) -> str:
-    try:
-        bucket = b2_api.create_bucket()
-    except BadRequest as e:
-        if e.code != 'too_many_buckets':
-            raise
-        num_buckets = b2_api.count_and_print_buckets()
-        print('current number of buckets:', num_buckets)
-        raise
+def bucket(b2_api) -> Bucket:
+    bucket = b2_api.create_test_bucket()
     yield bucket
-    with contextlib.suppress(BucketIdNotFound):
+    with suppress(BucketIdNotFound):
         b2_api.clean_bucket(bucket)
 
 
@@ -74,7 +66,7 @@ def bucket_name(bucket) -> str:
 
 @pytest.fixture(scope='function')
 def file_name(bucket) -> str:
-    file_ = bucket.upload_bytes(b'test_file', f'{bucket_name_part(8)}.txt')
+    file_ = bucket.upload_bytes(b'test_file', f'{uuid.uuid4()}.txt')
     yield file_.file_name
 
 
@@ -92,11 +84,6 @@ def debug_print_buckets(b2_api):
         delta = b2_api.count_and_print_buckets() - num_buckets
         print(f'DELTA: {delta}')
         print('-' * 30)
-
-
-@pytest.fixture(scope='session')
-def this_run_bucket_name_prefix() -> str:
-    yield GENERAL_BUCKET_NAME_PREFIX + bucket_name_part(8)
 
 
 @pytest.fixture(scope='module')
@@ -127,23 +114,14 @@ def auto_change_account_info_dir(monkey_patch) -> dir:
 
 
 @pytest.fixture(scope='module')
-def b2_api(application_key_id, application_key, realm, this_run_bucket_name_prefix) -> Api:
-    yield Api(
-        application_key_id, application_key, realm, GENERAL_BUCKET_NAME_PREFIX,
-        this_run_bucket_name_prefix
-    )
+def b2_api(application_key_id, application_key, realm) -> ApiTestManager:
+    yield ApiTestManager(application_key_id, application_key, realm)
 
 
 @pytest.fixture(scope='module')
-def global_b2_tool(
-    request, application_key_id, application_key, realm, this_run_bucket_name_prefix
-) -> CommandLine:
+def global_b2_tool(request, application_key_id, application_key, realm) -> CommandLine:
     tool = CommandLine(
-        request.config.getoption('--sut'),
-        application_key_id,
-        application_key,
-        realm,
-        this_run_bucket_name_prefix,
+        request.config.getoption('--sut'), application_key_id, application_key, realm
     )
     tool.reauthorize(check_key_capabilities=True)  # reauthorize for the first time (with check)
     return tool

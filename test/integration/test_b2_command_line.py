@@ -23,7 +23,7 @@ from typing import Optional, Tuple
 
 import pytest
 from b2sdk.v2 import B2_ACCOUNT_INFO_ENV_VAR, SSE_C_KEY_ID_FILE_INFO_KEY_NAME, UNKNOWN_FILE_RETENTION_SETTING, EncryptionMode, EncryptionSetting, FileRetentionSetting, LegalHold, RetentionMode, fix_windows_path_limit
-
+from b2sdk.test.api_test_manager import generate_bucket_name
 from b2.console_tool import current_time_millis
 
 from .helpers import BUCKET_CREATED_AT_MILLIS, ONE_DAY_MILLIS, ONE_HOUR_MILLIS, SSE_B2_AES, SSE_C_AES, SSE_C_AES_2, SSE_NONE, TempDir, file_mod_time_millis, random_hex, read_file, set_file_mod_time_millis, should_equal, write_file
@@ -170,7 +170,7 @@ def test_basic(b2_tool, bucket_name):
             file_to_upload,
         ),
     )  # \r? is for Windows, as $ doesn't match \r\n
-    to_be_removed_bucket_name = b2_tool.generate_bucket_name()
+    to_be_removed_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
@@ -239,7 +239,7 @@ def test_bucket(b2_tool, bucket_name):
 
 def test_key_restrictions(b2_api, b2_tool, bucket_name):
 
-    second_bucket_name = b2_tool.generate_bucket_name()
+    second_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(['create-bucket', second_bucket_name, 'allPublic', *get_bucketinfo()],)
     # A single file for rm to fail on.
     b2_tool.should_succeed(['upload-file', '--noProgress', bucket_name, 'README.md', 'test'])
@@ -311,7 +311,7 @@ def test_key_restrictions(b2_api, b2_tool, bucket_name):
 def test_account(b2_tool, bucket_name):
     # actually a high level operations test - we run bucket tests here since this test doesn't use it
     b2_tool.should_succeed(['delete-bucket', bucket_name])
-    new_bucket_name = b2_tool.generate_bucket_name()
+    new_bucket_name = generate_bucket_name()
     # apparently server behaves erratically when we delete a bucket and recreate it right away
     b2_tool.should_succeed(['create-bucket', new_bucket_name, 'allPrivate', *get_bucketinfo()])
     b2_tool.should_succeed(['update-bucket', new_bucket_name, 'allPublic'])
@@ -339,7 +339,7 @@ def test_account(b2_tool, bucket_name):
 
         # first, let's make sure "create-bucket" doesn't work without auth data - i.e. that the sqlite file hs been
         # successfully removed
-        bucket_name = b2_tool.generate_bucket_name()
+        bucket_name = generate_bucket_name()
         b2_tool.should_fail(
             ['create-bucket', bucket_name, 'allPrivate'],
             r'ERROR: Missing account data: \'NoneType\' object is not subscriptable (\(key 0\) )? '
@@ -353,7 +353,7 @@ def test_account(b2_tool, bucket_name):
         os.environ['B2_APPLICATION_KEY_ID'] = os.environ['B2_TEST_APPLICATION_KEY_ID']
         os.environ['B2_ENVIRONMENT'] = b2_tool.realm
 
-        bucket_name = b2_tool.generate_bucket_name()
+        bucket_name = generate_bucket_name()
         b2_tool.should_succeed(['create-bucket', bucket_name, 'allPrivate', *get_bucketinfo()])
         b2_tool.should_succeed(['delete-bucket', bucket_name])
         assert os.path.exists(new_creds), 'sqlite file not created'
@@ -886,7 +886,7 @@ def prepare_and_run_sync_copy_tests(
     else:
         b2_file_prefix = ''
 
-    other_bucket_name = b2_tool.generate_bucket_name()
+    other_bucket_name = generate_bucket_name()
     success, _ = b2_tool.run_command(
         ['create-bucket', other_bucket_name, 'allPublic', *get_bucketinfo()]
     )
@@ -1066,7 +1066,7 @@ def test_default_sse_b2(b2_api, b2_tool, bucket_name):
     should_equal(bucket_default_sse, bucket_info['defaultServerSideEncryption'])
 
     # Set default encryption via create-bucket
-    second_bucket_name = b2_tool.generate_bucket_name()
+    second_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
@@ -1526,7 +1526,7 @@ SOFTWARE.""" in license_text.replace(os.linesep, '\n'), repr(license_text[-2000:
 
 
 def test_file_lock(b2_tool, application_key_id, application_key, b2_api):
-    lock_disabled_bucket_name = b2_tool.generate_bucket_name()
+    lock_disabled_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
@@ -1579,7 +1579,7 @@ def test_file_lock(b2_tool, application_key_id, application_key, b2_api):
             'compliance', '--defaultRetentionPeriod', '7 days'
         ], r'ERROR: The bucket is not file lock enabled \(bucket_missing_file_lock\)'
     )
-    lock_enabled_bucket_name = b2_tool.generate_bucket_name()
+    lock_enabled_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
@@ -1802,7 +1802,7 @@ def test_file_lock(b2_tool, application_key_id, application_key, b2_api):
     )
     # b2_tool.reauthorize(check_key_capabilities=False)
     buckets = [
-        bucket for bucket in b2_api.api.list_buckets()
+        bucket for bucket in b2_api.list_buckets()
         if bucket.name in {lock_enabled_bucket_name, lock_disabled_bucket_name}
     ]
     for bucket in buckets:
@@ -2085,7 +2085,7 @@ def test_replication_basic(b2_api, b2_tool, bucket_name):
     source_replication_configuration_json = json.dumps(source_replication_configuration)
 
     # create a source bucket and set up replication to destination bucket
-    source_bucket_name = b2_tool.generate_bucket_name()
+    source_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
@@ -2155,7 +2155,7 @@ def test_replication_basic(b2_api, b2_tool, bucket_name):
 
 
 def test_replication_setup(b2_api, b2_tool, bucket_name):
-    source_bucket_name = b2_tool.generate_bucket_name()
+    source_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
@@ -2292,7 +2292,7 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
     source_replication_configuration_json = json.dumps(source_replication_configuration)
 
     # create a source bucket and set up replication to destination bucket
-    source_bucket_name = b2_tool.generate_bucket_name()
+    source_bucket_name = generate_bucket_name()
     b2_tool.should_succeed(
         [
             'create-bucket',
