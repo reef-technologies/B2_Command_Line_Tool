@@ -9,6 +9,7 @@
 ######################################################################
 
 import json
+import logging
 import os
 import platform
 import random
@@ -30,6 +31,9 @@ from b2sdk.v2 import ALL_CAPABILITIES, EncryptionAlgorithm, EncryptionKey, Encry
 
 from b2.console_tool import Command
 
+logger = logging.getLogger(__name__)
+
+BUCKET_CLEANUP_PERIOD_MILLIS = 0
 ONE_HOUR_MILLIS = 60 * 60 * 1000
 ONE_DAY_MILLIS = ONE_HOUR_MILLIS * 24
 
@@ -163,19 +167,20 @@ class EnvVarTestContext:
 
     def __init__(self, account_info_file_name: str):
         self.account_info_file_name = account_info_file_name
+        self.suffix = ''.join(RNG.choice('abcdefghijklmnopqrstuvwxyz0123456789') for _ in range(7))
 
     def __enter__(self):
         src = self.account_info_file_name
         dst = path.join(gettempdir(), 'b2_account_info')
         shutil.copyfile(src, dst)
-        shutil.move(src, src + '.bkup')
+        shutil.move(src, src + self.suffix)
         environ[self.ENV_VAR] = dst
         return dst
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         os.remove(environ.get(self.ENV_VAR))
         fname = self.account_info_file_name
-        shutil.move(fname + '.bkup', fname)
+        shutil.move(fname + self.suffix, fname)
         if environ.get(self.ENV_VAR) is not None:
             del environ[self.ENV_VAR]
 
@@ -190,6 +195,7 @@ def should_equal(expected, actual):
 
 
 class CommandLine:
+
     EXPECTED_STDERR_PATTERNS = [
         re.compile(r'.*B/s]$', re.DOTALL),  # progress bar
         re.compile(r'^\r?$'),  # empty line
