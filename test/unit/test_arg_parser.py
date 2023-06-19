@@ -9,9 +9,10 @@
 ######################################################################
 
 import argparse
+import io
 
-from b2.arg_parser import parse_comma_separated_list, parse_millis_from_float_timestamp, \
-    parse_range
+from b2.arg_parser import ArgumentParser, parse_comma_separated_list, parse_millis_from_float_timestamp, parse_range
+from b2.console_tool import B2, CreateKey
 
 from .test_base import TestBase
 
@@ -35,3 +36,28 @@ class TestCustomArgTypes(TestBase):
             parse_range('1,2,3')
         with self.assertRaises(ValueError):
             parse_range('!@#,%^&')
+
+
+class TestNonUTF8TerminalSupport(TestBase):
+    def check_help_string(self, command_class):
+        help_string = command_class.__doc__
+
+        # Create a parser with a help message that is based on the command_class.__doc__ string
+        parser = ArgumentParser(description=help_string)
+
+        # Create a BytesIO instance to capture the output, simulating a non-UTF-8 terminal
+        output = io.BytesIO()
+
+        try:
+            # Try to write the help message to the BytesIO instance as bytes
+            output.write(parser.format_help().encode('ascii'))
+            assert len(output.getvalue()) > 0, "No data written to the output"
+
+        except UnicodeEncodeError as e:
+            self.fail(f'Failed to encode help message for a non-UTF-8 terminal: {e}')
+
+    def test_b2_help_in_non_utf8_terminal(self):
+        self.check_help_string(B2)
+
+    def test_create_key_help_in_non_utf8_terminal(self):
+        self.check_help_string(CreateKey)
