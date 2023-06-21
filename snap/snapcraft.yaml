@@ -1,0 +1,37 @@
+name: backblaze-b2
+base: core22
+version: git
+summary: This program provides command-line access to the B2 service.
+description: The command-line tool that gives easy access to all of the capabilities of B2 Cloud Storage.
+adopt-info: backblaze-b2
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: arm64
+  - build-on: amd64
+
+apps:
+  backblaze-b2:
+    command: bin/b2
+    aliases: [ backblaze-b2 ]
+    plugs: [ network ]
+    environment:
+      PYTHONPATH: $PYTHONPATH:$SNAP/lib/python3.11/site-packages
+
+parts:
+  backblaze-b2:
+    source: .
+    source-type: git
+    plugin: python
+    build-packages:
+      - python3-setuptools
+      - python3-setuptools-scm
+
+    override-pull: |
+      snapcraftctl pull
+      # remove pyproject.toml until _fully_ migrated to it
+      mv pyproject.toml pyproject.toml_snapignore || true
+      version="$(python3 setup.py --version)"
+      craftctl set version=$version

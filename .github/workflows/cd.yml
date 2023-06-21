@@ -158,3 +158,11 @@ jobs:
           context: .
           push: true
           tags: backblaze/b2:${{ steps.build.outputs.version }}
+
+  snap-release:
+    if: ${{ vars.B2_DEBIAN_BUCKET_UPLOAD }}
+    name: Build Snap Package
+    uses: ./.github/workflows/cd_snap.yml
+    secrets: inherit
+    with:
+      b2-upload-bucket: ${{ vars.B2_DEBIAN_BUCKET_UPLOAD }}

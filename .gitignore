@@ -14,3 +14,7 @@ venv
 doc/source/main_help.rst
 Dockerfile
 b2/licenses_output.txt
+# snap package
+parts
+prime
+stage

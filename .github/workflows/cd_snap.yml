@@ -1,0 +1,28 @@
+name: Snap Package Continuous Delivery
+
+on:
+  workflow_call:
+    inputs:
+      b2-upload-bucket:
+        required: true
+        type: string
+
+jobs:
+  build-deb:
+    env:
+      B2_APPLICATION_KEY_ID: '${{ secrets.B2_DEBIAN_APPLICATION_KEY_ID }}'
+      B2_APPLICATION_KEY: '${{ secrets.B2_DEBIAN_APPLICATION_KEY }}'
+
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: snapcore/action-build@v1
+        id: snapcraft
+
+      - name: Upload to B2
+        run: |
+          pip install -U wheel b2
+          b2 upload_file ${{ inputs.b2-upload-bucket }} ${{ steps.snapcraft.outputs.snap }} ${{ steps.snapcraft.outputs.snap }}
