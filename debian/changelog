@@ -1,0 +1,102 @@
+backblaze-b2 (3.9.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * d/control: Add constraint X-Python3-Version to 3.7+
+
+ -- yed podtrzitko <yedpodtrzitko@gmail.com>  Mon, 19 Jun 2023 22:17:48 +0700
+
+
+backblaze-b2 (1.3.8-6) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster:
+    + Build-Depends-Indep: Drop versioned constraint on python3-arrow,
+      python3-requests and python3-six.
+
+ -- Jelmer Vernooĳ <jelmer@debian.org>  Tue, 06 Dec 2022 18:52:43 +0000
+
+backblaze-b2 (1.3.8-5) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * d/control: Update Maintainer field with new Debian Python Team
+    contact address.
+  * d/control: Update Vcs-* fields with new Debian Python Team Salsa
+    layout.
+
+  [ Debian Janitor ]
+  * Set upstream metadata fields: Repository.
+  * Remove obsolete field Name from debian/upstream/metadata (already present in
+    machine-readable debian/copyright).
+  * Update standards version to 4.5.0, no changes needed.
+
+ -- Sandro Tosi <morph@debian.org>  Wed, 08 Sep 2021 20:21:59 -0400
+
+backblaze-b2 (1.3.8-4) unstable; urgency=medium
+
+  * Drop yapf from B-D (Closes: #948084).
+
+ -- Ondřej Nový <onovy@debian.org>  Sat, 04 Jan 2020 19:31:22 +0100
+
+backblaze-b2 (1.3.8-3) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.1.
+
+  [ Gianfranco Costamagna ]
+  * Team upload
+  * Build depend on pylint, not old pylint3 package
+
+ -- Gianfranco Costamagna <locutusofborg@debian.org>  Tue, 10 Dec 2019 15:21:05 +0100
+
+backblaze-b2 (1.3.8-2) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Bump Standards-Version to 4.4.0.
+
+  [ Ondřej Kobližek ]
+  * Remove untrue reference about full doc in Texinfo manual from man pages.
+    (Closes: #927048)
+
+ -- Ondřej Kobližek <koblizeko@gmail.com>  Tue, 06 Aug 2019 02:13:35 +0200
+
+backblaze-b2 (1.3.8-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump standards version to 4.3.0 (no changes)
+  * Bump debhelper compat level to 12 and use debhelper-compat
+
+ -- Ondřej Nový <onovy@debian.org>  Mon, 31 Dec 2018 23:22:03 +0100
+
+backblaze-b2 (1.3.6-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #903519)
+  * d/control: Remove ancient X-Python3-Version field
+  * Rebase patches
+  * Bump standards version to 4.2.1 (no changes)
+  * Bump debhelper compat level to 11
+  * Add upstream metadata
+
+ -- Ondřej Nový <onovy@debian.org>  Sat, 29 Sep 2018 11:49:29 +0200
+
+backblaze-b2 (1.1.0-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update man pages
+
+ -- Ondřej Kobližek <koblizeko@gmail.com>  Mon, 04 Dec 2017 08:43:40 +0100
+
+backblaze-b2 (1.0.0-2) unstable; urgency=medium
+
+  [ Ondřej Nový ]
+  * Change maintainer to Python Applications Packaging Team
+
+  [ Ondřej Kobližek ]
+  * Rename binary from b2 -> backblaze-b2. (Closes: #883137)
+
+ -- Ondřej Kobližek <koblizeko@gmail.com>  Thu, 30 Nov 2017 14:08:46 +0100
+
+backblaze-b2 (1.0.0-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #874639)
+
+ -- Ondřej Kobližek <koblizeko@gmail.com>  Tue, 14 Nov 2017 07:17:18 +0100

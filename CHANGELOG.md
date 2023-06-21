@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+* Unpin `setuptools-scm<6.0` as we don't support Python 3.5 (reason for pinning) anymore
+* use `rst2ansi` conditionally as it's not available in Debian packaging
 
 ### Infrastructure
 * Autocomplete integration tests will now work properly even if tested package has not been installed
@@ -13,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Increase timeout time in autocomplete tests to accommodate slower CI environments
 * Update pyinstaller to fix Linux Bundle build
 * Replace `pyflakes` with `ruff` for linting
+* Add Debian package build to CD
 
 ### Fixed
 * Fast rm sometimes failing due to a rare race condition

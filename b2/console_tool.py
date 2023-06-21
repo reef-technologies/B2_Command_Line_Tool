@@ -41,7 +41,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import argcomplete
 import b2sdk
 import requests
-import rst2ansi
 from b2sdk.v2 import (
     ALL_CAPABILITIES,
     B2_ACCOUNT_INFO_DEFAULT_FILE,
@@ -126,11 +125,13 @@ from b2.arg_parser import (
 from b2.json_encoder import B2CliJsonEncoder
 from b2.version import VERSION
 
+rst2ansi = None
 piplicenses = None
 prettytable = None
 with suppress(ImportError):
     import piplicenses
     import prettytable
+    import rst2ansi
 
 logger = logging.getLogger(__name__)
 
@@ -3290,7 +3291,7 @@ class License(Command):  # pragma: no cover
     def _get_single_license(self, module_dict: dict):
         license_ = module_dict['LicenseText']
         module_name = module_dict['Name']
-        if module_name == 'rst2ansi':
+        if module_name == 'rst2ansi' and rst2ansi:
             # this one module is problematic, we need to extract the license text from its docstring
             assert license_ == piplicenses.LICENSE_UNKNOWN  # let's make sure they didn't fix it
             license_ = rst2ansi.__doc__

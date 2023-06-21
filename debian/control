@@ -1,0 +1,43 @@
+Source: backblaze-b2
+Maintainer: Debian Python Team <team+python@tracker.debian.org>
+Uploaders: Ondřej Kobližek <koblizeko@gmail.com>,
+           Ondřej Nový <onovy@debian.org>,
+Section: utils
+Priority: optional
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               pylint,
+               python3-all,
+               python3-logfury,
+               python3-mock,
+               python3-pytest,
+               python3-pyflakes,
+               python3-setuptools,
+               python3-setuptools-scm,
+               python3-tqdm,
+               yapf3,
+               python3-argcomplete,
+               python3-pexpect,
+               python3-pip,
+Build-Depends-Indep: python3-arrow,
+                     python3-requests,
+                     python3-six,
+                     python3-argcomplete,
+Standards-Version: 4.6.2
+Homepage: https://github.com/Backblaze/B2_Command_Line_Tool
+Vcs-Browser: https://salsa.debian.org/python-team/packages/backblaze-b2
+Vcs-Git: https://salsa.debian.org/python-team/packages/backblaze-b2.git
+
+Package: backblaze-b2
+X-Python3-Version: >= 3.7
+Architecture: all
+# pybuild strips the dependency version, be explicit
+Depends: python3-b2sdk (>= 1.21.0)
+         ${misc:Depends},
+         ${python3:Depends},
+Description: Command Line Tool for Backblaze B2
+ The command-line tool that gives easy access to all of the capabilities
+ of B2 Cloud Storage.
+ This program provides command-line access to the B2 service.
+ .
+ Usage: For more details try command: backblaze-b2 help

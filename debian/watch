@@ -1,0 +1,3 @@
+version=3
+opts=filenamemangle=s/.+\/v?(\d\S*)\.tar\.gz/backblaze-b2-$1\.tar\.gz/ \
+  https://github.com/Backblaze/B2_Command_Line_Tool/tags .*/v?(\d\S*)\.tar\.gz

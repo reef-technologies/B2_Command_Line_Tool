@@ -1,0 +1,11 @@
+rename entry point
+--- B2_Command_Line_Tool.orig/setup.py
++++ B2_Command_Line_Tool/setup.py
+@@ -130,6 +130,6 @@ setup(
+     # "scripts" keyword. Entry points provide cross-platform support and allow
+     # pip to create the appropriate form of executable for the target platform.
+     entry_points={
+-        'console_scripts': ['b2=b2.console_tool:main'],
++        'console_scripts': ['backblaze-b2=b2.console_tool:main'],
+     },
+ )

@@ -14,3 +14,9 @@ venv
 doc/source/main_help.rst
 Dockerfile
 b2/licenses_output.txt
+.pc
+.pybuild
+debian/backblaze-b2*
+debian/.debhelper
+debian/debhelper-build-stamp
+debian/files

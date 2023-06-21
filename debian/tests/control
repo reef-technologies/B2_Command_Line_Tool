@@ -1,0 +1,11 @@
+Depends: backblaze-b2,
+         python3-all,
+         python3-mock,
+         python3-pytest,
+         python3-pyflakes,
+         python3-setuptools,
+         yapf3,
+Test-Command: set -e; for py in $(py3versions -i); do echo "[*] testing on $py:"; $py setup.py test ./test/unit ./test/static 2>&1; done
+
+Depends: backblaze-b2,
+Test-Command: HOME=$AUTOPKGTEST_TMP backblaze-b2 --help 2>&1 | grep -q "This program provides command-line access to the B2 service."
