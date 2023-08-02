@@ -871,8 +871,10 @@ class TestConsoleTool(BaseConsoleToolTest):
             # Download file by ID.  (Same expected output as downloading by name)
             local_download2 = os.path.join(temp_dir, 'download2.txt')
             self._run_command(
-                ['download-file-by-id', '--noProgress', '--retry-for', '3', '9999', local_download2], expected_stdout,
-                '', 0
+                [
+                    'download-file-by-id', '--noProgress', '--retry-for', '3', '9999',
+                    local_download2
+                ], expected_stdout, '', 0
             )
             self.assertEqual(b'hello world', self._read_file(local_download2))
 
@@ -1141,7 +1143,10 @@ class TestConsoleTool(BaseConsoleToolTest):
         with TempDir() as temp_dir:
             local_file = self._make_local_file(temp_dir, 'file.txt')
             self._run_command(
-                ['upload-file', '--noProgress', '--retry-for', '3', 'my-bucket', local_file, 'file.txt'],
+                [
+                    'upload-file', '--noProgress', '--retry-for', '3', 'my-bucket', local_file,
+                    'file.txt'
+                ],
                 remove_version=True,
             )
 
@@ -1200,7 +1205,10 @@ class TestConsoleTool(BaseConsoleToolTest):
             }
 
             self._run_command(
-                ['upload-file', '--noProgress', '--retry-for', '3', 'my-bucket', local_file1, 'file1.txt'],
+                [
+                    'upload-file', '--noProgress', '--retry-for', '3', 'my-bucket', local_file1,
+                    'file1.txt'
+                ],
                 expected_json_in_stdout=expected_json,
                 remove_version=True,
                 expected_part_of_stdout=expected_stdout,
@@ -1255,8 +1263,8 @@ class TestConsoleTool(BaseConsoleToolTest):
             local_download1 = os.path.join(temp_dir, 'file1_copy.txt')
             self._run_command(
                 [
-                    'download-file-by-name', '--noProgress', '--retry-for', '3', 'my-bucket', 'file1_copy.txt',
-                    local_download1
+                    'download-file-by-name', '--noProgress', '--retry-for', '3', 'my-bucket',
+                    'file1_copy.txt', local_download1
                 ]
             )
             self.assertEqual(b'lo wo', self._read_file(local_download1))
@@ -1917,7 +1925,9 @@ class TestConsoleTool(BaseConsoleToolTest):
             expected_stdout = '''
             upload test-dry-run.txt
             '''
-            command = ['sync', '--noProgress', '--retry-for', '3', '--dryRun', temp_dir, 'b2://my-bucket']
+            command = [
+                'sync', '--noProgress', '--retry-for', '3', '--dryRun', temp_dir, 'b2://my-bucket'
+            ]
             self._run_command(command, expected_stdout, '', 0)
 
             # file should not have been uploaded
