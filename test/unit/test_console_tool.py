@@ -872,7 +872,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             local_download2 = os.path.join(temp_dir, 'download2.txt')
             self._run_command(
                 [
-                    'download-file-by-id', '--noProgress', '--retry-for', '3', '9999',
+                    'download-file-by-id', '--noProgress', '--retry-for', '10', '9999',
                     local_download2
                 ], expected_stdout, '', 0
             )
@@ -1144,7 +1144,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             local_file = self._make_local_file(temp_dir, 'file.txt')
             self._run_command(
                 [
-                    'upload-file', '--noProgress', '--retry-for', '3', 'my-bucket', local_file,
+                    'upload-file', '--noProgress', '--retry-for', '10', 'my-bucket', local_file,
                     'file.txt'
                 ],
                 remove_version=True,
@@ -1206,7 +1206,7 @@ class TestConsoleTool(BaseConsoleToolTest):
 
             self._run_command(
                 [
-                    'upload-file', '--noProgress', '--retry-for', '3', 'my-bucket', local_file1,
+                    'upload-file', '--noProgress', '--retry-for', '10', 'my-bucket', local_file1,
                     'file1.txt'
                 ],
                 expected_json_in_stdout=expected_json,
@@ -1263,7 +1263,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             local_download1 = os.path.join(temp_dir, 'file1_copy.txt')
             self._run_command(
                 [
-                    'download-file-by-name', '--noProgress', '--retry-for', '3', 'my-bucket',
+                    'download-file-by-name', '--noProgress', '--retry-for', '10', 'my-bucket',
                     'file1_copy.txt', local_download1
                 ]
             )
@@ -1439,7 +1439,7 @@ class TestConsoleTool(BaseConsoleToolTest):
 
             self._run_command(
                 [
-                    'upload-file', '--noProgress', '--retry-for', '3', '--threads', '5',
+                    'upload-file', '--noProgress', '--retry-for', '10', '--threads', '5',
                     'my-bucket', file_path, 'test.txt'
                 ],
                 expected_json_in_stdout=expected_json,
@@ -1504,7 +1504,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 'upload-file',
                 '--noProgress',
                 '--retry-for',
-                '3',
+                '10',
                 '--threads',
                 '5',
                 '--incrementalMode',
@@ -1894,7 +1894,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             upload test.txt
             '''
 
-            command = ['sync', '--noProgress', '--retry-for', '3', temp_dir, 'b2://my-bucket']
+            command = ['sync', '--noProgress', '--retry-for', '10', temp_dir, 'b2://my-bucket']
             self._run_command(command, expected_stdout, '', 0)
 
     def test_sync_empty_folder_when_not_enabled(self):
@@ -1926,7 +1926,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             upload test-dry-run.txt
             '''
             command = [
-                'sync', '--noProgress', '--retry-for', '3', '--dryRun', temp_dir, 'b2://my-bucket'
+                'sync', '--noProgress', '--retry-for', '10', '--dryRun', temp_dir, 'b2://my-bucket'
             ]
             self._run_command(command, expected_stdout, '', 0)
 
@@ -2392,10 +2392,12 @@ class TestConsoleTool(BaseConsoleToolTest):
                 '--write-buffer-size': 123,
                 '--skip-hash-verification': None,
                 '--max-download-streams-per-file': 8,
+                '--retry-for': 30,
             },
             {
                 '--write-buffer-size': 321,
                 '--max-download-streams-per-file': 7,
+                '--retry-for': 900,
             },
         ]
         for command, params in product(commands, parameters):
@@ -2411,6 +2413,10 @@ class TestConsoleTool(BaseConsoleToolTest):
             download_manager = console_tool.api.services.download_manager
             assert download_manager.write_buffer_size == params['--write-buffer-size']
             assert download_manager.check_hash is ('--skip-hash-verification' not in params)
+            assert download_manager.retry_time == params['--retry-for']
+
+            upload_manager = console_tool.api.services.upload_manager
+            assert upload_manager.retry_time == params['--retry-for']
 
             parallel_strategy = one(
                 strategy for strategy in download_manager.strategies

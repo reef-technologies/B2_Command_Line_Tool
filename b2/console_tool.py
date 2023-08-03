@@ -517,13 +517,13 @@ class UploadModeMixin(Described):
 
 class RetryMixin(Described):
     """
-    Use --retry-for to set the maximum time period, in minutes, for which to retry when an upload or download fails.
-    Default retry time is 5 minutes.
+    Use --retry-for to set the maximum time period, in seconds, for which to retry when an upload or download fails.
+    Default retry time is 300 seconds.
     """
 
     @classmethod
     def _setup_parser(cls, parser):
-        parser.add_argument('--retry-for', metavar='MINUTES', type=int)
+        parser.add_argument('--retry-for', metavar='SECONDS', type=int)
         super()._setup_parser(parser)  # noqa
 
 
@@ -3425,7 +3425,7 @@ class ConsoleTool:
             if 'max_download_streams_per_file' in args:
                 kwargs['max_download_streams_per_file'] = args.max_download_streams_per_file
 
-            if 'retry-for' in args:
+            if 'retry_for' in args:
                 kwargs['retry_time'] = args.retry_for
 
             self.api = _get_b2api_for_profile(**kwargs)
