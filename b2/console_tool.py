@@ -506,12 +506,24 @@ class UploadModeMixin(Described):
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--incrementalMode', action='store_true')
+        super()._setup_parser(parser)  # noqa
 
     @staticmethod
     def _get_upload_mode_from_args(args):
         if args.incrementalMode:
             return UploadMode.INCREMENTAL
         return UploadMode.FULL
+
+
+class RetryMixin(Described):
+    """
+    Use --retry-for to set the maximum time period, in seconds, for which to retry when an upload or download fails.
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument('--retry-for', metavar='SECONDS', type=int)
+        super()._setup_parser(parser)  # noqa
 
 
 class Command(Described):
@@ -1275,7 +1287,7 @@ class DownloadCommand(Command):
 @B2.register_subcommand
 class DownloadFileById(
     SourceSseMixin, WriteBufferSizeMixin, SkipHashVerificationMixin, MaxDownloadStreamsMixin,
-    DownloadCommand
+    RetryMixin, DownloadCommand
 ):
     """
     Downloads the given file, and stores it in the given local file.
@@ -1324,6 +1336,7 @@ class DownloadFileByName(
     WriteBufferSizeMixin,
     SkipHashVerificationMixin,
     MaxDownloadStreamsMixin,
+    RetryMixin,
     DownloadCommand,
 ):
     """
@@ -2157,6 +2170,7 @@ class Sync(
     SkipHashVerificationMixin,
     MaxDownloadStreamsMixin,
     UploadModeMixin,
+    RetryMixin,
     Command,
 ):
     """
@@ -2600,7 +2614,8 @@ class UpdateBucket(DefaultSseMixin, Command):
 
 @B2.register_subcommand
 class UploadFile(
-    DestinationSseMixin, LegalHoldMixin, FileRetentionSettingMixin, UploadModeMixin, Command
+    DestinationSseMixin, LegalHoldMixin, FileRetentionSettingMixin, UploadModeMixin, RetryMixin,
+    Command
 ):
     """
     Uploads one file to the given bucket.  Uploads the contents
@@ -3408,6 +3423,9 @@ class ConsoleTool:
 
             if 'max_download_streams_per_file' in args:
                 kwargs['max_download_streams_per_file'] = args.max_download_streams_per_file
+
+            if 'retry_for' in args and args.retry_for:
+                kwargs['retry_time'] = datetime.timedelta(seconds=args.retry_for)
 
             self.api = _get_b2api_for_profile(**kwargs)
 

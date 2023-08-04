@@ -13,6 +13,7 @@ import os
 import pathlib
 import re
 import unittest.mock as mock
+from datetime import timedelta
 from io import StringIO
 from itertools import chain, product
 from typing import List, Optional
@@ -871,8 +872,10 @@ class TestConsoleTool(BaseConsoleToolTest):
             # Download file by ID.  (Same expected output as downloading by name)
             local_download2 = os.path.join(temp_dir, 'download2.txt')
             self._run_command(
-                ['download-file-by-id', '--noProgress', '9999', local_download2], expected_stdout,
-                '', 0
+                [
+                    'download-file-by-id', '--noProgress', '--retry-for', '10', '9999',
+                    local_download2
+                ], expected_stdout, '', 0
             )
             self.assertEqual(b'hello world', self._read_file(local_download2))
 
@@ -1141,7 +1144,10 @@ class TestConsoleTool(BaseConsoleToolTest):
         with TempDir() as temp_dir:
             local_file = self._make_local_file(temp_dir, 'file.txt')
             self._run_command(
-                ['upload-file', '--noProgress', 'my-bucket', local_file, 'file.txt'],
+                [
+                    'upload-file', '--noProgress', '--retry-for', '10', 'my-bucket', local_file,
+                    'file.txt'
+                ],
                 remove_version=True,
             )
 
@@ -1200,7 +1206,10 @@ class TestConsoleTool(BaseConsoleToolTest):
             }
 
             self._run_command(
-                ['upload-file', '--noProgress', 'my-bucket', local_file1, 'file1.txt'],
+                [
+                    'upload-file', '--noProgress', '--retry-for', '10', 'my-bucket', local_file1,
+                    'file1.txt'
+                ],
                 expected_json_in_stdout=expected_json,
                 remove_version=True,
                 expected_part_of_stdout=expected_stdout,
@@ -1255,8 +1264,8 @@ class TestConsoleTool(BaseConsoleToolTest):
             local_download1 = os.path.join(temp_dir, 'file1_copy.txt')
             self._run_command(
                 [
-                    'download-file-by-name', '--noProgress', 'my-bucket', 'file1_copy.txt',
-                    local_download1
+                    'download-file-by-name', '--noProgress', '--retry-for', '10', 'my-bucket',
+                    'file1_copy.txt', local_download1
                 ]
             )
             self.assertEqual(b'lo wo', self._read_file(local_download1))
@@ -1431,8 +1440,8 @@ class TestConsoleTool(BaseConsoleToolTest):
 
             self._run_command(
                 [
-                    'upload-file', '--noProgress', '--threads', '5', 'my-bucket', file_path,
-                    'test.txt'
+                    'upload-file', '--noProgress', '--retry-for', '10', '--threads', '5',
+                    'my-bucket', file_path, 'test.txt'
                 ],
                 expected_json_in_stdout=expected_json,
                 remove_version=True,
@@ -1495,6 +1504,8 @@ class TestConsoleTool(BaseConsoleToolTest):
             incremental_upload_params = [
                 'upload-file',
                 '--noProgress',
+                '--retry-for',
+                '10',
                 '--threads',
                 '5',
                 '--incrementalMode',
@@ -1884,7 +1895,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             upload test.txt
             '''
 
-            command = ['sync', '--noProgress', temp_dir, 'b2://my-bucket']
+            command = ['sync', '--noProgress', '--retry-for', '10', temp_dir, 'b2://my-bucket']
             self._run_command(command, expected_stdout, '', 0)
 
     def test_sync_empty_folder_when_not_enabled(self):
@@ -1915,7 +1926,9 @@ class TestConsoleTool(BaseConsoleToolTest):
             expected_stdout = '''
             upload test-dry-run.txt
             '''
-            command = ['sync', '--noProgress', '--dryRun', temp_dir, 'b2://my-bucket']
+            command = [
+                'sync', '--noProgress', '--retry-for', '10', '--dryRun', temp_dir, 'b2://my-bucket'
+            ]
             self._run_command(command, expected_stdout, '', 0)
 
             # file should not have been uploaded
@@ -2380,10 +2393,12 @@ class TestConsoleTool(BaseConsoleToolTest):
                 '--write-buffer-size': 123,
                 '--skip-hash-verification': None,
                 '--max-download-streams-per-file': 8,
+                '--retry-for': 30,
             },
             {
                 '--write-buffer-size': 321,
                 '--max-download-streams-per-file': 7,
+                '--retry-for': 900,
             },
         ]
         for command, params in product(commands, parameters):
@@ -2396,9 +2411,16 @@ class TestConsoleTool(BaseConsoleToolTest):
             args = list(map(str, filter(None, chain.from_iterable(params.items()))))
             console_tool.run_command(command + args)
 
+            retry_time = timedelta(seconds=params['--retry-for'])
+
             download_manager = console_tool.api.services.download_manager
             assert download_manager.write_buffer_size == params['--write-buffer-size']
             assert download_manager.check_hash is ('--skip-hash-verification' not in params)
+            for strategy in download_manager.strategies:
+                assert strategy._retry_time == retry_time
+
+            upload_manager = console_tool.api.services.upload_manager
+            assert upload_manager.retry_counter.retry_time == retry_time
 
             parallel_strategy = one(
                 strategy for strategy in download_manager.strategies
