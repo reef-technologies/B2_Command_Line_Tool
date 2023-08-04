@@ -13,6 +13,7 @@ import os
 import pathlib
 import re
 import unittest.mock as mock
+from datetime import timedelta
 from io import StringIO
 from itertools import chain, product
 from typing import List, Optional
@@ -2410,13 +2411,16 @@ class TestConsoleTool(BaseConsoleToolTest):
             args = list(map(str, filter(None, chain.from_iterable(params.items()))))
             console_tool.run_command(command + args)
 
+            retry_time = timedelta(seconds=params['--retry-for'])
+
             download_manager = console_tool.api.services.download_manager
             assert download_manager.write_buffer_size == params['--write-buffer-size']
             assert download_manager.check_hash is ('--skip-hash-verification' not in params)
-            assert download_manager.retry_time == params['--retry-for']
+            for strategy in download_manager.strategies:
+                assert strategy._retry_time == retry_time
 
             upload_manager = console_tool.api.services.upload_manager
-            assert upload_manager.retry_time == params['--retry-for']
+            assert upload_manager.retry_counter.retry_time == retry_time
 
             parallel_strategy = one(
                 strategy for strategy in download_manager.strategies
