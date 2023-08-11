@@ -24,6 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fix UnicodeEncodeError in non-Unicode terminals by prioritizing stdout encoding
 * When listing licenses in `license` command only show licenses of `b2` and its dependencies
 
+## Changes
+* Wildcard support for the `ls` and `rm` commands is now shell-like instead of glob-like
+* `ls` command now acts as if `--withWildcard` was always set
+
+### Removed
+* Remove `--recursive` from `ls` command
+* Remove `--withWildcard` from `ls` command
+
 ## [3.9.0] - 2023-04-28
 
 ### Added

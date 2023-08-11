@@ -118,9 +118,7 @@ def test_basic(b2_tool, bucket_name):
     b2_tool.should_succeed(['upload-file', '--noProgress', bucket_name, file_to_upload, 'rm1'])
     # with_wildcard allows us to target a single file. rm will be removed, rm1 will be left alone
     b2_tool.should_succeed(['rm', '--recursive', '--withWildcard', bucket_name, 'rm'])
-    list_of_files = b2_tool.should_succeed_json(
-        ['ls', '--json', '--recursive', '--withWildcard', bucket_name, 'rm*']
-    )
+    list_of_files = b2_tool.should_succeed_json(['ls', '--json', bucket_name, 'rm*'])
     should_equal(['rm1'], [f['fileName'] for f in list_of_files])
     b2_tool.should_succeed(['rm', '--recursive', '--withWildcard', bucket_name, 'rm1'])
 

@@ -1738,26 +1738,28 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
     The ``--versions`` option selects all versions of each file, not
     just the most recent.
 
-    The ``--recursive`` option will descend into folders, and will select
-    only files, not folders.
-
-    The ``--withWildcard`` option will allow using ``*``, ``?`` and ```[]```
-    characters in ``folderName`` as a greedy wildcard, single character
-    wildcard and range of characters. It requires the ``--recursive`` option.
     Remember to quote ``folderName`` to avoid shell expansion.
     """
 
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--versions', action='store_true')
-        parser.add_argument('--recursive', action='store_true')
-        parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('bucketName').completer = bucket_name_completer
         parser.add_argument('folderName', nargs='?').completer = file_name_completer
 
     def run(self, args):
         generator = self._get_ls_generator(args)
 
+        try:
+            file_version, folder_name = next(generator)
+        except StopIteration:
+            # folder not found, exit with error
+            print(f"No such file or directory: {args.folderName}", file=sys.stderr)
+            return 1
+        else:
+            self._print_file_version(args, file_version, folder_name)
+
+        # print remaining items
         for file_version, folder_name in generator:
             self._print_file_version(args, file_version, folder_name)
 
@@ -1782,6 +1784,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
                 latest_only=not args.versions,
                 recursive=args.recursive,
                 with_wildcard=args.withWildcard,
+                wildcard_style='shell',
             )
         except ValueError as error:
             # Wrap these errors into B2Error. At the time of writing there's
@@ -1822,21 +1825,21 @@ class Ls(AbstractLsCommand):
 
     .. code-block::
 
-        {NAME} ls --recursive --withWildcard bucketName "*.[ct]sv"
+        {NAME} ls bucketName "*.[ct]sv"
 
 
     List all info.txt files from buckets bX, where X is any character:
 
     .. code-block::
 
-        {NAME} ls --recursive --withWildcard bucketName "b?/info.txt"
+        {NAME} ls bucketName "b?/info.txt"
 
 
     List all pdf files from buckets b0 to b9 (including sub-directories):
 
     .. code-block::
 
-        {NAME} ls --recursive --withWildcard bucketName "b[0-9]/*.pdf"
+        {NAME} ls bucketName "b[0-9]/*.pdf"
 
 
     Requires capability:
@@ -1850,12 +1853,14 @@ class Ls(AbstractLsCommand):
 
     @classmethod
     def _setup_parser(cls, parser):
-        parser.add_argument('--long', action='store_true')
+        parser.add_argument('-l', '--long', action='store_true')
         parser.add_argument('--json', action='store_true')
         parser.add_argument('--replication', action='store_true')
         super()._setup_parser(parser)
 
     def run(self, args):
+        args.recursive = True
+        args.withWildcard = True
         if args.json:
             # TODO: Make this work for an infinite generation.
             #   Use `_print_file_version` to print a single `file_version` and manage the external JSON list
@@ -1928,6 +1933,12 @@ class Rm(AbstractLsCommand):
 
     Progress is displayed on the console unless ``--noProgress`` is specified.
 
+    The ``--recursive`` option will descend into folders, deleting all files
+
+    The ``--withWildcard`` option will allow using ``*``, ```**```, ``?``, ``[]``, ``{{}}``
+    characters in ``folderName`` as a greedy wildcard, single character
+    wildcard and range of characters. It requires the ``--recursive`` option.
+
     {ABSTRACTLSCOMMAND}
 
     The ``--dryRun`` option prints all the files that would be affected by
@@ -1961,25 +1972,31 @@ class Rm(AbstractLsCommand):
         Use with caution. Running examples presented below can cause data-loss.
 
 
-    Remove all csv and tsv files (in any directory, in the whole bucket):
+    Remove all csv and tsv files in the root of the bucket:
 
     .. code-block::
 
         {NAME} rm --recursive --withWildcard bucketName "*.[ct]sv"
 
 
-    Remove all info.txt files from buckets bX, where X is any character:
+    Remove all info.txt files from folders bX, where X is any character:
 
     .. code-block::
 
         {NAME} rm --recursive --withWildcard bucketName "b?/info.txt"
 
 
-    Remove all pdf files from buckets b0 to b9 (including sub-directories):
+    Remove all pdf files from folders b0 to b9 (including sub-directories):
 
     .. code-block::
 
         {NAME} rm --recursive --withWildcard bucketName "b[0-9]/*.pdf"
+
+    Remove all pdf files from folders b00, b11, b22
+
+    .. code-block::
+
+        {NAME} rm --recursive --withWildcard bucketName "b{{00,11,22}}/*.pdf"
 
 
     Requires capability:
@@ -2045,6 +2062,12 @@ class Rm(AbstractLsCommand):
 
             self.reporter.end_total()
 
+            if not self.reporter.total_count:
+                # folder doesn't exist, exit with error
+                self.messages_queue.put(
+                    (self.ERROR_TAG, None, f"Folder not found: `{self.args.folderName}`")
+                )
+
         def _removal_done(self, future: Future) -> None:
             with self.mapping_lock:
                 file_version = self.futures_mapping.pop(future)
@@ -2069,6 +2092,8 @@ class Rm(AbstractLsCommand):
 
     @classmethod
     def _setup_parser(cls, parser):
+        parser.add_argument('-r', '--recursive', action='store_true')
+        parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('--dryRun', action='store_true')
         parser.add_argument('--threads', type=int, default=cls.DEFAULT_THREADS)
         parser.add_argument(
@@ -2082,7 +2107,7 @@ class Rm(AbstractLsCommand):
         parser.add_argument('--failFast', action='store_true')
         super()._setup_parser(parser)
 
-    def run(self, args):
+    def run(self, args: argparse.Namespace) -> int:
         if args.dryRun:
             return super().run(args)
 
@@ -2102,8 +2127,11 @@ class Rm(AbstractLsCommand):
                 event_type, *data = queue_entry
                 if event_type == submit_thread.ERROR_TAG:
                     file_version, error = data
-                    message = f'Deletion of file "{file_version.file_name}" ' \
-                              f'({file_version.id_}) failed: {str(error)}'
+                    if file_version:
+                        message = f'Deletion of file "{file_version.file_name}" ' \
+                                  f'({file_version.id_}) failed: {str(error)}'
+                    else:
+                        message = str(error)
                     reporter.print_completion(message)
 
                     failed_on_any_file = True

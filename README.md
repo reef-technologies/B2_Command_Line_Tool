@@ -69,7 +69,7 @@ b2 list-buckets [-h] [--json]
 b2 list-keys [-h] [--long]
 b2 list-parts [-h] largeFileId
 b2 list-unfinished-large-files [-h] bucketName
-b2 ls [-h] [--long] [--json] [--replication] [--versions] [--recursive] [--withWildcard] bucketName [folderName]
+b2 ls [-h] [--long] [--json] [--replication] [--versions] bucketName [folderName]
 b2 rm [-h] [--dryRun] [--threads THREADS] [--queueSize QUEUESIZE] [--noProgress] [--failFast] [--versions] [--recursive] [--withWildcard] bucketName [folderName]
 b2 make-url [-h] fileId
 b2 make-friendly-url [-h] bucketName fileName
