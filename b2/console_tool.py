@@ -1753,9 +1753,10 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         try:
             file_version, folder_name = next(generator)
         except StopIteration:
-            # folder not found, exit with error
-            print(f"No such file or directory: {args.folderName}", file=sys.stderr)
-            return 1
+            if args.folderName is not None:
+                # specific path requested but not found, exit with error
+                print(f"No such file or directory: {args.folderName}", file=sys.stderr)
+                return 1
         else:
             self._print_file_version(args, file_version, folder_name)
 
@@ -1783,7 +1784,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
                 latest_only=not args.versions,
                 recursive=args.recursive,
                 with_wildcard=args.withWildcard,
-                #wildcard_style='shell',
+                wildcard_style='shell',
             )
         except ValueError as error:
             # Wrap these errors into B2Error. At the time of writing there's
@@ -2066,8 +2067,8 @@ class Rm(AbstractLsCommand):
 
             self.reporter.end_total()
 
-            if not self.reporter.total_count:
-                # folder doesn't exist, exit with error
+            if not self.reporter.total_count and self.args.folderName is not None:
+                # specific path requested but not found, exit with error
                 self.messages_queue.put(
                     (self.ERROR_TAG, None, f"No such file or directory: `{self.args.folderName}`")
                 )

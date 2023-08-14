@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * When listing licenses in `license` command only show licenses of `b2` and its dependencies
 
 ### Changes
-* `ls` command now acts as if `--withWildcard` was always set
+* `ls` command now acts as if `--withWildcard` and when any folder name is supplied
 * Wildcard support for the `ls` and `rm` commands is now shell-like instead of glob-like
 
 ### Removed

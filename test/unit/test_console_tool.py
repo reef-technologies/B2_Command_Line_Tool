@@ -2140,7 +2140,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         self._create_my_bucket()
 
         # Check with no files
-        self._run_command(['ls', 'my-bucket', '*.txt'], '', '', 0)
+        self._run_command(['ls', 'my-bucket', '**/*.txt'], '', '', 1)
 
         # Create some files, including files in a folder
         bucket = self.b2_api.get_bucket_by_name('my-bucket')
@@ -2156,7 +2156,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         c/test.tsv
         '''
         self._run_command(
-            ['ls', 'my-bucket', '*.[tc]sv'],
+            ['ls', 'my-bucket', '**/*.[tc]sv'],
             expected_stdout,
         )
 
@@ -2166,7 +2166,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         c/test.tsv
         '''
         self._run_command(
-            ['ls', 'my-bucket', '*.tsv'],
+            ['ls', 'my-bucket', '**/*.tsv'],
             expected_stdout,
         )
 
@@ -2565,7 +2565,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.csv
         c/test.tsv
         '''
-        self._run_command(['ls', 'my-bucket'], expected_stdout)
+        self._run_command(['ls', 'my-bucket', '**'], expected_stdout)
 
     def test_rm_exact_filename(self):
         self._run_command(
@@ -2581,7 +2581,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.csv
         c/test.tsv
         '''
-        self._run_command(['ls', 'my-bucket'], expected_stdout)
+        self._run_command(['ls', 'my-bucket', '**'], expected_stdout)
 
     def test_rm_no_name_removes_everything(self):
         self._run_command(['rm', '--recursive', '--noProgress', 'my-bucket'])
@@ -2611,7 +2611,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         b/test.txt
         c/test.tsv
         '''
-        self._run_command(['ls', 'my-bucket'], expected_stdout)
+        self._run_command(['ls', 'my-bucket', '**'], expected_stdout)
 
     def _run_problematic_removal(
         self,
@@ -2666,4 +2666,4 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         expected_stdout = '''
         b/b1/test.csv
         '''
-        self._run_command(['ls', 'my-bucket'], expected_stdout)
+        self._run_command(['ls', 'my-bucket', '**'], expected_stdout)
