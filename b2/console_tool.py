@@ -1821,21 +1821,26 @@ class Ls(AbstractLsCommand):
         characters are not expanded by the shell.
 
 
-    List csv and tsv files (in any directory, in the whole bucket):
+    List csv and tsv files (in the current directory):
 
     .. code-block::
 
         {NAME} ls bucketName "*.[ct]sv"
 
+    List csv and tsv files (in any directory, in the whole bucket):
 
-    List all info.txt files from buckets bX, where X is any character:
+    .. code-block::
+
+        {NAME} ls bucketName "**/*.[ct]sv"
+
+    List all info.txt files from directories bX, where X is any character:
 
     .. code-block::
 
         {NAME} ls bucketName "b?/info.txt"
 
 
-    List all pdf files from buckets b0 to b9 (including sub-directories):
+    List all pdf files from directories b0 to b9 (including sub-directories):
 
     .. code-block::
 
@@ -1936,8 +1941,8 @@ class Rm(AbstractLsCommand):
     The ``--recursive`` option will descend into folders, deleting all files
 
     The ``--withWildcard`` option will allow using ``*``, ```**```, ``?``, ``[]``, ``{{}}``
-    characters in ``folderName`` as a greedy wildcard, single character
-    wildcard and range of characters. It requires the ``--recursive`` option.
+    characters in ``folderName`` as a non-greedy wildcard, greedy-wildcard, single character
+    wildcard, range of characters, and sequence of characters respectively. It requires the ``--recursive`` option.
 
     {ABSTRACTLSCOMMAND}
 
@@ -2065,7 +2070,7 @@ class Rm(AbstractLsCommand):
             if not self.reporter.total_count:
                 # folder doesn't exist, exit with error
                 self.messages_queue.put(
-                    (self.ERROR_TAG, None, f"Folder not found: `{self.args.folderName}`")
+                    (self.ERROR_TAG, None, f"No such file or directory: `{self.args.folderName}`")
                 )
 
         def _removal_done(self, future: Future) -> None:
