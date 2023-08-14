@@ -1744,6 +1744,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--versions', action='store_true')
+        parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('bucketName').completer = bucket_name_completer
         parser.add_argument('folderName', nargs='?').completer = file_name_completer
 
@@ -1865,7 +1866,7 @@ class Ls(AbstractLsCommand):
 
     def run(self, args):
         # if not folder is specified, list root folder only
-        args.recursive = args.withWildcard = args.folderName is not None
+        args.recursive = args.folderName is not None
         if args.json:
             # TODO: Make this work for an infinite generation.
             #   Use `_print_file_version` to print a single `file_version` and manage the external JSON list
@@ -2098,7 +2099,6 @@ class Rm(AbstractLsCommand):
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('-r', '--recursive', action='store_true')
-        parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('--dryRun', action='store_true')
         parser.add_argument('--threads', type=int, default=cls.DEFAULT_THREADS)
         parser.add_argument(
