@@ -1777,14 +1777,13 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         start_file_name = args.folderName or ''
 
         bucket = self.api.get_bucket_by_name(args.bucketName)
-
         try:
             yield from bucket.ls(
                 start_file_name,
                 latest_only=not args.versions,
                 recursive=args.recursive,
                 with_wildcard=args.withWildcard,
-                wildcard_style='shell',
+                #wildcard_style='shell',
             )
         except ValueError as error:
             # Wrap these errors into B2Error. At the time of writing there's
@@ -1864,8 +1863,8 @@ class Ls(AbstractLsCommand):
         super()._setup_parser(parser)
 
     def run(self, args):
-        args.recursive = True
-        args.withWildcard = True
+        # if not folder is specified, list root folder only
+        args.recursive = args.withWildcard = args.folderName is not None
         if args.json:
             # TODO: Make this work for an infinite generation.
             #   Use `_print_file_version` to print a single `file_version` and manage the external JSON list

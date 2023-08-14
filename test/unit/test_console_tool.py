@@ -2116,7 +2116,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         b/b2
         c
         '''
-        self._run_command(['ls', '--recursive', 'my-bucket'], expected_stdout, '', 0)
+        self._run_command(['ls', 'my-bucket', '**'], expected_stdout, '', 0)
 
         # Check long output.   (The format expects full-length file ids, so it causes whitespace here)
         expected_stdout = '''

@@ -218,7 +218,7 @@ class Api:
                 self.api.update_file_legal_hold(
                     file_version_info.id_, file_version_info.file_name, LegalHold.OFF
                 )
-            print('Removing file version:', file_version_info.id_)
+            print('Removing file version:', file_version_info.id_, file_version_info.file_name)
             try:
                 self.api.delete_file_version(file_version_info.id_, file_version_info.file_name)
             except FileNotPresent:
@@ -444,7 +444,8 @@ class CommandLine:
             assert re.search(expected_pattern, stdout), \
             f'did not match pattern="{expected_pattern}", stdout="{stdout}"'
 
-        return stdout
+        stdout = [x for x in stdout.split('\n') if not x.startswith('XXX')]
+        return "\n".join(stdout)
 
     def should_succeed_json(self, args, additional_env: Optional[dict] = None):
         """
@@ -482,7 +483,7 @@ class CommandLine:
             assert not missing_capabilities, f'it appears that the raw_api integration test is being run with a non-full key. Missing capabilities: {missing_capabilities}'
 
     def list_file_versions(self, bucket_name):
-        return self.should_succeed_json(['ls', '--json', '--recursive', '--versions', bucket_name])
+        return self.should_succeed_json(['ls', '--json', '--versions', bucket_name, '**'])
 
 
 class TempDir:
