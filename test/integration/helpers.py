@@ -444,8 +444,7 @@ class CommandLine:
             assert re.search(expected_pattern, stdout), \
             f'did not match pattern="{expected_pattern}", stdout="{stdout}"'
 
-        stdout = [x for x in stdout.split('\n') if not x.startswith('XXX')]
-        return "\n".join(stdout)
+        return "\n".join([x for x in stdout.split('\n') if not x.strip().startswith('DEBUG:')])
 
     def should_succeed_json(self, args, additional_env: Optional[dict] = None):
         """
@@ -483,7 +482,10 @@ class CommandLine:
             assert not missing_capabilities, f'it appears that the raw_api integration test is being run with a non-full key. Missing capabilities: {missing_capabilities}'
 
     def list_file_versions(self, bucket_name):
-        return self.should_succeed_json(['ls', '--json', '--versions', bucket_name, '**'])
+        # TODO B2-13 replace with `find` command
+        return self.should_succeed_json(
+            ['ls', '--json', '--withWildcard', '--versions', bucket_name, '**']
+        )
 
 
 class TempDir:

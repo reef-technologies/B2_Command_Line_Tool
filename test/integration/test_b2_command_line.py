@@ -118,7 +118,9 @@ def test_basic(b2_tool, bucket_name):
     b2_tool.should_succeed(['upload-file', '--noProgress', bucket_name, file_to_upload, 'rm1'])
     # with_wildcard allows us to target a single file. rm will be removed, rm1 will be left alone
     b2_tool.should_succeed(['rm', '--recursive', '--withWildcard', bucket_name, 'rm'])
-    list_of_files = b2_tool.should_succeed_json(['ls', '--json', bucket_name, 'rm*'])
+    list_of_files = b2_tool.should_succeed_json(
+        ['ls', '--withWildcard', '--json', bucket_name, 'rm*']
+    )
     should_equal(['rm1'], [f['fileName'] for f in list_of_files])
     b2_tool.should_succeed(['rm', '--recursive', '--withWildcard', bucket_name, 'rm1'])
 
@@ -129,11 +131,15 @@ def test_basic(b2_tool, bucket_name):
 
     b2_tool.should_succeed(['hide-file', bucket_name, 'c'])
 
-    list_of_files = b2_tool.should_succeed_json(['ls', '--json', bucket_name, '**'])
+    # TODO B2-13 replace with `find` command
+    list_of_files = b2_tool.should_succeed_json(
+        ['ls', '--json', '--withWildcard', bucket_name, '**']
+    )
     should_equal(['a', 'b/1', 'b/2', 'd'], [f['fileName'] for f in list_of_files])
 
+    # TODO B2-13 replace with `find` command
     list_of_files = b2_tool.should_succeed_json(
-        ['ls', '--json', '--versions', bucket_name, '**']
+        ['ls', '--json', '--withWildcard', '--versions', bucket_name, '**']
     )
     should_equal(['a', 'a', 'b/1', 'b/2', 'c', 'c', 'd'], [f['fileName'] for f in list_of_files])
     should_equal(
@@ -145,9 +151,7 @@ def test_basic(b2_tool, bucket_name):
 
     first_c_version = list_of_files[4]
     second_c_version = list_of_files[5]
-    list_of_files = b2_tool.should_succeed_json(
-        ['ls', '--json', '--versions', bucket_name, 'c']
-    )
+    list_of_files = b2_tool.should_succeed_json(['ls', '--json', '--versions', bucket_name, 'c'])
     should_equal([], [f['fileName'] for f in list_of_files])
 
     b2_tool.should_succeed(['copy-file-by-id', first_a_version['fileId'], bucket_name, 'x'])
@@ -1141,7 +1145,10 @@ def test_sse_b2(b2_tool, bucket_name):
             ]
         )
 
-    list_of_files = b2_tool.should_succeed_json(['ls', '--json', bucket_name, '**'])
+    # TODO B2-13 replace with `find` command
+    list_of_files = b2_tool.should_succeed_json(
+        ['ls', '--json', '--withWildcard', bucket_name, '**']
+    )
     should_equal(
         [{
             'algorithm': 'AES256',
@@ -1168,7 +1175,10 @@ def test_sse_b2(b2_tool, bucket_name):
         ['copy-file-by-id', not_encrypted_version['fileId'], bucket_name, 'copied_not_encrypted']
     )
 
-    list_of_files = b2_tool.should_succeed_json(['ls', '--json', bucket_name, '**'])
+    # TODO B2-13 replace with `find` command
+    list_of_files = b2_tool.should_succeed_json(
+        ['ls', '--json', '--withWildcard', bucket_name, '**']
+    )
     should_equal(
         [{
             'algorithm': 'AES256',
@@ -1396,7 +1406,7 @@ def test_sse_c(b2_tool, bucket_name):
             'B2_DESTINATION_SSE_C_KEY_ID': 'another-user-generated-key-id',
         }
     )
-    list_of_files = b2_tool.should_succeed_json(['ls', '--json',  bucket_name])
+    list_of_files = b2_tool.should_succeed_json(['ls', '--json', bucket_name])
     should_equal(
         [
             {

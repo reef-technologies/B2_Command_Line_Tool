@@ -1740,6 +1740,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
 
     Remember to quote ``folderName`` to avoid shell expansion.
     """
+    wildcard_style = 'shell'  # TODO B2-13 remove with rm changes implementation
 
     @classmethod
     def _setup_parser(cls, parser):
@@ -1785,7 +1786,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
                 latest_only=not args.versions,
                 recursive=args.recursive,
                 with_wildcard=args.withWildcard,
-                wildcard_style='shell',
+                wildcard_style=self.wildcard_style,
             )
         except ValueError as error:
             # Wrap these errors into B2Error. At the time of writing there's
@@ -1811,6 +1812,10 @@ class Ls(AbstractLsCommand):
     the server api response format.
 
     The ``--replication`` option adds replication status
+
+    The ``--withWildcard`` option will allow using ``*``, ```**```, ``?``, ``[]``, ``{{}}``
+    characters in ``folderName`` as a non-greedy wildcard, greedy-wildcard, single character
+    wildcard, range of characters, and sequence of characters respectively.
 
     {ABSTRACTLSCOMMAND}
 
@@ -2013,6 +2018,7 @@ class Rm(AbstractLsCommand):
 
     DEFAULT_THREADS = 10
     PROGRESS_REPORT_CLASS = ProgressReport
+    wildcard_style = 'glob'  # TODO B2-13 remove with rm changes implementation
 
     class SubmitThread(threading.Thread):
         END_MARKER = object()
