@@ -444,7 +444,7 @@ class CommandLine:
             assert re.search(expected_pattern, stdout), \
             f'did not match pattern="{expected_pattern}", stdout="{stdout}"'
 
-        return "\n".join([x for x in stdout.split('\n') if not x.strip().startswith('DEBUG:')])
+        return stdout
 
     def should_succeed_json(self, args, additional_env: Optional[dict] = None):
         """

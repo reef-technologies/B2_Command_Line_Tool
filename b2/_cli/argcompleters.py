@@ -40,8 +40,9 @@ def file_name_completer(api: B2Api, parsed_args, **kwargs):
     To limit delay & cost only lists files returned from by single call to b2_list_file_names
     """
     bucket = api.get_bucket_by_name(parsed_args.bucketName)
+    list_folder = parsed_args.folderList[0] if getattr(parsed_args, 'folderList', None) else ''
     file_versions = bucket.ls(
-        getattr(parsed_args, 'folderName', None) or '',
+        list_folder,
         latest_only=True,
         recursive=False,
         fetch_count=LIST_FILE_NAMES_MAX_LIMIT,

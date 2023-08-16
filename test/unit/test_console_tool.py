@@ -2557,7 +2557,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.csv
         '''
         self._run_command(
-            ['rm', '--recursive', '--withWildcard', '--dryRun', 'my-bucket', '*.csv'],
+            ['rm', '--recursive', '--withWildcard', '--dryRun', 'my-bucket', '**/*.csv'],
             expected_stdout,
         )
 
@@ -2653,7 +2653,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
                     '1',
                     *additional_parameters,
                     'my-bucket',
-                    '*',
+                    '**',
                 ],
                 expected_status=1,
                 expected_part_of_stdout=expected_in_stdout,

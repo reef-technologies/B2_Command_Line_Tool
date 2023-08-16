@@ -1738,33 +1738,26 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
     The ``--versions`` option selects all versions of each file, not
     just the most recent.
 
-    Remember to quote ``folderName`` to avoid shell expansion.
+    Remember to quote ``folderList`` to avoid shell expansion.
     """
-    wildcard_style = 'shell'  # TODO B2-13 remove with rm changes implementation
-
-    @classmethod
-    def _setup_parser(cls, parser):
-        parser.add_argument('--versions', action='store_true')
-        parser.add_argument('--withWildcard', action='store_true')
-        parser.add_argument('bucketName').completer = bucket_name_completer
-        parser.add_argument('folderName', nargs='?').completer = file_name_completer
 
     def run(self, args):
-        generator = self._get_ls_generator(args)
+        for folder_name in args.folderList:
+            generator = self._get_ls_generator(folder_name, args)
 
-        try:
-            file_version, folder_name = next(generator)
-        except StopIteration:
-            if args.folderName is not None:
-                # specific path requested but not found, exit with error
-                print(f"No such file or directory: {args.folderName}", file=sys.stderr)
-                return 1
-        else:
-            self._print_file_version(args, file_version, folder_name)
+            try:
+                file_version, folder_name = next(generator)
+            except StopIteration:
+                if folder_name:
+                    # requested path not found, exit with error
+                    print(f"x1 No such file or directory: {folder_name}", file=sys.stderr)
+                    return 1
+            else:
+                self._print_file_version(args, file_version, folder_name)
 
-        # print remaining items
-        for file_version, folder_name in generator:
-            self._print_file_version(args, file_version, folder_name)
+            # print remaining items
+            for file_version, folder_name in generator:
+                self._print_file_version(args, file_version, folder_name)
 
         return 0
 
@@ -1776,17 +1769,16 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
     ) -> None:
         self._print(folder_name or file_version.file_name)
 
-    def _get_ls_generator(self, args):
-        start_file_name = args.folderName or ''
-
+    def _get_ls_generator(self, path: str, args):
         bucket = self.api.get_bucket_by_name(args.bucketName)
+
         try:
             yield from bucket.ls(
-                start_file_name,
+                path,
                 latest_only=not args.versions,
                 recursive=args.recursive,
                 with_wildcard=args.withWildcard,
-                wildcard_style=self.wildcard_style,
+                wildcard_style='shell',
             )
         except ValueError as error:
             # Wrap these errors into B2Error. At the time of writing there's
@@ -1814,7 +1806,7 @@ class Ls(AbstractLsCommand):
     The ``--replication`` option adds replication status
 
     The ``--withWildcard`` option will allow using ``*``, ```**```, ``?``, ``[]``, ``{{}}``
-    characters in ``folderName`` as a non-greedy wildcard, greedy-wildcard, single character
+    characters in ``folderList`` as a non-greedy wildcard, greedy-wildcard, single character
     wildcard, range of characters, and sequence of characters respectively.
 
     {ABSTRACTLSCOMMAND}
@@ -1862,16 +1854,31 @@ class Ls(AbstractLsCommand):
     LS_ENTRY_TEMPLATE = '%83s  %6s  %10s  %8s  %9d  %s'
     LS_ENTRY_TEMPLATE_REPLICATION = LS_ENTRY_TEMPLATE + '  %s'
 
+    class ListItemsAction(argparse.Action):
+        """Action for parsing and standardizing zero to multiple arguments."""
+
+        def __call__(self, parser, namespace, values, option_string=None):
+            if values is None:
+                values = ''
+            if isinstance(values, str):
+                values = [values]
+            setattr(namespace, self.dest, values)
+
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('-l', '--long', action='store_true')
         parser.add_argument('--json', action='store_true')
         parser.add_argument('--replication', action='store_true')
-        super()._setup_parser(parser)
+        parser.add_argument('--versions', action='store_true')
+        parser.add_argument('--withWildcard', action='store_true')
+        parser.add_argument('bucketName').completer = bucket_name_completer
+        parser.add_argument(
+            'folderList', nargs='?', action=cls.ListItemsAction
+        ).completer = file_name_completer
 
     def run(self, args):
-        # if not folder is specified, list root folder only
-        args.recursive = args.folderName is not None
+        # `recursive` is internally still required for `withWildcard` to work.
+        args.recursive = bool(args.withWildcard)
         if args.json:
             # TODO: Make this work for an infinite generation.
             #   Use `_print_file_version` to print a single `file_version` and manage the external JSON list
@@ -1879,7 +1886,12 @@ class Ls(AbstractLsCommand):
             #   at least one element was written to the stream, so we can add a `,` on the start of another.
             #   That would sadly lead to an ugly formatting, so `_print` needs to be expanded with an ability
             #   to not print end-line character(s).
-            self._print_json([file_version for file_version, _ in self._get_ls_generator(args)])
+            self._print_json(
+                [
+                    file_version
+                    for file_version, _ in self._get_ls_generator(args.folderList[0], args)
+                ]
+            )
             return 0
 
         return super().run(args)
@@ -1947,7 +1959,7 @@ class Rm(AbstractLsCommand):
     The ``--recursive`` option will descend into folders, deleting all files
 
     The ``--withWildcard`` option will allow using ``*``, ```**```, ``?``, ``[]``, ``{{}}``
-    characters in ``folderName`` as a non-greedy wildcard, greedy-wildcard, single character
+    characters in ``folderList`` as a non-greedy wildcard, greedy-wildcard, single character
     wildcard, range of characters, and sequence of characters respectively. It requires the ``--recursive`` option.
 
     {ABSTRACTLSCOMMAND}
@@ -2018,7 +2030,6 @@ class Rm(AbstractLsCommand):
 
     DEFAULT_THREADS = 10
     PROGRESS_REPORT_CLASS = ProgressReport
-    wildcard_style = 'glob'  # TODO B2-13 remove with rm changes implementation
 
     class SubmitThread(threading.Thread):
         END_MARKER = object()
@@ -2047,38 +2058,44 @@ class Rm(AbstractLsCommand):
             try:
                 with ThreadPoolExecutor(max_workers=self.args.threads) as executor:
                     self._run_removal(executor)
+                    self.reporter.end_total()
             except Exception as error:
                 self.messages_queue.put((self.EXCEPTION_TAG, error))
             finally:
                 self.messages_queue.put(self.END_MARKER)
 
         def _run_removal(self, executor: Executor):
-            for file_version, _ in self.runner._get_ls_generator(self.args):
+            print('run removal')
+            for path_name in self.args.folderList:
+                print('removal of path_name: ', path_name)
+                generator = self.runner._get_ls_generator(path_name, self.args)
                 # Obtaining semaphore limits number of elements that we fetch from LS.
-                self.semaphore.acquire(blocking=True)
-                # This event is updated before the semaphore is released. This way,
-                # in a single threaded scenario, we get synchronous responses.
-                if self.fail_fast_event.is_set():
-                    break
+                future = None
+                for file_version, _ in generator:
+                    # This event is updated before the semaphore is released. This way,
+                    # in a single threaded scenario, we get synchronous responses.
+                    if self.fail_fast_event.is_set():
+                        break
 
-                self.reporter.update_total(1)
-                future = executor.submit(
-                    self.runner.api.delete_file_version,
-                    file_version.id_,
-                    file_version.file_name,
-                )
-                with self.mapping_lock:
-                    self.futures_mapping[future] = file_version
-                # Done callback is added after, so it's "sure" that mapping is updated earlier.
-                future.add_done_callback(self._removal_done)
+                    self.reporter.update_total(1)
+                    self.semaphore.acquire(blocking=True)
 
-            self.reporter.end_total()
+                    future = executor.submit(
+                        self.runner.api.delete_file_version,
+                        file_version.id_,
+                        file_version.file_name,
+                    )
+                    with self.mapping_lock:
+                        self.futures_mapping[future] = file_version
+                    # Done callback is added after, so it's "sure" that mapping is updated earlier.
+                    future.add_done_callback(self._removal_done)
 
-            if not self.reporter.total_count and self.args.folderName is not None:
-                # specific path requested but not found, exit with error
-                self.messages_queue.put(
-                    (self.ERROR_TAG, None, f"No such file or directory: `{self.args.folderName}`")
-                )
+                if future is None and path_name:
+                    # specific path requested but not found, exit with error
+                    self.messages_queue.put(
+                        (self.ERROR_TAG, None, f"No such file or directory: `{path_name}`")
+                    )
+                    return
 
         def _removal_done(self, future: Future) -> None:
             with self.mapping_lock:
@@ -2104,6 +2121,8 @@ class Rm(AbstractLsCommand):
 
     @classmethod
     def _setup_parser(cls, parser):
+        parser.add_argument('--versions', action='store_true')
+        parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('-r', '--recursive', action='store_true')
         parser.add_argument('--dryRun', action='store_true')
         parser.add_argument('--threads', type=int, default=cls.DEFAULT_THREADS)
@@ -2116,7 +2135,8 @@ class Rm(AbstractLsCommand):
         )
         parser.add_argument('--noProgress', action='store_true')
         parser.add_argument('--failFast', action='store_true')
-        super()._setup_parser(parser)
+        parser.add_argument('bucketName').completer = bucket_name_completer
+        parser.add_argument('folderList', nargs='*').completer = file_name_completer
 
     def run(self, args: argparse.Namespace) -> int:
         if args.dryRun:
