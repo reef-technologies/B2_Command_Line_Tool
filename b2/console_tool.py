@@ -1742,6 +1742,22 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
     """
 
     def run(self, args):
+        if args.json:
+            # TODO: Make this work for an infinite generation.
+            #   Use `_print_file_version` to print a single `file_version` and manage the external JSON list
+            #   e.g. manually. However, to do it right, some sort of state needs to be kept e.g. info whether
+            #   at least one element was written to the stream, so we can add a `,` on the start of another.
+            #   That would sadly lead to an ugly formatting, so `_print` needs to be expanded with an ability
+            #   to not print end-line character(s).
+            items = []
+            for item_path in args.folderList:
+                items.extend(
+                    [file_version for (file_version, _) in self._get_ls_generator(item_path, args)]
+                )
+
+            self._print_json(items)
+            return 0
+
         for folder_name in args.folderList:
             generator = self._get_ls_generator(folder_name, args)
 
@@ -1879,21 +1895,6 @@ class Ls(AbstractLsCommand):
     def run(self, args):
         # `recursive` is internally still required for `withWildcard` to work.
         args.recursive = bool(args.withWildcard)
-        if args.json:
-            # TODO: Make this work for an infinite generation.
-            #   Use `_print_file_version` to print a single `file_version` and manage the external JSON list
-            #   e.g. manually. However, to do it right, some sort of state needs to be kept e.g. info whether
-            #   at least one element was written to the stream, so we can add a `,` on the start of another.
-            #   That would sadly lead to an ugly formatting, so `_print` needs to be expanded with an ability
-            #   to not print end-line character(s).
-            self._print_json(
-                [
-                    file_version
-                    for file_version, _ in self._get_ls_generator(args.folderList[0], args)
-                ]
-            )
-            return 0
-
         return super().run(args)
 
     def _print_file_version(
@@ -2118,8 +2119,10 @@ class Rm(AbstractLsCommand):
 
     @classmethod
     def _setup_parser(cls, parser):
+        if not hasattr(parser, 'has_wildcard'):
+            parser.add_argument('--withWildcard', action='store_true')
+
         parser.add_argument('--versions', action='store_true')
-        parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('-r', '--recursive', action='store_true')
         parser.add_argument('--dryRun', action='store_true')
         parser.add_argument('--threads', type=int, default=cls.DEFAULT_THREADS)
@@ -2171,6 +2174,7 @@ class Rm(AbstractLsCommand):
 
         return 1 if failed_on_any_file else 0
 
+
 @B2.register_subcommand
 class Find(Rm):
     """
@@ -2183,27 +2187,39 @@ class Find(Rm):
         parser.add_argument('--type', choices=['f', 'd', 'file', 'directory'])
         parser.add_argument('--delete', action='store_true')
         parser.add_argument('--hide', action='store_true')
-        # non-rm/hide options
+        # non rm/hide options
         parser.add_argument('-l', '--long', action='store_true')
         parser.add_argument('--json', action='store_true')
         parser.add_argument('--replication', action='store_true')
+        parser.add_argument(
+            '--withWildcard', default=True, action='store_true', help=argparse.SUPPRESS
+        )
+        parser.has_wildcard = True
         super()._setup_parser(parser)
 
     def _check_params_compatibility(self, args):
         parser = self.get_parser()
         delete_hide_only = ['dryRun', 'threads', 'queueSize', 'noProgress', 'failFast']
-        delete_hide_reject = ['json', 'replication', 'versions',]
+        delete_hide_reject = [
+            'json',
+            'replication',
+            'versions',
+        ]
         if not (args.hide or args.delete):
             for param in delete_hide_only:
                 attr_value = getattr(args, param)
                 if attr_value and parser.get_default(param) != attr_value:
-                    raise parser.error(f'Parameter `{param}` is only allowed with `--hide` or `--delete`')
+                    raise parser.error(
+                        f'Parameter `{param}` is only allowed with `--hide` or `--delete`'
+                    )
         else:
             for param in delete_hide_reject:
                 if getattr(args, param):
-                    raise parser.error(f'Parameter `{param}` is not compatible with `--hide` or `--delete`')
+                    raise parser.error(
+                        f'Parameter `{param}` is not compatible with `--hide` or `--delete`'
+                    )
             if args.hide and args.type:
-                raise parser.error(f'Parameter `--type` is not compatible with `--hide`')
+                raise parser.error('Parameter `--type` is not compatible with `--hide`')
 
     def run(self, args: argparse.Namespace) -> int:
         self._check_params_compatibility(args)
@@ -2212,7 +2228,7 @@ class Find(Rm):
 
         if args.hide:
             # `recursive` is internally still required for `withWildcard` to work.
-            args.recursive = args.recursive or args.withWildcard
+            # args.recursive = args.recursive or args.withWildcard
             bucket = self.api.get_bucket_by_name(args.bucketName)
             for item_path in args.folderList:
                 for file_version, _ in self._get_ls_generator(item_path, args):
@@ -2221,26 +2237,13 @@ class Find(Rm):
 
             return 0
 
-        if args.json:
-            items = []
-            for item_path in args.folderList:
-                items.extend([
-                    file_version
-                    for (file_version, _)
-                    in self._get_ls_generator(item_path, args)
-                ])
-
-            self._print_json(items)
-            return 0
-
-        return 1
-
+        return super(Rm, self).run(args)
 
 
 @B2.register_subcommand
 class MakeUrl(Command):
     """
-    Prints an URL that can be used to download the given file, if
+    Prints a URL that can be used to download the given file, if
     it is public.
     """
 

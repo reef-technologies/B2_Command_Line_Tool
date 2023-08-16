@@ -82,7 +82,7 @@ class TestFindConsoleTool(BaseConsoleToolTest):
         c/test.csv
         c/test.tsv
         '''
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
 
     def test_finddry_run(self):
         expected_stdout = '''
@@ -129,7 +129,9 @@ class TestFindConsoleTool(BaseConsoleToolTest):
         self._run_command(['ls', 'my-bucket'], '')
 
     def test_find_queue_size_and_number_of_threads(self):
-        self._run_command(['find', '--recursive', '--threads', '2', '--queueSize', '4', 'my-bucket'])
+        self._run_command(
+            ['find', '--recursive', '--threads', '2', '--queueSize', '4', 'my-bucket']
+        )
         self._run_command(['ls', 'my-bucket'], '')
 
     def test_find_progress(self):
@@ -201,4 +203,4 @@ class TestFindConsoleTool(BaseConsoleToolTest):
         expected_stdout = '''
         b/b1/test.csv
         '''
-        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket'], expected_stdout)
