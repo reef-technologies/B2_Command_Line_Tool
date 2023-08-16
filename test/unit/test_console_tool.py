@@ -7,7 +7,6 @@
 # License https://www.backblaze.com/using_b2_code.html
 #
 ######################################################################
-
 import json
 import os
 import pathlib
@@ -2502,7 +2501,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
 
     def test_rm_wildcard(self):
         self._run_command(
-            ['rm', '--recursive', '--withWildcard', '--noProgress', 'my-bucket', '*.csv'],
+            ['rm', '--recursive', '--withWildcard', '--noProgress', 'my-bucket', '**/*.csv'],
         )
 
         expected_stdout = '''
@@ -2519,7 +2518,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         self._upload_multiple_files(self.bucket)
 
         self._run_command(
-            ['rm', '--versions', '--recursive', '--withWildcard', 'my-bucket', '*.csv'],
+            ['rm', '--versions', '--recursive', '--withWildcard', 'my-bucket', '**/*.csv'],
         )
 
         expected_stdout = '''
@@ -2609,7 +2608,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
     def test_rm_progress(self):
         expected_in_stdout = ' count: 4/4 '
         self._run_command(
-            ['rm', '--recursive', '--withWildcard', 'my-bucket', '*.csv'],
+            ['rm', '--recursive', '--withWildcard', 'my-bucket', '**/*.csv'],
             expected_part_of_stdout=expected_in_stdout,
         )
 

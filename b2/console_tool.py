@@ -1854,8 +1854,8 @@ class Ls(AbstractLsCommand):
     LS_ENTRY_TEMPLATE = '%83s  %6s  %10s  %8s  %9d  %s'
     LS_ENTRY_TEMPLATE_REPLICATION = LS_ENTRY_TEMPLATE + '  %s'
 
-    class ListItemsAction(argparse.Action):
-        """Action for parsing and standardizing zero to multiple arguments."""
+    class ListFoldersAction(argparse.Action):
+        """"Transform from zero to multiple parameters into a list of string"""
 
         def __call__(self, parser, namespace, values, option_string=None):
             if values is None:
@@ -1873,7 +1873,7 @@ class Ls(AbstractLsCommand):
         parser.add_argument('--withWildcard', action='store_true')
         parser.add_argument('bucketName').completer = bucket_name_completer
         parser.add_argument(
-            'folderList', nargs='?', action=cls.ListItemsAction
+            'folderList', nargs='?', action=cls.ListFoldersAction, default=''
         ).completer = file_name_completer
 
     def run(self, args):
@@ -2065,21 +2065,19 @@ class Rm(AbstractLsCommand):
                 self.messages_queue.put(self.END_MARKER)
 
         def _run_removal(self, executor: Executor):
-            print('run removal')
             for path_name in self.args.folderList:
-                print('removal of path_name: ', path_name)
                 generator = self.runner._get_ls_generator(path_name, self.args)
                 # Obtaining semaphore limits number of elements that we fetch from LS.
-                future = None
+                looped = None
                 for file_version, _ in generator:
+                    looped = True
+                    self.semaphore.acquire(blocking=True)
                     # This event is updated before the semaphore is released. This way,
                     # in a single threaded scenario, we get synchronous responses.
                     if self.fail_fast_event.is_set():
                         break
 
                     self.reporter.update_total(1)
-                    self.semaphore.acquire(blocking=True)
-
                     future = executor.submit(
                         self.runner.api.delete_file_version,
                         file_version.id_,
@@ -2090,7 +2088,7 @@ class Rm(AbstractLsCommand):
                     # Done callback is added after, so it's "sure" that mapping is updated earlier.
                     future.add_done_callback(self._removal_done)
 
-                if future is None and path_name:
+                if looped is None and path_name:
                     # specific path requested but not found, exit with error
                     self.messages_queue.put(
                         (self.ERROR_TAG, None, f"No such file or directory: `{path_name}`")
