@@ -2115,8 +2115,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         b/b2
         c
         '''
-        # TODO B2-13 replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout, '', 0)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout, '', 0)
 
         # Check long output.   (The format expects full-length file ids, so it causes whitespace here)
         expected_stdout = '''
@@ -2510,8 +2509,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         b/test.txt
         c/test.tsv
         '''
-        # TODO B2-13 - replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
 
     def test_rm_versions(self):
         # Uploading content of the bucket again to create second version of each file.
@@ -2531,9 +2529,8 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.tsv
         c/test.tsv
         '''
-        # TODO B2-13 replace with `find` command
         self._run_command(
-            ['ls', '--withWildcard', '--versions', 'my-bucket', '**'], expected_stdout
+            ['find', '--withWildcard', '--versions', 'my-bucket', '**'], expected_stdout
         )
 
     def test_rm_no_recursive(self):
@@ -2545,8 +2542,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.csv
         c/test.tsv
         '''
-        # TODO B2-13 replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
 
     def test_rm_dry_run(self):
         expected_stdout = '''
@@ -2570,8 +2566,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.csv
         c/test.tsv
         '''
-        # TODO B2-13 replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
 
     def test_rm_exact_filename(self):
         self._run_command(
@@ -2587,8 +2582,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         c/test.csv
         c/test.tsv
         '''
-        # TODO B2-13 replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
 
     def test_rm_no_name_removes_everything(self):
         self._run_command(['rm', '--recursive', '--noProgress', 'my-bucket'])
@@ -2618,8 +2612,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         b/test.txt
         c/test.tsv
         '''
-        # TODO B2-13 replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)
 
     def _run_problematic_removal(
         self,
@@ -2674,5 +2667,4 @@ class TestRmConsoleTool(BaseConsoleToolTest):
         expected_stdout = '''
         b/b1/test.csv
         '''
-        # TODO B2-13 replace with `find` command
-        self._run_command(['ls', '--withWildcard', 'my-bucket', '**'], expected_stdout)
+        self._run_command(['find', '--withWildcard', 'my-bucket', '**'], expected_stdout)

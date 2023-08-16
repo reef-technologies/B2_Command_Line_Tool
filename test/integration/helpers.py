@@ -482,9 +482,8 @@ class CommandLine:
             assert not missing_capabilities, f'it appears that the raw_api integration test is being run with a non-full key. Missing capabilities: {missing_capabilities}'
 
     def list_file_versions(self, bucket_name):
-        # TODO B2-13 replace with `find` command
         return self.should_succeed_json(
-            ['ls', '--json', '--withWildcard', '--versions', bucket_name, '**']
+            ['find', '--json', '--withWildcard', '--versions', bucket_name, '**']
         )
 
 

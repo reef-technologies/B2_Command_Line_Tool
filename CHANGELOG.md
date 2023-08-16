@@ -26,7 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changes
 * `ls` - wildcard style is now shell-like instead of glob-like
-* `rm` - parameter `folderName` renamed to `folderList`, as multiple items can be accepted
 
 ### Removed
 * Remove parameter `--recursive` from `ls` command

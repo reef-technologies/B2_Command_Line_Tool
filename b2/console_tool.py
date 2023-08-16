@@ -1748,9 +1748,9 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
             try:
                 file_version, folder_name = next(generator)
             except StopIteration:
-                if folder_name:
-                    # requested path not found, exit with error
-                    print(f"x1 No such file or directory: {folder_name}", file=sys.stderr)
+                if folder_name and not args.withWildcard:
+                    # specific path requested, but not found; exit with error
+                    print(f"Directory not found: {folder_name}", file=sys.stderr)
                     return 1
             else:
                 self._print_file_version(args, file_version, folder_name)
@@ -2058,19 +2058,18 @@ class Rm(AbstractLsCommand):
             try:
                 with ThreadPoolExecutor(max_workers=self.args.threads) as executor:
                     self._run_removal(executor)
-                    self.reporter.end_total()
             except Exception as error:
                 self.messages_queue.put((self.EXCEPTION_TAG, error))
             finally:
+                self.reporter.end_total()
                 self.messages_queue.put(self.END_MARKER)
 
         def _run_removal(self, executor: Executor):
             for path_name in self.args.folderList:
                 generator = self.runner._get_ls_generator(path_name, self.args)
-                # Obtaining semaphore limits number of elements that we fetch from LS.
-                looped = None
+                future = None
                 for file_version, _ in generator:
-                    looped = True
+                    # Obtaining semaphore limits number of elements that we fetch from LS.
                     self.semaphore.acquire(blocking=True)
                     # This event is updated before the semaphore is released. This way,
                     # in a single threaded scenario, we get synchronous responses.
@@ -2088,7 +2087,7 @@ class Rm(AbstractLsCommand):
                     # Done callback is added after, so it's "sure" that mapping is updated earlier.
                     future.add_done_callback(self._removal_done)
 
-                if looped is None and path_name:
+                if future is None and path_name:
                     # specific path requested but not found, exit with error
                     self.messages_queue.put(
                         (self.ERROR_TAG, None, f"No such file or directory: `{path_name}`")
@@ -2171,6 +2170,71 @@ class Rm(AbstractLsCommand):
                     raise data[0]
 
         return 1 if failed_on_any_file else 0
+
+@B2.register_subcommand
+class Find(Rm):
+    """
+
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument('--path')
+        parser.add_argument('--type', choices=['f', 'd', 'file', 'directory'])
+        parser.add_argument('--delete', action='store_true')
+        parser.add_argument('--hide', action='store_true')
+        # non-rm/hide options
+        parser.add_argument('-l', '--long', action='store_true')
+        parser.add_argument('--json', action='store_true')
+        parser.add_argument('--replication', action='store_true')
+        super()._setup_parser(parser)
+
+    def _check_params_compatibility(self, args):
+        parser = self.get_parser()
+        delete_hide_only = ['dryRun', 'threads', 'queueSize', 'noProgress', 'failFast']
+        delete_hide_reject = ['json', 'replication', 'versions',]
+        if not (args.hide or args.delete):
+            for param in delete_hide_only:
+                attr_value = getattr(args, param)
+                if attr_value and parser.get_default(param) != attr_value:
+                    raise parser.error(f'Parameter `{param}` is only allowed with `--hide` or `--delete`')
+        else:
+            for param in delete_hide_reject:
+                if getattr(args, param):
+                    raise parser.error(f'Parameter `{param}` is not compatible with `--hide` or `--delete`')
+            if args.hide and args.type:
+                raise parser.error(f'Parameter `--type` is not compatible with `--hide`')
+
+    def run(self, args: argparse.Namespace) -> int:
+        self._check_params_compatibility(args)
+        if args.delete:
+            return super().run(args)
+
+        if args.hide:
+            # `recursive` is internally still required for `withWildcard` to work.
+            args.recursive = args.recursive or args.withWildcard
+            bucket = self.api.get_bucket_by_name(args.bucketName)
+            for item_path in args.folderList:
+                for file_version, _ in self._get_ls_generator(item_path, args):
+                    file_info = bucket.hide_file(item_path)
+                    self._print_json(file_info)
+
+            return 0
+
+        if args.json:
+            items = []
+            for item_path in args.folderList:
+                items.extend([
+                    file_version
+                    for (file_version, _)
+                    in self._get_ls_generator(item_path, args)
+                ])
+
+            self._print_json(items)
+            return 0
+
+        return 1
+
 
 
 @B2.register_subcommand
