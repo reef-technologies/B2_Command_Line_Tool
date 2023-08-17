@@ -1781,12 +1781,19 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
                 start_file_name,
                 latest_only=not args.versions,
                 recursive=args.recursive,
-                with_wildcard=args.withWildcard,
+                filter_patterns=getattr(args, 'filter_args', []),
             )
         except ValueError as error:
             # Wrap these errors into B2Error. At the time of writing there's
             # exactly one – `with_wildcard` being passed without `recursive` option.
             raise B2Error(error.args[0])
+
+
+class OrderedParamsAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        previous = getattr(namespace, 'filter_args', [])
+        previous.append((self.dest, values))
+        namespace.filter_args = previous
 
 
 @B2.register_subcommand
@@ -1850,10 +1857,13 @@ class Ls(AbstractLsCommand):
 
     @classmethod
     def _setup_parser(cls, parser):
-        parser.add_argument('--long', action='store_true')
+        parser.add_argument('-l', '--long', action='store_true')
         parser.add_argument('--json', action='store_true')
         parser.add_argument('--replication', action='store_true')
         super()._setup_parser(parser)
+
+        parser.add_argument('--include', action=OrderedParamsAction)
+        parser.add_argument('--exclude', action=OrderedParamsAction)
 
     def run(self, args):
         if args.json:
