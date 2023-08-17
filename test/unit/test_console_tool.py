@@ -2140,7 +2140,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         self._create_my_bucket()
 
         # Check with no files
-        self._run_command(['ls', '--recursive', '--withWildcard', 'my-bucket', '*.txt'], '', '', 0)
+        self._run_command(['ls', '--recursive', 'my-bucket', '--exclude' '*', '--include' '*.txt'], '', '', 0)
 
         # Create some files, including files in a folder
         bucket = self.b2_api.get_bucket_by_name('my-bucket')
