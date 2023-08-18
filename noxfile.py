@@ -44,12 +44,12 @@ FILES_USED_IN_TESTS = ['README.md', 'CHANGELOG.md']
 SYSTEM = platform.system().lower()
 
 REQUIREMENTS_FORMAT = ['yapf==0.27', 'ruff==0.0.272']
-REQUIREMENTS_LINT = REQUIREMENTS_FORMAT + ['pytest==6.2.5', 'liccheck==0.6.2']
+REQUIREMENTS_LINT = REQUIREMENTS_FORMAT + ['pytest==7.4.0', 'liccheck==0.6.2']
 REQUIREMENTS_TEST = [
     "pexpect==4.8.0",
-    "pytest==6.2.5",
-    "pytest-cov==3.0.0",
-    'pytest-xdist==2.5.0',
+    "pytest==7.4.0",
+    "pytest-cov==4.1.0",
+    'pytest-xdist==3.3.1',
     'backoff==2.1.2',
     'more_itertools==8.13.0',
 ]
