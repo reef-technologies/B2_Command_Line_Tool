@@ -1079,7 +1079,7 @@ def test_sync_long_path(b2_tool, bucket_name):
 def test_default_sse_b2(b2_api, b2_tool, bucket_name):
     # Set default encryption via update-bucket
     bucket_info = b2_tool.should_succeed_json(['get-bucket', bucket_name])
-    bucket_default_sse = {'mode': 'none'}
+    bucket_default_sse = {'mode': None}
     should_equal(bucket_default_sse, bucket_info['defaultServerSideEncryption'])
 
     bucket_info = b2_tool.should_succeed_json(
@@ -1150,7 +1150,7 @@ def test_sse_b2(b2_tool, bucket_name):
             'algorithm': 'AES256',
             'mode': 'SSE-B2'
         }, {
-            'mode': 'none'
+            'mode': None
         }], [f['serverSideEncryption'] for f in list_of_files]
     )
 
@@ -1159,7 +1159,7 @@ def test_sse_b2(b2_tool, bucket_name):
     should_equal({'algorithm': 'AES256', 'mode': 'SSE-B2'}, file_info['serverSideEncryption'])
     not_encrypted_version = list_of_files[1]
     file_info = b2_tool.should_succeed_json(['get-file-info', not_encrypted_version['fileId']])
-    should_equal({'mode': 'none'}, file_info['serverSideEncryption'])
+    should_equal({'mode': None}, file_info['serverSideEncryption'])
 
     b2_tool.should_succeed(
         [
@@ -1177,7 +1177,7 @@ def test_sse_b2(b2_tool, bucket_name):
             'algorithm': 'AES256',
             'mode': 'SSE-B2'
         }, {
-            'mode': 'none'
+            'mode': None
         }] * 2, [f['serverSideEncryption'] for f in list_of_files]
     )
 
@@ -1189,7 +1189,7 @@ def test_sse_b2(b2_tool, bucket_name):
     file_info = b2_tool.should_succeed_json(
         ['get-file-info', copied_not_encrypted_version['fileId']]
     )
-    should_equal({'mode': 'none'}, file_info['serverSideEncryption'])
+    should_equal({'mode': None}, file_info['serverSideEncryption'])
 
 
 def test_sse_c(b2_tool, bucket_name):
@@ -1439,21 +1439,21 @@ def test_sse_c(b2_tool, bucket_name):
                 'file_name': 'not_encrypted_copied_from_encrypted_metadata_pseudo_copy',
                 'sse_c_key_id': 'missing_key',
                 'serverSideEncryption': {
-                    'mode': 'none',
+                    'mode': None,
                 },
             },
             {
                 'file_name': 'not_encrypted_copied_from_encrypted_metadata_replace',
                 'sse_c_key_id': 'missing_key',
                 'serverSideEncryption': {
-                    'mode': 'none',
+                    'mode': None,
                 },
             },
             {
                 'file_name': 'not_encrypted_copied_from_encrypted_metadata_replace_empty',
                 'sse_c_key_id': 'missing_key',
                 'serverSideEncryption': {
-                    'mode': 'none',
+                    'mode': None,
                 },
             },
             {

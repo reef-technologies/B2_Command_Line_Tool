@@ -552,7 +552,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "lifecycleRules": [],
             "options": [],
@@ -782,7 +782,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "lifecycleRules": [],
             "options": [],
@@ -812,7 +812,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPrivate",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "lifecycleRules": [],
             "options": [],
@@ -853,7 +853,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                     },
                 "fileName": "file1.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None,
                 },
                 "size": 11,
                 "uploadTimestamp": 5000
@@ -886,7 +886,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                     },
                 "fileName": "file1.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None,
                 },
                 "uploadTimestamp": 5000
             }
@@ -937,7 +937,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 "fileInfo": {},
                 "fileName": "file1.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "size": 0,
                 "uploadTimestamp": 5001
@@ -957,7 +957,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                     "fileInfo": {},
                     "fileName": "file1.txt",
                     "serverSideEncryption": {
-                        "mode": "none"
+                        "mode": None
                     },
                     "size": 0,
                     "uploadTimestamp": 5001
@@ -973,7 +973,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                         },
                     "fileName": "file1.txt",
                     "serverSideEncryption": {
-                        "mode": "none"
+                        "mode": None
                     },
                     "size": 11,
                     "uploadTimestamp": 5000
@@ -1117,7 +1117,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 "fileInfo": {},
                 "fileName": "file1.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "size": 0,
                 "uploadTimestamp": 5001
@@ -1137,7 +1137,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                     "fileInfo": {},
                     "fileName": "file1.txt",
                     "serverSideEncryption": {
-                        "mode": "none"
+                        "mode": None
                     },
                     "size": 0,
                     "uploadTimestamp": 5001
@@ -1246,7 +1246,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 },
                 "fileName": "file1.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "size": 11,
                 "uploadTimestamp": 5000
@@ -1273,7 +1273,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 },
                 "fileName": "file1_copy.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "uploadTimestamp": 5001
             }
@@ -1296,7 +1296,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 },
                 "fileName": "file1_copy.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "uploadTimestamp": 5002
             }
@@ -1360,7 +1360,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 },
                 "fileName": "file1_copy.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "uploadTimestamp": 5003
             }
@@ -1402,7 +1402,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 },
                 "fileName": "file1_copy.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "uploadTimestamp": 5004
             }
@@ -1476,7 +1476,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                     },
                 "fileName": "test.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "size": 600,
                 "uploadTimestamp": 5000
@@ -1609,7 +1609,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "lifecycleRules": [],
             "options": [],
@@ -1631,7 +1631,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "fileCount": 0,
             "lifecycleRules": [],
@@ -1664,7 +1664,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 },
                 "fileName": "file1.txt",
                 "serverSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "size": 11,
                 "uploadTimestamp": 5000
@@ -1685,7 +1685,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 "bucketType": "allPublic",
                 "corsRules": [],
                 "defaultServerSideEncryption": {
-                    "mode": "none"
+                    "mode": None
                 },
                 "fileCount": 1,
                 "lifecycleRules": [],
@@ -1724,7 +1724,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "fileCount": 10,
             "lifecycleRules": [],
@@ -1774,7 +1774,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "fileCount": 20,
             "lifecycleRules": [],
@@ -1818,7 +1818,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "fileCount": 10,
             "lifecycleRules": [],
@@ -1882,7 +1882,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             "bucketType": "allPublic",
             "corsRules": [],
             "defaultServerSideEncryption": {
-                "mode": "none"
+                "mode": None
             },
             "fileCount": 29,
             "lifecycleRules": [],
@@ -1997,7 +1997,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                     },
                     "fileName": "test-dry-run.txt",
                     "serverSideEncryption": {
-                        "mode": "none"
+                        "mode": None
                     },
                     "size": 11,
                     "uploadTimestamp": 5000

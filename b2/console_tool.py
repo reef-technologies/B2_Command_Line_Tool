@@ -283,16 +283,21 @@ class DefaultSseMixin(Described):
 
     @classmethod
     def _get_default_sse_setting(cls, args):
-        mode = apply_or_none(EncryptionMode, args.defaultServerSideEncryption)
+        mode = cls.arg_to_encryption_mode(args.defaultServerSideEncryption)
         if mode is not None:
-            if mode == EncryptionMode.NONE:
-                args.defaultServerSideEncryptionAlgorithm = None
-
             algorithm = apply_or_none(
                 EncryptionAlgorithm, args.defaultServerSideEncryptionAlgorithm
             )
             return EncryptionSetting(mode=mode, algorithm=algorithm)
 
+        return None
+
+    @classmethod
+    def arg_to_encryption_mode(cls, value: str | None) -> EncryptionMode | None:
+        if value:
+            if value == "none":
+                value = None
+            return EncryptionMode(value)
         return None
 
 
@@ -321,7 +326,7 @@ class DestinationSseMixin(Described):
         super()._setup_parser(parser)  # noqa
 
     def _get_destination_sse_setting(self, args):
-        mode = apply_or_none(EncryptionMode, args.destinationServerSideEncryption)
+        mode = DefaultSseMixin.arg_to_encryption_mode(args.destinationServerSideEncryption)
         if mode is not None:
             algorithm = apply_or_none(
                 EncryptionAlgorithm, args.destinationServerSideEncryptionAlgorithm
@@ -426,7 +431,7 @@ class SourceSseMixin(Described):
 
     @classmethod
     def _get_source_sse_setting(cls, args):
-        mode = apply_or_none(EncryptionMode, args.sourceServerSideEncryption)
+        mode = DefaultSseMixin.arg_to_encryption_mode(args.sourceServerSideEncryption)
         if mode is not None:
             algorithm = apply_or_none(EncryptionAlgorithm, args.sourceServerSideEncryptionAlgorithm)
             key = None
