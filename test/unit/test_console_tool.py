@@ -2686,7 +2686,9 @@ class TestRmConsoleTool(BaseConsoleToolTest):
 
         original_delete_file_version = self.b2_api.raw_api.delete_file_version
 
-        def mocked_delete_file_version(this, account_auth_token, file_id, file_name):
+        def mocked_delete_file_version(
+            this, account_auth_token, file_id, file_name, bypass_governance=False
+        ):
             if file_name == 'b/b1/test.csv':
                 raise Conflict()
             return original_delete_file_version(this, account_auth_token, file_id, file_name)
