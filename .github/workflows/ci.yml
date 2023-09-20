@@ -134,14 +134,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Build Docker
-        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}  # TODO: skip whole job without marking it as an error
         uses: docker/build-push-action@v5
         with:
           context: .
           load: true
           tags: backblazeit/b2:test
           platforms: linux/amd64
-      - name: Generate Dockerfile
+      - name: Run tests with docker
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
         run: nox -vs docker_test -- backblazeit/b2:test
   test-linux-bundle:
