@@ -144,7 +144,7 @@ jobs:
           platforms: linux/amd64
       - name: Run tests with docker
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
-        run: sudo nox -vs docker_test -- backblazeit/b2:test
+        run: sudo B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
       - name: ls -lahR /tmp after
         if: always()
         run: ls -lah /tmp/
