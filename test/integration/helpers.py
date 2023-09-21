@@ -449,7 +449,7 @@ class CommandLine:
         status, stdout, stderr = run_command(
             self.command, args, additional_env, self.env_file_cmd_placeholder
         )
-        assert status == 0, f'FAILED with status {status}, stderr={stderr}'
+        assert status == 0, f'FAILED with status {status}, stderr={stderr}, {self.command=}'
 
         if stderr != '':
             for line in (s.strip() for s in stderr.split(os.linesep)):
