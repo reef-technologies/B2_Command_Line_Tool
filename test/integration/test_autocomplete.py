@@ -80,7 +80,7 @@ def test_autocomplete_b2_only_matching_commands(
 
 @skip_on_windows
 def test_autocomplete_b2_bucket_n_file_name(
-    autocomplete_installed, shell, b2_tool, bucket_name, file_name, is_running_on_docker
+    b2_tool, bucket_name, file_name, is_running_on_docker
 ):
     """Test that autocomplete suggests bucket names and file names."""
     if is_running_on_docker:
