@@ -119,7 +119,7 @@ jobs:
     # Running on raw machine.
     steps:
       - name: ls -lahR /tmp before
-        run: ls -lahR /tmp
+        run: ls -lahR /tmp/tmp*
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -146,7 +146,7 @@ jobs:
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
         run: nox -vs docker_test -- backblazeit/b2:test
       - name: ls -lahR /tmp after
-        run: ls -lahR /tmp
+        run: ls -lahR /tmp/tmp*
 #  test-linux-bundle:
 #    needs: cleanup_buckets
 #    env:
