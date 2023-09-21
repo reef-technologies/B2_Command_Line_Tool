@@ -146,8 +146,10 @@ jobs:
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
         run: nox -vs docker_test -- backblazeit/b2:test
       - name: ls -lahR /tmp after
+        if: always()
         run: ls -lah /tmp/
       - name: ls -lahR /tmp after
+        if: always()
         run: ls -lahR /tmp/tmp*
 #  test-linux-bundle:
 #    needs: cleanup_buckets
