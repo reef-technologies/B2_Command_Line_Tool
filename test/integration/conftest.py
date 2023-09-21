@@ -192,7 +192,7 @@ def homedir(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def b2_in_path(tmp_path_factory):
+def b2_in_path(request, tmp_path_factory):
     """
     Create a dummy b2 executable in a temporary directory and add it to PATH.
 
