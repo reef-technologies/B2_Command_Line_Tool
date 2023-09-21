@@ -2666,14 +2666,16 @@ def test_upload_file__stdin_pipe_operator(bash_runner, b2_tool, bucket_name, req
     """Test upload-file from stdin using pipe operator."""
     content = request.node.name
     run = bash_runner(
-        f'echo -n {content!r} | b2 upload-file {bucket_name} - {request.node.name}.txt'
+        f'echo -n {content!r} | {b2_tool.command} upload-file {bucket_name} - {request.node.name}.txt'
     )
     assert hashlib.sha1(content.encode()).hexdigest() in run.stdout
 
 
 @skip_on_windows
-def test_upload_unbound_stream__redirect_operator(bash_runner, b2_tool, bucket_name, request):
+def test_upload_unbound_stream__redirect_operator(bash_runner, b2_tool, bucket_name, request, is_running_on_docker):
     """Test upload-unbound-stream from stdin using redirect operator."""
+    if is_running_on_docker:
+        pytest.skip('Not supported on Docker')
     content = request.node.name
     run = bash_runner(
         f'b2 upload-unbound-stream {bucket_name} <(echo -n {content}) {request.node.name}.txt'

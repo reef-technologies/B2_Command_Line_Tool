@@ -527,7 +527,7 @@ def run_docker_tests(session, image_tag):
     """Run unittests against a docker image."""
     run_integration_test(session, [
         "--sut",
-        f"docker run -v b2:/root -v /tmp:/tmp:rw "
+        f"docker run -i -v b2:/root -v /tmp:/tmp:rw "
         f"--env-file ENVFILE {image_tag}",
         "--env-file-cmd-placeholder",
         "ENVFILE",
