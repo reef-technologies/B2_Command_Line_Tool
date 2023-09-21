@@ -12,8 +12,8 @@ import contextlib
 import os
 import subprocess
 import pathlib
-import shutil
 import sys
+import tempfile
 from os import environ, path
 from tempfile import TemporaryDirectory
 
@@ -24,6 +24,7 @@ from b2sdk.v2 import B2_ACCOUNT_INFO_ENV_VAR, XDG_CONFIG_HOME_ENV_VAR
 from .helpers import Api, CommandLine, bucket_name_part
 
 GENERAL_BUCKET_NAME_PREFIX = 'clitst'
+TEMPDIR = tempfile.gettempdir()
 
 
 @pytest.hookimpl
@@ -170,7 +171,7 @@ def b2_tool(global_b2_tool):
 @pytest.fixture(autouse=True, scope='session')
 def copy_readme_for_tests():
     """Copy the README.md file to /tmp so that docker tests can access it"""
-    tmp_readme = pathlib.Path('/tmp/README.md')
+    tmp_readme = pathlib.Path(f'{TEMPDIR}/README.md')
     if not tmp_readme.exists():
         tmp_readme.write_text(
             (pathlib.Path(__file__).parent.parent.parent / 'README.md').read_text()
@@ -180,22 +181,6 @@ def copy_readme_for_tests():
 @pytest.fixture()
 def is_running_on_docker(request):
     return request.config.getoption('--sut').startswith('docker')
-
-
-@pytest.fixture()
-def log_file():
-    """
-    Make sure to clear and initiate b2_cli.log - otherwise running b2 in docker might create a b2_cli.log directory
-    """
-    path_ = pathlib.Path('b2_cli.log')
-    if not path_.exists():
-        pass
-    elif path_.is_file():
-        path_.unlink()
-    elif path_.is_dir():
-        shutil.rmtree(path_)
-    path_.touch()
-    return path_
 
 
 SECRET_FIXTURES = {'application_key', 'application_key_id'}
