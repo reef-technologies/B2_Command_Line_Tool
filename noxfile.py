@@ -522,16 +522,18 @@ def generate_dockerfile(session):
     pathlib.Path('./Dockerfile').write_text(dockerfile)
 
 
-
 def run_docker_tests(session, image_tag):
     """Run unittests against a docker image."""
-    run_integration_test(session, [
-        "--sut",
-        f"docker run -i -v b2:/root -v /tmp:/tmp:rw "
-        f"--env-file ENVFILE {image_tag}",
-        "--env-file-cmd-placeholder",
-        "ENVFILE",
-    ])
+    run_integration_test(
+        session, [
+            "--sut",
+            f"docker run -i -v b2:/root -v /tmp:/tmp:rw "
+            f"--env-file ENVFILE {image_tag}",
+            "--env-file-cmd-placeholder",
+            "ENVFILE",
+        ]
+    )
+
 
 @nox.session(python=PYTHON_DEFAULT_VERSION)
 def docker_test(session):

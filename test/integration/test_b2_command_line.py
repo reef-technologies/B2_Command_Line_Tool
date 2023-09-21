@@ -23,7 +23,6 @@ import time
 from pathlib import Path
 from typing import Optional, Tuple
 
-
 import pytest
 from b2sdk.v2 import (
     B2_ACCOUNT_INFO_ENV_VAR,
@@ -281,7 +280,9 @@ def test_key_restrictions(b2_api, b2_tool, bucket_name):
     second_bucket_name = b2_tool.generate_bucket_name()
     b2_tool.should_succeed(['create-bucket', second_bucket_name, 'allPublic', *get_bucketinfo()],)
     # A single file for rm to fail on.
-    b2_tool.should_succeed(['upload-file', '--noProgress', bucket_name, f'{TEMPDIR}/README.md', 'test'])
+    b2_tool.should_succeed(
+        ['upload-file', '--noProgress', bucket_name, f'{TEMPDIR}/README.md', 'test']
+    )
 
     key_one_name = 'clt-testKey-01' + random_hex(6)
     created_key_stdout = b2_tool.should_succeed(
@@ -2348,8 +2349,8 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
     destination_bucket_name = bucket_name
     uploaded_a = b2_tool.should_succeed_json(
         [
-            'upload-file', '--noProgress', '--quiet', destination_bucket_name, f'{TEMPDIR}/README.md',
-            'one/a'
+            'upload-file', '--noProgress', '--quiet', destination_bucket_name,
+            f'{TEMPDIR}/README.md', 'one/a'
         ]
     )
 
@@ -2444,8 +2445,10 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
     upload_encryption_args = ['--destinationServerSideEncryption', 'SSE-B2']
     upload_additional_env = {}
     b2_tool.should_succeed_json(
-        ['upload-file', '--noProgress', '--quiet', source_bucket_name, f'{TEMPDIR}/README.md', 'two/c'] +
-        upload_encryption_args,
+        [
+            'upload-file', '--noProgress', '--quiet', source_bucket_name, f'{TEMPDIR}/README.md',
+            'two/c'
+        ] + upload_encryption_args,
         additional_env=upload_additional_env,
     )
 
@@ -2456,8 +2459,10 @@ def test_replication_monitoring(b2_tool, bucket_name, b2_api):
         'B2_DESTINATION_SSE_C_KEY_ID': SSE_C_AES.key.key_id,
     }
     b2_tool.should_succeed_json(
-        ['upload-file', '--noProgress', '--quiet', source_bucket_name, f'{TEMPDIR}/README.md', 'two/d'] +
-        upload_encryption_args,
+        [
+            'upload-file', '--noProgress', '--quiet', source_bucket_name, f'{TEMPDIR}/README.md',
+            'two/d'
+        ] + upload_encryption_args,
         additional_env=upload_additional_env,
     )
 
@@ -2677,7 +2682,9 @@ def test_upload_file__stdin_pipe_operator(request, bash_runner, b2_tool, bucket_
 
 
 @skip_on_windows
-def test_upload_unbound_stream__redirect_operator(request, bash_runner, b2_tool, bucket_name, is_running_on_docker):
+def test_upload_unbound_stream__redirect_operator(
+    request, bash_runner, b2_tool, bucket_name, is_running_on_docker
+):
     """Test upload-unbound-stream from stdin using redirect operator."""
     if is_running_on_docker:
         pytest.skip('Not supported on Docker')
