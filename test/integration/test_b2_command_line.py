@@ -2672,7 +2672,7 @@ def test_upload_file__stdin_pipe_operator(bash_runner, b2_tool, bucket_name, req
 
 
 # @skip_on_windows
-def test_upload_unbound_stream__redirect_operator(bash_runner, b2_tool, bucket_name, request, is_running_on_docker):
+def test_upload_unbound_stream__redirect_operator(b2_tool, bucket_name, is_running_on_docker):
     """Test upload-unbound-stream from stdin using redirect operator."""
     if is_running_on_docker:
         pytest.skip('Not supported on Docker')
