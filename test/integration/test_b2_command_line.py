@@ -2661,7 +2661,7 @@ def test_cut(b2_tool, bucket_name):
         )
 
 
-@skip_on_windows
+# @skip_on_windows
 def test_upload_file__stdin_pipe_operator(bash_runner, b2_tool, bucket_name, request):
     """Test upload-file from stdin using pipe operator."""
     content = request.node.name
@@ -2671,7 +2671,7 @@ def test_upload_file__stdin_pipe_operator(bash_runner, b2_tool, bucket_name, req
     assert hashlib.sha1(content.encode()).hexdigest() in run.stdout
 
 
-@skip_on_windows
+# @skip_on_windows
 def test_upload_unbound_stream__redirect_operator(bash_runner, b2_tool, bucket_name, request, is_running_on_docker):
     """Test upload-unbound-stream from stdin using redirect operator."""
     if is_running_on_docker:

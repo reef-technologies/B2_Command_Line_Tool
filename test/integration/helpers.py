@@ -444,7 +444,7 @@ class CommandLine:
         """
         Runs the command-line with the given arguments.  Raises an exception
         if there was an error; otherwise, returns the stdout of the command
-        as as string.
+        as string.
         """
         status, stdout, stderr = run_command(
             self.command, args, additional_env, self.env_file_cmd_placeholder
