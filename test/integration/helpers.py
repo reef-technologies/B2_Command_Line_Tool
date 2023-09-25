@@ -370,9 +370,7 @@ class CommandLine:
         Runs the command with the given arguments, returns a tuple in form of
         (succeeded, stdout)
         """
-        status, stdout, stderr = self.execute(
-            args, additional_env
-        )
+        status, stdout, stderr = self.execute(args, additional_env)
         return status == 0 and stderr == '', stdout
 
     def should_succeed(
@@ -386,9 +384,7 @@ class CommandLine:
         if there was an error; otherwise, returns the stdout of the command
         as string.
         """
-        status, stdout, stderr = self.execute(
-            args, additional_env
-        )
+        status, stdout, stderr = self.execute(args, additional_env)
         assert status == 0, f'FAILED with status {status}, stderr={stderr}, {self.command=}'
 
         if stderr != '':
@@ -419,7 +415,9 @@ class CommandLine:
         if self.env_file_cmd_placeholder:
             env_file_path = mktemp()
             pathlib.Path(env_file_path).write_text('\n'.join(f'{k}={v}' for k, v in env.items()))
-            command = [(c if c != self.env_file_cmd_placeholder else env_file_path) for c in command]
+            command = [
+                (c if c != self.env_file_cmd_placeholder else env_file_path) for c in command
+            ]
         return command
 
     def execute(
@@ -485,9 +483,7 @@ class CommandLine:
         Runs the command-line with the given args, expecting the given pattern
         to appear in stderr.
         """
-        status, stdout, stderr = self.execute(
-            args, additional_env
-        )
+        status, stdout, stderr = self.execute(args, additional_env)
         assert status != 0, 'ERROR: should have failed'
 
         assert re.search(expected_pattern, stdout + stderr), \
