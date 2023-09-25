@@ -178,9 +178,9 @@ def copy_readme_for_tests():
         )
 
 
-@pytest.fixture()
-def is_running_on_docker(request):
-    return request.config.getoption('--sut').startswith('docker')
+@pytest.fixture(scope='session')
+def is_running_on_docker(pytestconfig):
+    return pytestconfig.getoption('--sut').startswith('docker')
 
 
 SECRET_FIXTURES = {'application_key', 'application_key_id'}
@@ -192,7 +192,7 @@ def homedir(tmp_path_factory):
 
 
 @pytest.fixture(scope="session")
-def b2_in_path(request, tmp_path_factory):
+def b2_in_path(tmp_path_factory):
     """
     Create a dummy b2 executable in a temporary directory and add it to PATH.
 
@@ -218,9 +218,10 @@ def b2_in_path(request, tmp_path_factory):
 
 
 @pytest.fixture(scope="module")
-def env(b2_in_path, homedir, monkey_patch):
+def env(b2_in_path, homedir, monkey_patch, is_running_on_docker):
     """Get ENV for running b2 command from shell level."""
-    monkey_patch.setenv('PATH', b2_in_path)
+    if not is_running_on_docker:
+        monkey_patch.setenv('PATH', b2_in_path)
     monkey_patch.setenv('HOME', str(homedir))
     monkey_patch.setenv('SHELL', "/bin/bash")  # fix for running under github actions
     yield os.environ

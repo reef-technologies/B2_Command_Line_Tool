@@ -2676,7 +2676,9 @@ def test_upload_file__stdin_pipe_operator(request, bash_runner, b2_tool, bucket_
     """Test upload-file from stdin using pipe operator."""
     content = request.node.name
     run = bash_runner(
-        f'echo -n {content!r} | {b2_tool.command} upload-file {bucket_name} - {request.node.name}.txt'
+        f'echo -n {content!r} '
+        f'| '
+        f'{" ".join(b2_tool.parse_command(b2_tool.prepare_env()))} upload-file {bucket_name} - {request.node.name}.txt'
     )
     assert hashlib.sha1(content.encode()).hexdigest() in run.stdout
 
