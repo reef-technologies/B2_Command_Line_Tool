@@ -131,7 +131,7 @@ jobs:
       - name: python3.11 --version
         run: python3.11 --version
       - name: sudo python3.11 --version
-        run: sudo python3.11 --version
+        run: sudo PATH=$PATH python3.11 --version
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -145,7 +145,7 @@ jobs:
           platforms: linux/amd64
       - name: Run tests with docker
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
-        run: sudo B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
+        run: sudo PATH=$PATH B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
   test-linux-bundle:
     needs: cleanup_buckets
     env:
