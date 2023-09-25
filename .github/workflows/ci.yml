@@ -129,6 +129,8 @@ jobs:
       - name: Generate Dockerfile
         run: nox -vs generate_dockerfile
       - name: python3.11 --version
+        run: which python3.11
+      - name: python3.11 --version
         run: python3.11 --version
       - name: sudo python3.11 --version
         run: sudo PATH="$PATH:$(dirname `which python3.11`)" python3.11 --version
