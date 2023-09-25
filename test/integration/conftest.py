@@ -10,8 +10,8 @@
 
 import contextlib
 import os
-import subprocess
 import pathlib
+import subprocess
 import sys
 import tempfile
 from os import environ, path

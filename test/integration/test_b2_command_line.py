@@ -38,8 +38,8 @@ from b2sdk.v2 import (
 
 from b2.console_tool import current_time_millis
 
-from .conftest import TEMPDIR
 from ..helpers import skip_on_windows
+from .conftest import TEMPDIR
 from .helpers import (
     BUCKET_CREATED_AT_MILLIS,
     ONE_DAY_MILLIS,
