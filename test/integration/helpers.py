@@ -385,7 +385,7 @@ class CommandLine:
         as string.
         """
         status, stdout, stderr = self.execute(args, additional_env)
-        assert status == 0, f'FAILED with status {status}, stderr={stderr}, {self.command=}'
+        assert status == 0, f'FAILED with status {status}, stderr={stderr}'
 
         if stderr != '':
             for line in (s.strip() for s in stderr.split(os.linesep)):
