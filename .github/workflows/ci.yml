@@ -147,7 +147,7 @@ jobs:
           platforms: linux/amd64
       - name: Run tests with docker
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
-        run: sudo PATH=/opt/hostedtoolcache/Python/3.11.5/x64/bin/ B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
+        run: sudo PATH=$PATH:/opt/hostedtoolcache/Python/3.11.5/x64/bin/ B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
 #  test-linux-bundle:
 #    needs: cleanup_buckets
 #    env:
