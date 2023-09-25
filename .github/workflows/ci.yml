@@ -131,7 +131,7 @@ jobs:
       - name: python3.11 --version
         run: python3.11 --version
       - name: sudo python3.11 --version
-        run: sudo PATH=$PATH python3.11 --version
+        run: sudo PATH="$PATH:$(dirname `which python3.11`)" python3.11 --version
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
