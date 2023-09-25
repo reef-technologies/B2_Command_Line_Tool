@@ -133,7 +133,7 @@ jobs:
       - name: python3.11 --version
         run: python3.11 --version
       - name: sudo python3.11 --version
-        run: sudo PATH=/opt/hostedtoolcache/Python/3.11.5/x64/bin/  python3.11 --version
+        run: sudo /opt/hostedtoolcache/Python/3.11.5/x64/bin/python3.11 --version
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
