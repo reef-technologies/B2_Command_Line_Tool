@@ -124,20 +124,23 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
-#      - name: Install dependencies
-#        run: sudo python -m pip install --upgrade nox pip setuptools
-#      - name: Generate Dockerfile
-#        run: nox -vs generate_dockerfile
-      - name: get python bin dir
-        run: echo PYTHON_BIN_DIR=$(dirname `which python${{ env.PYTHON_DEFAULT_VERSION }}`)/ >> "$GITHUB_ENV"
-      - name: echo PYTHON_BIN_DIR
-        run: echo $PYTHON_BIN_DIR
-      - name: sudo echo PYTHON_BIN_DIR
-        run: sudo echo $PYTHON_BIN_DIR
-      - name: sudo echo path
-        run: sudo PATH=$PATH:$PYTHON_BIN_DIR echo $PATH
-      - name: sudo python --version
-        run: sudo PATH=$PATH:$PYTHON_BIN_DIR python --version
+      - name: setup sudo NOX_PYTHONS
+        run: echo NOX_PYTHONS=$(sudo python3 --version | cut -d ' ' -f 2) >> "$GITHUB_ENV"
+      - name: Install dependencies
+        run: sudo python -m pip install --upgrade nox pip setuptools
+      - name: REMOVE ME
+        if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
+        run: sudo B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
+      - name: Generate Dockerfile
+        run: nox -vs generate_dockerfile
+#      - name: echo PYTHON_BIN_DI~R
+#        run: echo $PYTHON_BIN_DIR
+#      - name: sudo echo PYTHON_BIN_DIR
+#        run: sudo echo $PYTHON_BIN_DIR
+#      - name: sudo echo path
+#        run: sudo PATH=$PATH:$PYTHON_BIN_DIR echo $PATH
+#      - name: sudo python --version
+#        run: sudo PATH=$PATH:$PYTHON_BIN_DIR python --version
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
