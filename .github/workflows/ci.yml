@@ -136,8 +136,8 @@ jobs:
         run: sudo echo $PYTHON_BIN_DIR
       - name: sudo echo path
         run: sudo PATH=$PATH:$PYTHON_BIN_DIR echo $PATH
-      - name: sudo python3.11 --version
-        run: sudo PATH=$PATH:$PYTHON_BIN_DIR python3.11 --version
+      - name: sudo python --version
+        run: sudo PATH=$PATH:$PYTHON_BIN_DIR python --version
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
