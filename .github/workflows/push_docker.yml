@@ -44,6 +44,6 @@ jobs:
         with:
           context: .
           push: true
-          tags: backblazeit/b2:latest,backblazeit/b2:$PACKAGE_VERSION
+          tags: backblazeit/b2:latest,backblazeit/b2:${{ env.PACKAGE_VERSION }}
           platforms: linux/amd64
 
