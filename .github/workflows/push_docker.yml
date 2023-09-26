@@ -17,8 +17,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: show docker
-        run: which docker
       - name: Set up Python ${{ env.PYTHON_DEFAULT_VERSION }}
         uses: actions/setup-python@v4
         with:
@@ -26,8 +24,7 @@ jobs:
       - name: Install dependencies
         run: python -m pip install --upgrade nox pip setuptools
       - name: Build Dockerfile
-        id: build-dockerfile
-        run: nox -vs docker
+        run: nox -vs generate_dockerfile
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -38,15 +35,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: get version
+        run: echo PACKAGE_VERSION=$(python -m setuptools_scm) >> "$GITHUB_ENV"
       - name: Build and push
         if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}  # TODO: skip whole job without marking it as an error
         uses: docker/build-push-action@v3
         with:
           context: .
-          push: false
-          tags: mpnowacki/b2:test
+          push: true
+          tags: backblazeit/b2:latest,backblazeit/b2:$PACKAGE_VERSION
           platforms: linux/amd64
-      - name: Run dockerized tests
-        if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
-        run: nox -vs docker_test -- mpnowacki/b2:test
 
