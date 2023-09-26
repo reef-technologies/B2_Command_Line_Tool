@@ -40,7 +40,7 @@ jobs:
         run: pip install setuptools_scm
       - name: get version
         id: package_version
-        run: python -m setuptools_scm
+        run: python -m setuptools_scm >> $GITHUB_OUTPUT
       - name: Build and push
         if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}  # TODO: skip whole job without marking it as an error
         uses: docker/build-push-action@v3
