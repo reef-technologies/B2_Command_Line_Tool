@@ -129,7 +129,7 @@ jobs:
 #      - name: Generate Dockerfile
 #        run: nox -vs generate_dockerfile
       - name: get python bin dir
-        run: echo PYTHON_BIN_DIR=$(dirname `which python${{ env.PYTHON_DEFAULT_VERSION }}`) >> "$GITHUB_ENV"
+        run: echo PYTHON_BIN_DIR=$(dirname `which python${{ env.PYTHON_DEFAULT_VERSION }}`)/ >> "$GITHUB_ENV"
       - name: echo PYTHON_BIN_DIR
         run: echo $PYTHON_BIN_DIR
       - name: sudo echo PYTHON_BIN_DIR
