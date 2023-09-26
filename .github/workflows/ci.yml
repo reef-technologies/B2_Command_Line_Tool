@@ -128,9 +128,6 @@ jobs:
         run: echo NOX_PYTHONS=$(sudo python3 --version | cut -d ' ' -f 2) >> "$GITHUB_ENV"
       - name: Install dependencies
         run: sudo python -m pip install --upgrade nox pip setuptools
-      - name: REMOVE ME
-        if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
-        run: sudo NOX_PYTHONS=$NOX_PYTHONS B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
       - name: Generate Dockerfile
         run: nox -vs generate_dockerfile
 #      - name: echo PYTHON_BIN_DI~R
@@ -154,7 +151,7 @@ jobs:
           platforms: linux/amd64
       - name: Run tests with docker
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}
-        run: sudo PATH=$PATH:$PYTHON_BIN_DIR B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
+        run: sudo NOX_PYTHONS=$NOX_PYTHONS B2_TEST_APPLICATION_KEY=${{ env.B2_TEST_APPLICATION_KEY }} B2_TEST_APPLICATION_KEY_ID=${{ env.B2_TEST_APPLICATION_KEY_ID }} nox -vs docker_test -- backblazeit/b2:test
 #  test-linux-bundle:
 #    needs: cleanup_buckets
 #    env:
