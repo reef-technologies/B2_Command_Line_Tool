@@ -1210,6 +1210,40 @@ class TestConsoleTool(BaseConsoleToolTest):
             self._run_command(command)
             self.assertEqual(b'hello world', self._read_file(local_download))
 
+    def test_download_to_non_seekable_file(self):
+        self._authorize_account()
+        self._create_my_bucket()
+
+        # Create a pipe: r_end and w_end are file descriptors.
+        r_end, w_end = os.pipe()
+
+        # Save the current stdout file descriptor for later restoration
+        stdout_fd = os.dup(1)
+
+        # Duplicate the write end of the pipe to stdout file descriptor (1)
+        os.dup2(w_end, 1)
+        os.close(w_end)
+
+        with TempDir() as temp_dir:
+            local_file = self._make_local_file(temp_dir, 'file.txt')
+            self._run_command(
+                ['upload-file', '--noProgress', 'my-bucket', local_file, 'file.txt'],
+                remove_version=True,
+            )
+            command = [
+                'download-file-by-name', 'my-bucket', 'file.txt', '/dev/stdout'
+            ]
+            self._run_command(command)
+
+        # Restore original stdout
+        os.dup2(stdout_fd, 1)
+        os.close(stdout_fd)
+
+        # Read from the read end of the pipe
+        with os.fdopen(r_end, "rb") as f:
+            captured_output = f.read()
+            self.assertEqual('hello world', captured_output.decode())
+
     def test_download_by_id_1_thread(self):
         self._test_download_threads(download_by='id', num_threads=1)
 
