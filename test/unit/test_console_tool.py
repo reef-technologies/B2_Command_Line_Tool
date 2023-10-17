@@ -1230,9 +1230,7 @@ class TestConsoleTool(BaseConsoleToolTest):
                 ['upload-file', '--noProgress', 'my-bucket', local_file, 'file.txt'],
                 remove_version=True,
             )
-            command = [
-                'download-file-by-name', 'my-bucket', 'file.txt', '/dev/stdout'
-            ]
+            command = ['download-file-by-name', 'my-bucket', 'file.txt', '/dev/stdout']
             self._run_command(command)
 
         # Restore original stdout
