@@ -1425,7 +1425,7 @@ class DownloadFileById(
         )
 
         self._print_download_info(downloaded_file)
-        downloaded_file.save_to(args.localFileName)
+        downloaded_file.safe_save_to(args.localFileName)
         self._print('Download finished')
 
         return 0
@@ -1476,7 +1476,7 @@ class DownloadFileByName(
         )
 
         self._print_download_info(downloaded_file)
-        downloaded_file.save_to(args.localFileName)
+        downloaded_file.safe_save_to(args.localFileName)
         self._print('Download finished')
 
         return 0
