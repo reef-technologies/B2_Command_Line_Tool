@@ -1435,7 +1435,7 @@ class DownloadFileById(
         super()._setup_parser(parser)
 
     def run(self, args):
-        args.localFileName = self._correct_local_file_name(args.localFileName)
+        args.localFileName = self._correct_local_filename(args.localFileName)
         super().run(args)
         progress_listener = make_progress_listener(
             args.localFileName, args.noProgress or args.quiet
@@ -1480,7 +1480,7 @@ class DownloadFileByName(
         super()._setup_parser(parser)
 
     def run(self, args):
-        args.localFileName = self._correct_local_file_name(args.localFileName)
+        args.localFileName = self._correct_local_filename(args.localFileName)
         super().run(args)
         self._set_threads_from_args(args)
         bucket = self.api.get_bucket_by_name(args.bucketName)
