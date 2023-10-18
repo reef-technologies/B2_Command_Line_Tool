@@ -1397,7 +1397,7 @@ class DownloadFileMixin(
 ):
     STDOUT_FILE_PATH = 'CON' if platform.system() == 'Windows' else '/dev/stdout'
 
-    def _correct_local_file_name(self, filename):
+    def _correct_local_filename(self, filename: str):
         if filename == '-':
             if os.path.exists('-'):
                 self._print_stderr(
