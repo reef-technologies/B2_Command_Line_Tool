@@ -1386,10 +1386,31 @@ class DownloadCommand(Command):
         self._print((label + ':').ljust(20) + ' ' + value)
 
 
+class DownloadFileMixin(
+    ThreadsMixin,
+    ProgressMixin,
+    SourceSseMixin,
+    WriteBufferSizeMixin,
+    SkipHashVerificationMixin,
+    MaxDownloadStreamsMixin,
+    DownloadCommand,
+):
+    STDOUT_FILE_PATH = 'CON' if platform.system() == 'Windows' else '/dev/stdout'
+
+    def _correct_local_file_name(self, filename):
+        if filename == '-':
+            if os.path.exists('-'):
+                self._print_stderr(
+                    "WARNING: Filename `-` won't be supported in the future and will be treated as stdout alias."
+                )
+                return filename
+            return self.STDOUT_FILE_PATH
+        return filename
+
+
 @B2.register_subcommand
 class DownloadFileById(
-    ThreadsMixin, ProgressMixin, SourceSseMixin, WriteBufferSizeMixin, SkipHashVerificationMixin,
-    MaxDownloadStreamsMixin, DownloadCommand
+    DownloadFileMixin,
 ):
     """
     Downloads the given file, and stores it in the given local file.
@@ -1414,6 +1435,7 @@ class DownloadFileById(
         super()._setup_parser(parser)
 
     def run(self, args):
+        args.localFileName = self._correct_local_file_name(args.localFileName)
         super().run(args)
         progress_listener = make_progress_listener(
             args.localFileName, args.noProgress or args.quiet
@@ -1425,7 +1447,7 @@ class DownloadFileById(
         )
 
         self._print_download_info(downloaded_file)
-        downloaded_file.safe_save_to(args.localFileName)
+        downloaded_file.save_to(args.localFileName)
         self._print('Download finished')
 
         return 0
@@ -1433,13 +1455,7 @@ class DownloadFileById(
 
 @B2.register_subcommand
 class DownloadFileByName(
-    ProgressMixin,
-    ThreadsMixin,
-    SourceSseMixin,
-    WriteBufferSizeMixin,
-    SkipHashVerificationMixin,
-    MaxDownloadStreamsMixin,
-    DownloadCommand,
+    DownloadFileMixin,
 ):
     """
     Downloads the given file, and stores it in the given local file.
@@ -1464,6 +1480,7 @@ class DownloadFileByName(
         super()._setup_parser(parser)
 
     def run(self, args):
+        args.localFileName = self._correct_local_file_name(args.localFileName)
         super().run(args)
         self._set_threads_from_args(args)
         bucket = self.api.get_bucket_by_name(args.bucketName)
@@ -1476,7 +1493,7 @@ class DownloadFileByName(
         )
 
         self._print_download_info(downloaded_file)
-        downloaded_file.safe_save_to(args.localFileName)
+        downloaded_file.save_to(args.localFileName)
         self._print('Download finished')
 
         return 0
