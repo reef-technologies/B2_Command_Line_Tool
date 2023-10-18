@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Deprecated
+* Support of `-` as a valid filename in `download-file-by-name` or `download-file-by-id` command. In future `-` will be an alias for standard output.
+
 ### Fixed
 * `--quiet` now will implicitly set `--noProgress` option as well
 * Fix failing open non-seekable file
