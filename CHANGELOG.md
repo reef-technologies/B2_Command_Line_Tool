@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+* nothing
 * `--quiet` now will implicitly set `--noProgress` option as well
 
 ## [3.11.0] - 2023-10-04
