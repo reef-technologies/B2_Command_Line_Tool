@@ -123,3 +123,30 @@ jobs:
           draft: ${{ env.ACTIONS_STEP_DEBUG == 'true' }}
           prerelease: false
           files: ${{ steps.sign.outputs.asset_path }}
+  deploy-macos-bundle:
+    needs: deploy
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade nox pip setuptools
+          git config --global --add safe.directory '*'
+      - name: Bundle the distribution
+        id: bundle
+        run: nox -vs bundle >> $GITHUB_OUTPUT
+      - name: Sign the bundle
+        id: sign
+        run: nox -vs sign >> $GITHUB_OUTPUT
+      - name: Generate hashes
+        id: hashes
+        run: nox -vs make_dist_digest
+      - name: Upload the bundle to the GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ needs.deploy.outputs.version }}
+          draft: ${{ env.ACTIONS_STEP_DEBUG == 'true' }}
+          prerelease: false
+          files: ${{ steps.sign.outputs.asset_path }}
