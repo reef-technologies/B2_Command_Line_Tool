@@ -39,6 +39,7 @@ Documentation index
    replication
 
    tutorials/index
+   tutorials/installation
    how_to_guides/index
    reference/index
    explanations/index
