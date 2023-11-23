@@ -30,7 +30,6 @@ from datetime import datetime, timedelta
 from os import environ, linesep, path
 from pathlib import Path
 from tempfile import gettempdir, mkdtemp, mktemp
-from unittest.mock import MagicMock
 
 import backoff
 from b2sdk.v2 import (
@@ -286,10 +285,8 @@ def print_text_indented(text):
     """
     Prints text that may include weird characters, indented four spaces.
     """
-    mock_console_tool = MagicMock()
-    cmd_instance = Command(console_tool=mock_console_tool)
     for line in text.split(linesep):
-        cmd_instance._print_standard_descriptor(sys.stdout, '   ', repr(line)[1:-1])
+        Command._print_helper(sys.stdout, sys.stdout.encoding, '   ', repr(line)[1:-1])
 
 
 def print_output(status, stdout, stderr):
