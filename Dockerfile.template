@@ -1,4 +1,4 @@
-FROM python:${python_version}-slim as base
+FROM python:${python_version}-alpine as base
 
 LABEL vendor=${vendor}
 LABEL name="${name}"
