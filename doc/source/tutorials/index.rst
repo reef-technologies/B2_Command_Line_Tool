@@ -81,7 +81,7 @@ Downloading is as simple as
 listing files
 ***********************
 
-Fo seeing what files are already uploaded to a bucket, use the :code:`ls` command:
+For seeing what files are already uploaded to a bucket, use the :code:`ls` command:
 
 .. code-block:: shell
 
@@ -160,6 +160,15 @@ a file, the new version "covers" the old one, but the old one can still be acces
    4_z7786dd31f6631c2a7cc8071c_f402fafdefdfb97f9_d20230921_m191948_c000_v0001049_t0047_u01695323988977  upload  2023-09-21  19:19:48          5  fire-bellied-toad.png
                                                                                   -       -           -         -          0  indo-european-toads/
 
+.. code-block:: shell
+
+    b2 ls download-file-by-id 4_z7786dd31f6631c2a7cc8071c_f402fafdefdfb97f9_d20230921_m191948_c000_v0001049_t0047_u01695323988977 /home/fred/pictures/fire-bellied-toad.png
+
+(Notice how `bucket_name` is not specified for this download operation, that's because and `id` uniquely identifies
+a file in B2 Cloud Storage).
+
+Because the "old" file is still accessible, it still incurs storage costs.
+
 ***********************
 directory upload
 ***********************
@@ -186,15 +195,27 @@ As well as for downloading
 hiding files
 ***********************
 
+Hiding files allows for making them invisible to `ls` and `sync` commands, while leaving the ability to download them
+by id.
+
+.. code-block:: shell
+
+    b2 hide-file pictures-of-toads fire-bellied-toad.png
 
 ***********************
 deleting files
 ***********************
+It is possible to irreversibly delete a file, though that requires fetching it's `id` first:
 
+.. code-block:: shell
+
+    b2 delete-file-version fire-bellied-toad.png 4_z7786dd31f6631c2a7cc8071c_f402fafdefdfb97f9_d20230921_m191948_c000_v0001049_t0047_u01695323988977
 
 *********************************************************************
-deleting specific file version (maybe finding by file name)
+deleting buckets
 *********************************************************************
+
+
 
 
 ***********************
