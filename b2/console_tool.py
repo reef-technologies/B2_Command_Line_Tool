@@ -687,7 +687,7 @@ class ThreadsMixin(Described):
 
 class _TqdmCloser:
     """
-    On OSX using Tqdm with b2sdk causes semaphore leaks. This fix is located here and in b2sdk, because after this
+    On OSX using Tqdm with b2sdk causes semaphore leaks. This fix is located here and not in b2sdk, because after this
     cleanup Tqdm might not work properly, therefore it's best to do it when exiting a python process.
     """
 
