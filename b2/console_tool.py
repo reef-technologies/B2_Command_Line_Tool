@@ -698,7 +698,7 @@ class _TqdmCloser:
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if sys.platform != "darwin":
+        if sys.platform != "darwin" or os.environ.get('B2_TEST_DISABLE_TQDM_CLOSER'):
             return
         try:
             from multiprocessing.synchronize import SemLock
@@ -706,7 +706,7 @@ class _TqdmCloser:
             if tqdm_lock.mp_lock._semlock.name is not None:
                 SemLock._cleanup(tqdm_lock.mp_lock._semlock.name)
         except Exception as ex:
-            raise Exception('Error encountered during Tqdm cleanup') from ex
+            logger.debug('Error encountered during Tqdm cleanup', exc_info=ex)
 
 
 class Command(Described, metaclass=ABCMeta):

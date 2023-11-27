@@ -423,6 +423,7 @@ class CommandLine:
         args: list[str] | None,
         expected_pattern: str | None = None,
         additional_env: dict | None = None,
+        expected_stderr_pattern: str | re.Pattern = None,
     ) -> str:
         """
         Runs the command-line with the given arguments.  Raises an exception
@@ -432,7 +433,10 @@ class CommandLine:
         status, stdout, stderr = self.execute(args, additional_env)
         assert status == 0, f'FAILED with status {status}, stderr={stderr}'
 
-        if stderr != '':
+        if expected_stderr_pattern:
+            assert expected_stderr_pattern.search(stderr), \
+                f'stderr did not match pattern="{expected_stderr_pattern}", stderr="{stderr}"'
+        elif stderr != '':
             for line in (s.strip() for s in stderr.split(os.linesep)):
                 assert any(p.match(line) for p in self.EXPECTED_STDERR_PATTERNS), \
                     f'Unexpected stderr line: {repr(line)}'
