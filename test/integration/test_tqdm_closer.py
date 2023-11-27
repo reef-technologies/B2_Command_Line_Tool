@@ -18,10 +18,15 @@ import pytest
     reason='Tqdm closing error only occurs on OSX and python 3.11 or newer',
 )
 def test_tqdm_closer(b2_tool, bucket, file_name):
+    # test that stderr doesn't contain any warning, in particular warnings about multiprocessing resource tracker
+    # leaking semaphores
     b2_tool.should_succeed([
         'cat',
         f'b2://{bucket.name}/{file_name}',
     ])
+
+    # test that disabling _TqdmCloser does produce a resource tracker warning. Should the following check ever fail,
+    # that would mean that either Tqdm or python fixed the issue and _TqdmCloser can be removed all together
     b2_tool.should_succeed(
         [
             'cat',
