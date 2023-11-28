@@ -2,9 +2,10 @@
 Overview
 #########################################
 
-B2 CLI is a command line tool that allows for interacting with the Backblaze
-`B2 Cloud Storage <https://www.backblaze.com/cloud-storage>`_. It is assumed that readers of this documentation have
-at least basic experience using command line tools. Familiarity with B2 or Cloud Storages in general is not needed.
+Backblaze B2 is a Cloud Storage solution. The aim of this guide is to teach users how to use its features, and it does
+so using concrete examples and tools (WebUI, CLIs and SDKs). It is assumed that readers of this documentation have
+at least basic experience using their preferred environment (command line for CLIs, programming languages for SDKs).
+Familiarity with B2 or Cloud Storages in general is not needed.
 
 #########################################
 Structure of this documentation
@@ -32,11 +33,6 @@ Documentation index
    :maxdepth: 2
    :glob:
 
-   quick_start
-
-   commands
-
-   replication
 
    tutorials/index
    tutorials/installation

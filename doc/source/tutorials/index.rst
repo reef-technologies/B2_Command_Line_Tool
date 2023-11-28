@@ -48,6 +48,85 @@ simple upload
 Now, on any machine that ran :code:`b2 authorize-account` with the same key you can upload a file to
 :code:`pictures-of-toads`:
 
+.. raw:: html
+
+    <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>b2<span class="w"> </span>upload-file<span class="w"> </span>pictures-of-toads<span class="w"> </span>/home/todd/pictures/fire-bellied-toad.png<span class="w"> </span>fire-bellied-toad.png
+    </pre></div>
+
+.. raw:: html
+
+    <div class="tab">
+    <button class="tablinks" onclick="unfoldCodeSnippet(event, 'WebUI')">WebUI</button>
+    <div class="dropdown">
+    <button class="tablinks dropbtn">Command line</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'B2 CLI')">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'AWS CLI')">AWS CLI</button>
+
+    </div>
+    </div>
+
+    <div class="dropdown">
+    <button class="tablinks dropbtn">SDK</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'b2sdk')">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'boto3')">boto3</button>
+
+    </div>
+    </div>
+    </div>
+
+    <script>
+    function unfoldCodeSnippet(evt, cityName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(cityName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+    </script>
+
+
+    <div class="snippet-holder">
+        <div id="WebUI" class="tabcontent">
+          <h3>London</h3>
+          <p>London is the capital city of England.</p>
+        </div>
+
+        <div id="B2 CLI" class="tabcontent">
+          <h3>Paris</h3>
+          <p>Paris is the capital of France.</p>
+        </div>
+
+        <div id="AWS CLI" class="tabcontent">
+          <h3>Paris</h3>
+          <p>Paris is the capital of France.</p>
+        </div>
+
+        <div id="b2sdk" class="tabcontent">
+          <h3>Paris</h3>
+          <p>Paris is the capital of France.</p>
+        </div>
+
+        <div id="boto3" class="tabcontent">
+          <h3>Tokyo</h3>
+          <p>Tokyo is the capital of Japan.</p>
+        </div>
+    </div>
+
+
+.. code-block:: python
+
+    import b2sdk
+    b2sdk.dupa("a", 7)
+
+
 .. code-block:: shell
 
     b2 upload-file pictures-of-toads /home/todd/pictures/fire-bellied-toad.png fire-bellied-toad.png
