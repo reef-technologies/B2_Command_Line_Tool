@@ -51,12 +51,12 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
 .. raw:: html
 
     <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippet(event, 'WebUI')">WebUI</button>
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')">WebUI</button>
     <div class="dropdown">
     <button class="tablinks dropbtn">Command line</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'B2 CLI')">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'AWS CLI')">AWS CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')">AWS CLI</button>
 
     </div>
     </div>
@@ -64,15 +64,15 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'b2sdk')">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippet(event, 'boto3')">boto3</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')">boto3</button>
 
     </div>
     </div>
     </div>
 
     <script>
-    function unfoldCodeSnippet(evt, language) {
+    function unfoldCodeSnippets(evt, language) {
       var i, tabcontent, tablinks;
       tabcontent = document.getElementsByClassName("tabcontent");
       for (i = 0; i < tabcontent.length; i++) {
@@ -86,8 +86,13 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
      for (i = 0; i < snippets.length; i++) {
         snippets[i].style.display = "block";
      }
+     if (evt != null) {
       evt.currentTarget.className += " active";
     }
+    }
+    window.onload = function () {
+        unfoldCodeSnippets(null, "WebUI");
+    };
     </script>
 
 
