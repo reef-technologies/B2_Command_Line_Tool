@@ -26,7 +26,7 @@ def test_tqdm_closer(b2_tool, bucket, file_name):
     ])
 
     # test that disabling _TqdmCloser does produce a resource tracker warning. Should the following check ever fail,
-    # that would mean that either Tqdm or python fixed the issue and _TqdmCloser can be removed all together
+    # that would mean that either Tqdm or python fixed the issue and _TqdmCloser can be disabled for fixed versions
     b2_tool.should_succeed(
         [
             'cat',
