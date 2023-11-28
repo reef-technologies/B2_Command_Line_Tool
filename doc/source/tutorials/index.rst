@@ -50,27 +50,6 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
 
 .. raw:: html
 
-    <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')">WebUI</button>
-    <div class="dropdown">
-    <button class="tablinks dropbtn">Command line</button>
-    <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')">AWS CLI</button>
-
-    </div>
-    </div>
-
-    <div class="dropdown">
-    <button class="tablinks dropbtn">SDK</button>
-    <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')">boto3</button>
-
-    </div>
-    </div>
-    </div>
-
     <script>
     function unfoldCodeSnippets(evt, language) {
       var i, tabcontent, tablinks;
@@ -96,39 +75,85 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
     </script>
 
 
-    <div class="snippet-holder">
-        <div data-language="WebUI" class="tabcontent">
-          some instructions will go here
-        </div>
+.. raw:: html
 
-        <div data-language="B2 CLI" class="tabcontent">
-              <div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>b2<span class="w"> </span>upload-file<span class="w"> </span>pictures-of-toads<span class="w"> </span>/home/todd/pictures/fire-bellied-toad.png<span class="w"> </span>fire-bellied-toad.png
-                </pre></div></div>
-        </div>
+    <div class="tab">
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')">WebUI</button>
+    <div class="dropdown">
+    <button class="tablinks dropbtn">Command line</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')">AWS CLI</button>
 
-        <div data-language="AWS CLI" class="tabcontent">
-          AWS CLI
-        </div>
-
-        <div data-language="b2sdk" class="tabcontent">
-          b2sdk
-        </div>
-
-        <div data-language="boto3" class="tabcontent">
-          boto3
-        </div>
+    </div>
     </div>
 
+    <div class="dropdown">
+    <button class="tablinks dropbtn">SDK</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')">boto3</button>
 
-.. code-block:: python
+    </div>
+    </div>
+    </div>
 
-    import b2sdk
-    b2sdk.dupa("a", 7)
+        <div data-language="WebUI" class="tabcontent">
+
+instructions
+
+and
+
+images
+
+.. image:: ./generating_keys.png
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="B2 CLI" class="tabcontent">
 
 
 .. code-block:: shell
 
     b2 upload-file pictures-of-toads /home/todd/pictures/fire-bellied-toad.png fire-bellied-toad.png
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="AWS CLI" class="tabcontent">
+
+.. code-block:: shell
+
+    aws blah blah
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2sdk" class="tabcontent">
+
+.. code-block:: python
+
+    import b2sdk
+    b2sdk.do_stuff("a", 1)
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="boto3" class="tabcontent">
+
+
+.. code-block:: python
+
+    import boto3
+    boto3.do_stuff("a", 1)
+
+.. raw:: html
+
+    </div>
 
 this will create an object that users of your account can download.
 
