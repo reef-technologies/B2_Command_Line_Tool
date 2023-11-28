@@ -57,17 +57,31 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
       for (i = 0; i < tabcontent.length; i++) {
         tabcontent[i].style.display = "none";
       }
+
       tablinks = document.getElementsByClassName("tablinks");
       for (i = 0; i < tablinks.length; i++) {
         tablinks[i].className = tablinks[i].className.replace(" active", "");
       }
-     snippets = document.querySelectorAll(`[data-language="${language}"]`);
+
+      dropdowns = document.getElementsByClassName("dropdown");
+      for (i = 0; i < dropdowns.length; i++) {
+        dropdowns[i].className = dropdowns[i].className.replace(" active", "");
+      }
+
+     snippets = document.querySelectorAll(`div[data-language="${language}"]`);
      for (i = 0; i < snippets.length; i++) {
         snippets[i].style.display = "block";
      }
-     if (evt != null) {
-      evt.currentTarget.className += " active";
-    }
+     buttons = document.querySelectorAll(`button[data-language="${language}"]`);
+     for (i = 0; i < buttons.length; i++) {
+        buttons[i].className += " active";
+        if (buttons[i].parentNode.className == 'dropdown-content') {
+            buttons[i].parentNode.parentNode.className += " active";
+        }
+     }
+     //if (evt != null) {
+    //  evt.currentTarget.className += " active";
+    //}
     }
     window.onload = function () {
         unfoldCodeSnippets(null, "WebUI");
@@ -78,12 +92,12 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
 .. raw:: html
 
     <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')">WebUI</button>
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
     <div class="dropdown">
-    <button class="tablinks dropbtn">Command line</button>
-    <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')">AWS CLI</button>
+    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <div class="dropdown-content" style>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
     </div>
     </div>
@@ -91,8 +105,8 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')">boto3</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
 
     </div>
     </div>

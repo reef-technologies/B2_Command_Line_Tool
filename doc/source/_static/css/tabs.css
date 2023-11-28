@@ -54,9 +54,11 @@
   z-index: 1;
 }
 
-.dropdown:hover .dropdown-content {display: block;}
+.tab div.active {
+  background-color: #ccc;
+}
 
-.dropdown:hover .dropbtn {background-color: #3e8e41;}
+.dropdown:hover .dropdown-content {display: block;}
 
 .dropdown-content tablinks {
   color: black;
