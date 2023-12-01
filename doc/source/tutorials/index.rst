@@ -237,6 +237,8 @@ key.
 Note that your master key won't work with :code:`boto3`, see `key creation`_ for information on how to get a non-master
 key.
 
+To get your :code:`endopint-url` value you must TODO!!!
+
 .. raw:: html
 
     </div>
