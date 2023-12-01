@@ -1,5 +1,5 @@
 #########################################
-Installation instructions
+Complete installation instructions
 #########################################
 
 TODO

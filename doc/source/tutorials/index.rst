@@ -2,52 +2,6 @@
 Tutorials
 #########################################
 
-
-***********************
-Installation
-***********************
-
-To continue with any of the tutorials below, you must install B2 CLI. Detailed instructions can be found here
-:doc:`./installation`.
-
-***********************
-Authorization
-***********************
-
-After signing in to `B2 Cloud Storage website <https://www.backblaze.com/cloud-storage>`_ generate a new Master
-Application Key from the "Application Keys" view.
-
-.. image:: ./generating_keys.png
-
-Copy the presented `keyId` and `applicationKey` and use them in the following command:
-
-.. code-block:: shell
-
-    B2_APPLICATION_KEY_ID=keyId B2_APPLICATION_KEY=applicationKey b2 authorize-account
-
-after that operation, your CLI tool is authorized and all following commands will operate in the context of
-this account.
-
-**********************************************
-Buckets
-**********************************************
-
-Before you start uploading and downloading objects (files) you must create a bucket.
-
-.. code-block:: shell
-
-    b2 create-bucket pictures-of-toads allPrivate
-
-NOTE: bucket name has to be globally unique, otherwise you will get an error. For the sake of this tutorial we only
-focus on private buckets.
-
-***********************
-simple upload
-***********************
-
-Now, on any machine that ran :code:`b2 authorize-account` with the same key you can upload a file to
-:code:`pictures-of-toads`:
-
 .. raw:: html
 
     <script>
@@ -89,6 +43,13 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
     </script>
 
 
+***********************
+Installation
+***********************
+
+To continue with any of the tutorials below, you must install your tool of choice. You can find short
+installation instructions below.
+
 .. raw:: html
 
     <div class="tab">
@@ -114,14 +75,383 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
 
         <div data-language="WebUI" class="tabcontent">
 
-instructions
+No installation required.
 
-and
+.. raw:: html
 
-images
+    </div>
+    <div data-language="B2 CLI" class="tabcontent">
+
+
+.. code-block:: shell
+
+    pip install b2
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="AWS CLI" class="tabcontent">
+
+Follow instructions here: `https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html
+<https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html>`_
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2sdk" class="tabcontent">
+
+.. code-block:: shell
+
+    pip install b2sdk
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="boto3" class="tabcontent">
+
+
+.. code-block:: shell
+
+    pip install boto3
+
+.. raw:: html
+
+    </div>
+
+
+Detailed instructions can be found here: :doc:`./installation`.
+
+***********************
+Authorization
+***********************
+
+After signing in to `B2 Cloud Storage website <https://www.backblaze.com/cloud-storage>`_ generate a new Master
+Application Key from the "Application Keys" view.
 
 .. image:: ./generating_keys.png
 
+Take note of the presented `keyId` and `applicationKey`.
+
+.. raw:: html
+
+    <div class="tab">
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+    <div class="dropdown">
+    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <div class="dropdown-content" style>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+
+    </div>
+    </div>
+
+    <div class="dropdown">
+    <button class="tablinks dropbtn">SDK</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+
+    </div>
+    </div>
+    </div>
+
+        <div data-language="WebUI" class="tabcontent">
+
+No authorization, past the login screen, required.
+
+.. raw:: html
+
+    </div>
+    <div data-language="B2 CLI" class="tabcontent">
+
+
+.. code-block:: shell
+
+    B2_APPLICATION_KEY_ID=keyId B2_APPLICATION_KEY=applicationKey b2 authorize-account
+    # After this operation, your CLI tool is authorized and
+    # all following commands will operate in the
+    # context of this account.
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="AWS CLI" class="tabcontent">
+
+.. code-block:: shell
+
+    aws configure --profile b2tutorial
+    # fill in the prompting inputs as follows:
+    # AWS Access Key ID [None]: keyId
+    # AWS Secret Access Key [None]: applicationKey
+    # Default region name [None]:
+    # Default output format [None]: json
+    aws configure --profile b2tutorial set default.s3.signature_version s3v4
+
+In order to interact with B2 using :code:`aws` CLI you will need to provide the :code:`--profile` and
+:code:`--endpoint-url` parameters with each invocation, e.g.
+
+.. code-block:: shell
+
+    aws –-profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api list-buckets
+
+To get your :code:`--endopint-url` value you must TODO!!!
+
+Note that your master key won't work with :code:`aws`, see `key creation`_ for information on how to get a non-master
+key.
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2sdk" class="tabcontent">
+
+.. code-block:: python
+
+    from b2sdk.v2 import B2Api
+    b2_api = B2Api(info)
+    b2_api.authorize_account("production", keyId, applicationKey)
+    # from now on, any operation you make on `b2api` will be executed in the context of your account
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="boto3" class="tabcontent">
+
+
+.. code-block:: python
+
+    import boto3
+    from botocore.client import Config
+    b2 = boto3.resource(
+        service_name='s3',
+        endpoint_url='https://s3.us-west-004.backblazeb2.com',
+        aws_access_key_id=keyId,
+        aws_secret_access_key=applicationKey,
+        config=Config(signature_version='s3v4'),
+    )
+
+Note that your master key won't work with :code:`boto3`, see `key creation`_ for information on how to get a non-master
+key.
+
+.. raw:: html
+
+    </div>
+
+
+
+***********************
+key creation
+***********************
+
+
+.. raw:: html
+
+    <div class="tab">
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+    <div class="dropdown">
+    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <div class="dropdown-content" style>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+
+    </div>
+    </div>
+
+    <div class="dropdown">
+    <button class="tablinks dropbtn">SDK</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+
+    </div>
+    </div>
+    </div>
+
+        <div data-language="WebUI" class="tabcontent">
+
+Go to keys view
+
+.. image:: ./key_creation_1.png
+
+Hit "Add a New Application Key" and fill out the details (just the name, for the sake of this tutorial).
+
+.. image:: ./key_creation_2.png
+
+.. raw:: html
+
+    </div>
+    <div data-language="B2 CLI" class="tabcontent">
+
+
+.. code-block:: shell
+
+    b2 create-key --allCapabilities toad-enthusiast
+    # you will see keyId and applicationKey
+
+.. raw:: html
+
+    </div>
+    <div data-language="AWS CLI" class="tabcontent">
+
+Not supported.
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2sdk" class="tabcontent">
+
+.. code-block:: python
+
+    from b2sdk.v2 import ALL_CAPABILITIES
+    key = b2_api.create_key(ALL_CAPABILITIES, 'toad-enthusiast')
+    print(key.id_, key.application_key)
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="boto3" class="tabcontent">
+
+
+Not supported.
+
+.. raw:: html
+
+    </div>
+
+**********************************************
+Buckets
+**********************************************
+
+Before you start uploading and downloading objects (files) you must create a bucket.
+
+.. raw:: html
+
+    <div class="tab">
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+    <div class="dropdown">
+    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <div class="dropdown-content" style>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+
+    </div>
+    </div>
+
+    <div class="dropdown">
+    <button class="tablinks dropbtn">SDK</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+
+    </div>
+    </div>
+    </div>
+
+        <div data-language="WebUI" class="tabcontent">
+
+Go to buckets view.
+
+.. image:: ./creating_buckets_1.png
+
+Hit "create bucket" and fill out the details.
+
+.. image:: ./creating_buckets_2.png
+
+.. raw:: html
+
+    </div>
+    <div data-language="B2 CLI" class="tabcontent">
+
+
+.. code-block:: shell
+
+    b2 create-bucket pictures-of-toads allPrivate
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="AWS CLI" class="tabcontent">
+
+.. code-block:: shell
+
+    aws --profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api create-bucket --bucket pictures-of-toads
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2sdk" class="tabcontent">
+
+.. code-block:: python
+
+    bucket = b2api.create_bucket('pictures-of-toads', 'allPrivate')
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="boto3" class="tabcontent">
+
+
+.. code-block:: python
+
+    b2.create_bucket(Bucket='pictures-of-toads', ACL='private')
+
+.. raw:: html
+
+    </div>
+
+NOTE: bucket name has to be globally unique, otherwise you will get an error. For the sake of this tutorial we only
+focus on private buckets.
+
+***********************
+simple upload
+***********************
+
+Now, on any machine that ran :code:`b2 authorize-account` with the same key you can upload a file to
+:code:`pictures-of-toads`:
+
+.. raw:: html
+
+    <div class="tab">
+    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+    <div class="dropdown">
+    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <div class="dropdown-content" style>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+
+    </div>
+    </div>
+
+    <div class="dropdown">
+    <button class="tablinks dropbtn">SDK</button>
+    <div class="dropdown-content">
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+
+    </div>
+    </div>
+    </div>
+
+        <div data-language="WebUI" class="tabcontent">
+
+Go to file browsing view.
+
+.. image:: ./upload_file_1.png
+
+Choose destination bucket.
+
+.. image:: ./upload_file_2.png
+
+Upload your file.
+
+.. image:: ./upload_file_3.png
 
 .. raw:: html
 
@@ -141,7 +471,8 @@ images
 
 .. code-block:: shell
 
-    aws blah blah
+    aws --profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api put-object \
+      --bucket pictures-of-toads --key fire-bellied-toad.png --body /home/todd/pictures/fire-bellied-toad.png
 
 .. raw:: html
 
@@ -150,8 +481,8 @@ images
 
 .. code-block:: python
 
-    import b2sdk
-    b2sdk.do_stuff("a", 1)
+    bucket = b2api.get_bucket_by_name('pictures-of-toads')
+    bucket.upload_local_file('/home/todd/pictures/fire-bellied-toad.png', 'fire-bellied-toad.png')
 
 
 .. raw:: html
@@ -162,8 +493,11 @@ images
 
 .. code-block:: python
 
-    import boto3
-    boto3.do_stuff("a", 1)
+    with open('/home/todd/pictures/fire-bellied-toad.png', 'br') as file:
+        b2.Object(  # TODO: this doesn't work, need to figure out why
+            'fire-bellied-toad.png',
+            'pictures-of-toads',
+        ).put(Body=file)
 
 .. raw:: html
 
@@ -171,6 +505,9 @@ images
 
 this will create an object that users of your account can download.
 
+**********************************************
+THIS MARKS THE END OF POLYGLOT DOCUMENTATION
+**********************************************
 
 ***********************
 upload to a directory
@@ -335,7 +672,4 @@ deleting buckets
 
 
 
-***********************
-key creation
-***********************
 
