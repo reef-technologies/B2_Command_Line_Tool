@@ -33,6 +33,7 @@ Documentation index
 
    tutorials/index
    tutorials/installation
+   tutorials/s3_endpoint_url
    how_to_guides/index
    reference/index
    explanations/index

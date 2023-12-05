@@ -201,7 +201,7 @@ In order to interact with B2 using :code:`aws` CLI you will need to provide the 
 
     aws –-profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api list-buckets
 
-To get your :code:`--endopint-url` value you must TODO!!!
+To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
 
 .. raw:: html
@@ -236,7 +236,7 @@ To get your :code:`--endopint-url` value you must TODO!!!
     )
 
 
-To get your :code:`endopint-url` value you must TODO!!!
+To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
 .. raw:: html
 
@@ -663,8 +663,4 @@ It is possible to irreversibly delete a file, though that requires fetching it's
 *********************************************************************
 deleting buckets
 *********************************************************************
-
-
-
-
 
