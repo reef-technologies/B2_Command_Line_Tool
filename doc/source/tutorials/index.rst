@@ -127,10 +127,14 @@ Detailed instructions can be found here: :doc:`./installation`.
 Authorization
 ***********************
 
-After signing in to `B2 Cloud Storage website <https://www.backblaze.com/cloud-storage>`_ generate a new Master
-Application Key from the "Application Keys" view.
+After signing in to `B2 Cloud Storage website <https://www.backblaze.com/cloud-storage>`_ go to keys
+"Application Keys" view.
 
-.. image:: ./generating_keys.png
+.. image:: ./key_creation_1.png
+
+Hit "Add a New Application Key" and fill out the details (just the name, for the sake of this tutorial).
+
+.. image:: ./key_creation_2.png
 
 Take note of the presented `keyId` and `applicationKey`.
 
@@ -199,9 +203,6 @@ In order to interact with B2 using :code:`aws` CLI you will need to provide the 
 
 To get your :code:`--endopint-url` value you must TODO!!!
 
-Note that your master key won't work with :code:`aws`, see `key creation`_ for information on how to get a non-master
-key.
-
 
 .. raw:: html
 
@@ -234,8 +235,6 @@ key.
         config=Config(signature_version='s3v4'),
     )
 
-Note that your master key won't work with :code:`boto3`, see `key creation`_ for information on how to get a non-master
-key.
 
 To get your :code:`endopint-url` value you must TODO!!!
 
@@ -275,13 +274,7 @@ key creation
 
         <div data-language="WebUI" class="tabcontent">
 
-Go to keys view
-
-.. image:: ./key_creation_1.png
-
-Hit "Add a New Application Key" and fill out the details (just the name, for the sake of this tutorial).
-
-.. image:: ./key_creation_2.png
+As presented in `Authorization`_
 
 .. raw:: html
 
