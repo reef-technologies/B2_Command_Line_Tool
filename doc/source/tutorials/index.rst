@@ -17,6 +17,13 @@ Tutorials
         tablinks[i].className = tablinks[i].className.replace(" active", "");
       }
 
+      dropbtns = document.getElementsByClassName("dropbtn");
+      for (i = 0; i < dropbtns.length; i++) {
+          if (dropbtns[i].originalText) {
+                      dropbtns[i].textContent = dropbtns[i].originalText;
+          }
+      }
+
       dropdowns = document.getElementsByClassName("dropdown");
       for (i = 0; i < dropdowns.length; i++) {
         dropdowns[i].className = dropdowns[i].className.replace(" active", "");
@@ -31,7 +38,12 @@ Tutorials
         buttons[i].className += " active";
         if (buttons[i].parentNode.className == 'dropdown-content') {
             buttons[i].parentNode.parentNode.className += " active";
-        }
+            dropbtn = buttons[i].parentNode.parentNode.getElementsByClassName('dropbtn')[0];
+            if (!dropbtn.originalText) {
+                      dropbtn.originalText = dropbtn.textContent;
+            }
+            dropbtn.textContent += ` (${language})`
+            }
      }
      //if (evt != null) {
     //  evt.currentTarget.className += " active";
@@ -55,10 +67,10 @@ installation instructions below.
     <div class="tab">
     <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
     <div class="dropdown">
-    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <button class="tablinks dropbtn" >Command line</button>
     <div class="dropdown-content" style>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
     </div>
     </div>
@@ -66,8 +78,8 @@ installation instructions below.
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
 
     </div>
     </div>
@@ -143,10 +155,10 @@ Take note of the presented `keyId` and `applicationKey`.
     <div class="tab">
     <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
     <div class="dropdown">
-    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <button class="tablinks dropbtn" >Command line</button>
     <div class="dropdown-content" style>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button><br>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
     </div>
     </div>
@@ -154,8 +166,8 @@ Take note of the presented `keyId` and `applicationKey`.
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button><br>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
 
     </div>
     </div>
@@ -254,10 +266,10 @@ key creation
     <div class="tab">
     <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
     <div class="dropdown">
-    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <button class="tablinks dropbtn" >Command line</button>
     <div class="dropdown-content" style>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
     </div>
     </div>
@@ -265,8 +277,8 @@ key creation
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
 
     </div>
     </div>
@@ -329,10 +341,10 @@ Before you start uploading and downloading objects (files) you must create a buc
     <div class="tab">
     <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
     <div class="dropdown">
-    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <button class="tablinks dropbtn" >Command line</button>
     <div class="dropdown-content" style>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
     </div>
     </div>
@@ -340,8 +352,8 @@ Before you start uploading and downloading objects (files) you must create a buc
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
 
     </div>
     </div>
@@ -416,10 +428,10 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
     <div class="tab">
     <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
     <div class="dropdown">
-    <button class="tablinks dropbtn" style="width:250px">Command line</button>
+    <button class="tablinks dropbtn" >Command line</button>
     <div class="dropdown-content" style>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
     </div>
     </div>
@@ -427,8 +439,8 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
     <div class="dropdown">
     <button class="tablinks dropbtn">SDK</button>
     <div class="dropdown-content">
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
+        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
 
     </div>
     </div>

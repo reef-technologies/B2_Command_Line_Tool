@@ -1,7 +1,6 @@
 /* taken from https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_tabs */
 /*and https://www.w3schools.com/howto/tryit.asp?filename=tryhow_css_js_dropdown_hover */
 .tab {
-  overflow: hidden;
   border: 1px solid #ccc;
   background-color: #f1f1f1;
 }
