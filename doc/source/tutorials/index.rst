@@ -6,6 +6,16 @@ Tutorials
 
     <script>
     function unfoldCodeSnippets(evt, language) {
+      var elementToKeepInPlace = null;
+      var initialPosition = null;
+      if (evt) {
+          elementToKeepInPlace = evt.srcElement
+          if (elementToKeepInPlace.parentNode.className == 'dropdown-content') {
+              elementToKeepInPlace = elementToKeepInPlace.parentNode.parentNode.getElementsByClassName('dropbtn')[0];
+          }
+          initialPosition = elementToKeepInPlace.getBoundingClientRect().y;
+      }
+
       var i, tabcontent, tablinks;
       tabcontent = document.getElementsByClassName("tabcontent");
       for (i = 0; i < tabcontent.length; i++) {
@@ -45,6 +55,9 @@ Tutorials
             dropbtn.textContent += ` (${language})`
             }
      }
+    if (evt) {
+        window.scrollBy(0, - initialPosition + elementToKeepInPlace.getBoundingClientRect().y);
+    }
      //if (evt != null) {
     //  evt.currentTarget.className += " active";
     //}
