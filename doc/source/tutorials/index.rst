@@ -91,7 +91,7 @@ installation instructions below.
                     SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
                     <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
                 </div>
             </div>
@@ -124,7 +124,7 @@ Follow instructions here: `https://docs.aws.amazon.com/cli/latest/userguide/gett
 .. raw:: html
 
     </div>
-    <div data-language="b2sdk" class="tabcontent">
+    <div data-language="b2-sdk-python" class="tabcontent">
 
 .. code-block:: shell
 
@@ -187,7 +187,7 @@ Take note of the presented `keyId` and `applicationKey`.
                     SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
                     <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
                 </div>
             </div>
@@ -240,7 +240,7 @@ To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 .. raw:: html
 
     </div>
-    <div data-language="b2sdk" class="tabcontent">
+    <div data-language="b2-sdk-python" class="tabcontent">
 
 .. code-block:: python
 
@@ -306,7 +306,7 @@ Key creation
                     SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
                     <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
                 </div>
             </div>
@@ -338,7 +338,7 @@ Not supported.
 .. raw:: html
 
     </div>
-    <div data-language="b2sdk" class="tabcontent">
+    <div data-language="b2-sdk-python" class="tabcontent">
 
 .. code-block:: python
 
@@ -389,7 +389,7 @@ Before you start uploading and downloading objects (files) you must create a buc
                     SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
                     <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
                 </div>
             </div>
@@ -429,7 +429,7 @@ Hit "create bucket" and fill out the details.
 .. raw:: html
 
     </div>
-    <div data-language="b2sdk" class="tabcontent">
+    <div data-language="b2-sdk-python" class="tabcontent">
 
 .. code-block:: python
 
@@ -484,7 +484,7 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
                     SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
                     <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
                 </div>
             </div>
@@ -529,7 +529,7 @@ Upload your file.
 .. raw:: html
 
     </div>
-    <div data-language="b2sdk" class="tabcontent">
+    <div data-language="b2-sdk-python" class="tabcontent">
 
 .. code-block:: python
 
