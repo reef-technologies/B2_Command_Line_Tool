@@ -145,9 +145,6 @@ Follow instructions here: `https://docs.aws.amazon.com/cli/latest/userguide/gett
 
     </div>
 
-
-Detailed instructions can be found here: :doc:`./installation`.
-
 ***********************
 Authorization
 ***********************
