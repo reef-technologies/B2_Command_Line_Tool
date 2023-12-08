@@ -1,5 +1,5 @@
 #########################################
-Establishing S3 Endpoint URL
+Establishing S3 endpoint URL
 #########################################
 
 After creating a bucket, log in to the WebUI, navigate to "Buckets":

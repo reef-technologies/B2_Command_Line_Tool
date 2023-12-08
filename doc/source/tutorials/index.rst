@@ -278,7 +278,7 @@ To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
 
 ***********************
-key creation
+Key creation
 ***********************
 
 
@@ -454,7 +454,7 @@ NOTE: bucket name has to be globally unique, otherwise you will get an error. Fo
 focus on private buckets.
 
 ***********************
-simple upload
+Simple upload
 ***********************
 
 Now, on any machine that ran :code:`b2 authorize-account` with the same key you can upload a file to
