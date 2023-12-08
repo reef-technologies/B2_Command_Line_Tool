@@ -9,3 +9,124 @@
   background-color: rgba(59, 59, 239, 0.24);
 }
 .sphinxsidebarwrapper .toctree-l1:nth-child(odd) { background: rgba(201, 201, 201, 0.46); }
+
+@import url("basic.css");
+
+/* -- page layout ----------------------------------------------------------- */
+
+body {
+    font-family: Georgia, serif;
+    font-size: 17px;
+    background-color: #fff;
+    color: #000;
+    margin: 0;
+    padding: 0;
+}
+
+div.sphinxsidebar {
+    width: 220px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+div.footer {
+    width: 940px;
+    margin: 20px auto 30px auto;
+    font-size: 14px;
+    color: #888;
+    text-align: right;
+}
+
+p.caption {
+    font-family: inherit;
+    font-size: inherit;
+}
+
+div.sphinxsidebarwrapper p.blurb {
+    margin-top: 0;
+    font-style: normal;
+}
+
+div.sphinxsidebar h3,
+div.sphinxsidebar h4 {
+    font-family: Georgia, serif;
+    color: #444;
+    font-size: 24px;
+    font-weight: normal;
+    margin: 0 0 5px 0;
+    padding: 0;
+}
+
+div.sphinxsidebar h4 {
+    font-size: 20px;
+}
+
+div.sphinxsidebar ul li.toctree-l1 > a {
+    font-size: 120%;
+}
+
+div.sphinxsidebar ul li.toctree-l2 > a {
+    font-size: 110%;
+}
+
+div.sphinxsidebar input {
+    border: 1px solid #CCC;
+    font-family: Georgia, serif;
+    font-size: 1em;
+}
+
+div.body h1,
+div.body h2,
+div.body h3,
+div.body h4,
+div.body h5,
+div.body h6 {
+    font-family: Georgia, serif;
+    font-weight: normal;
+    margin: 30px 0px 10px 0px;
+    padding: 0;
+}
+
+div.body h1 { margin-top: 0; padding-top: 0; font-size: 240%; }
+div.body h2 { font-size: 180%; }
+div.body h3 { font-size: 150%; }
+div.body h4 { font-size: 130%; }
+div.body h5 { font-size: 100%; }
+div.body h6 { font-size: 100%; }
+
+div.admonition p.admonition-title {
+    font-family: Georgia, serif;
+    font-weight: normal;
+    font-size: 24px;
+    margin: 0 0 10px 0;
+    padding: 0;
+    line-height: 1;
+}
+pre, tt, code {
+    font-family: 'Consolas', 'Menlo', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', monospace;
+    font-size: 0.9em;
+}
+
+tt.descname, tt.descclassname, code.descname, code.descclassname {
+    font-size: 0.95em;
+}
+
+table.footnote {
+    margin: 15px 0;
+    width: 100%;
+    border: 1px solid #EEE;
+    background: #FDFDFD;
+    font-size: 0.9em;
+}
+
+a.footnote-reference {
+    text-decoration: none;
+    font-size: 0.7em;
+    vertical-align: top;
+    border-bottom: 1px dotted #004B6B;
+}
+.related {
+    line-height: 30px;
+    width: 100%;
+    font-size: 0.9rem;
+}
