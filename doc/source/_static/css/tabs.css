@@ -8,3 +8,4 @@
 .dropdown-item:hover {
   background-color: rgba(59, 59, 239, 0.24);
 }
+.sphinxsidebarwrapper .toctree-l1:nth-child(odd) { background: rgba(201, 201, 201, 0.46); }
