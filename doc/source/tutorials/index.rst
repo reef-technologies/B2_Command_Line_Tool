@@ -6,6 +6,7 @@ Tutorials
 
     <script>
     function unfoldCodeSnippets(evt, language) {
+      localStorage.setItem("language", language);
       var elementToKeepInPlace = null;
       var initialPosition = null;
       if (evt) {
@@ -54,7 +55,7 @@ Tutorials
     //}
     }
     window.onload = function () {
-        unfoldCodeSnippets(null, "WebUI");
+        unfoldCodeSnippets(null, localStorage.getItem("language") || 'WebUI');
     };
     </script>
 
