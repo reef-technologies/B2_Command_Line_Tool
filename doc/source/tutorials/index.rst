@@ -10,8 +10,8 @@ Tutorials
       var initialPosition = null;
       if (evt) {
           elementToKeepInPlace = evt.srcElement
-          if (elementToKeepInPlace.parentNode.className == 'dropdown-content') {
-              elementToKeepInPlace = elementToKeepInPlace.parentNode.parentNode.getElementsByClassName('dropbtn')[0];
+          if (elementToKeepInPlace.classList.contains('dropdown-item')) {
+              elementToKeepInPlace = elementToKeepInPlace.parentNode.parentNode.getElementsByTagName('button')[0];
           }
           initialPosition = elementToKeepInPlace.getBoundingClientRect().y;
       }
@@ -22,21 +22,12 @@ Tutorials
         tabcontent[i].style.display = "none";
       }
 
-      tablinks = document.getElementsByClassName("tablinks");
-      for (i = 0; i < tablinks.length; i++) {
-        tablinks[i].className = tablinks[i].className.replace(" active", "");
-      }
-
-      dropbtns = document.getElementsByClassName("dropbtn");
-      for (i = 0; i < dropbtns.length; i++) {
-          if (dropbtns[i].originalText) {
-                      dropbtns[i].textContent = dropbtns[i].originalText;
+      top_level_selectors = document.getElementsByClassName("top-level-selector");
+      for (i = 0; i < top_level_selectors.length; i++) {
+        top_level_selectors[i].className = top_level_selectors[i].className.replace("btn-primary", "btn-secondary");
+        if (top_level_selectors[i].originalText) {
+              top_level_selectors[i].textContent = top_level_selectors[i].originalText;
           }
-      }
-
-      dropdowns = document.getElementsByClassName("dropdown");
-      for (i = 0; i < dropdowns.length; i++) {
-        dropdowns[i].className = dropdowns[i].className.replace(" active", "");
       }
 
      snippets = document.querySelectorAll(`div[data-language="${language}"]`);
@@ -45,14 +36,14 @@ Tutorials
      }
      buttons = document.querySelectorAll(`button[data-language="${language}"]`);
      for (i = 0; i < buttons.length; i++) {
-        buttons[i].className += " active";
-        if (buttons[i].parentNode.className == 'dropdown-content') {
-            buttons[i].parentNode.parentNode.className += " active";
-            dropbtn = buttons[i].parentNode.parentNode.getElementsByClassName('dropbtn')[0];
-            if (!dropbtn.originalText) {
-                      dropbtn.originalText = dropbtn.textContent;
+        buttons[i].className = buttons[i].className.replace("btn-secondary", "btn-primary");
+        if (buttons[i].classList.contains('dropdown-item')) {
+            dropdown_parent = buttons[i].parentNode.parentNode.getElementsByTagName('button')[0]
+            dropdown_parent.className = dropdown_parent.className.replace("btn-secondary", "btn-primary");
+            if (!dropdown_parent.originalText) {
+                      dropdown_parent.originalText = dropdown_parent.textContent;
             }
-            dropbtn.textContent += ` (${language})`
+            dropdown_parent.textContent += ` (${language})`
             }
      }
     if (evt) {
@@ -68,6 +59,7 @@ Tutorials
     </script>
 
 
+
 ***********************
 Installation
 ***********************
@@ -77,26 +69,34 @@ installation instructions below.
 
 .. raw:: html
 
-    <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
-    <div class="dropdown">
-    <button class="tablinks dropbtn" >Command line</button>
-    <div class="dropdown-content" style>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
-    </div>
-    </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light"
+             style="padding-left: 8px; background-color: #cccccc63; border: 1px solid #ccc;">
 
-    <div class="dropdown">
-    <button class="tablinks dropbtn">SDK</button>
-    <div class="dropdown-content">
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
-
-    </div>
-    </div>
-    </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <button type="button" class="top-level-selector btn btn-secondary" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    Command line
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
         <div data-language="WebUI" class="tabcontent">
 
@@ -165,26 +165,34 @@ Take note of the presented `keyId` and `applicationKey`.
 
 .. raw:: html
 
-    <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
-    <div class="dropdown">
-    <button class="tablinks dropbtn" >Command line</button>
-    <div class="dropdown-content" style>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button><br>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
-    </div>
-    </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light"
+             style="padding-left: 8px; background-color: #cccccc63; border: 1px solid #ccc;">
 
-    <div class="dropdown">
-    <button class="tablinks dropbtn">SDK</button>
-    <div class="dropdown-content">
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button><br>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
-
-    </div>
-    </div>
-    </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <button type="button" class="top-level-selector btn btn-secondary" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    Command line
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
         <div data-language="WebUI" class="tabcontent">
 
@@ -276,26 +284,34 @@ key creation
 
 .. raw:: html
 
-    <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
-    <div class="dropdown">
-    <button class="tablinks dropbtn" >Command line</button>
-    <div class="dropdown-content" style>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
-    </div>
-    </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light"
+             style="padding-left: 8px; background-color: #cccccc63; border: 1px solid #ccc;">
 
-    <div class="dropdown">
-    <button class="tablinks dropbtn">SDK</button>
-    <div class="dropdown-content">
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
-
-    </div>
-    </div>
-    </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <button type="button" class="top-level-selector btn btn-secondary" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    Command line
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
         <div data-language="WebUI" class="tabcontent">
 
@@ -351,26 +367,34 @@ Before you start uploading and downloading objects (files) you must create a buc
 
 .. raw:: html
 
-    <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
-    <div class="dropdown">
-    <button class="tablinks dropbtn" >Command line</button>
-    <div class="dropdown-content" style>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
-    </div>
-    </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light"
+             style="padding-left: 8px; background-color: #cccccc63; border: 1px solid #ccc;">
 
-    <div class="dropdown">
-    <button class="tablinks dropbtn">SDK</button>
-    <div class="dropdown-content">
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
-
-    </div>
-    </div>
-    </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <button type="button" class="top-level-selector btn btn-secondary" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    Command line
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
         <div data-language="WebUI" class="tabcontent">
 
@@ -438,26 +462,34 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
 
 .. raw:: html
 
-    <div class="tab">
-    <button class="tablinks" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
-    <div class="dropdown">
-    <button class="tablinks dropbtn" >Command line</button>
-    <div class="dropdown-content" style>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
 
-    </div>
-    </div>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light"
+             style="padding-left: 8px; background-color: #cccccc63; border: 1px solid #ccc;">
 
-    <div class="dropdown">
-    <button class="tablinks dropbtn">SDK</button>
-    <div class="dropdown-content">
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</button>
-        <button class="tablinks" style="width: 100%" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</button>
-
-    </div>
-    </div>
-    </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <button type="button" class="top-level-selector btn btn-secondary" onclick="unfoldCodeSnippets(event, 'WebUI')" data-language="WebUI">WebUI</button>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    Command line
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2sdk')" data-language="b2sdk">b2sdk</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                </div>
+            </div>
+        </div>
+    </nav>
 
         <div data-language="WebUI" class="tabcontent">
 
@@ -524,168 +556,3 @@ Upload your file.
     </div>
 
 this will create an object that users of your account can download.
-
-**********************************************
-THIS MARKS THE END OF POLYGLOT DOCUMENTATION
-**********************************************
-
-***********************
-upload to a directory
-***********************
-
-B2 objects aren't **exactly** stored in directories, but for all practical purposes you can use slashes in file paths as
-if they were
-
-.. code-block:: shell
-
-    b2 upload-file pictures-of-toads /home/todd/pictures/fire-bellied-toad.png indo-european-toads/fire-bellied-toad.png
-
-***********************
-simple download
-***********************
-
-Downloading is as simple as
-
-.. code-block:: shell
-
-    b2 download-file-by-name pictures-of-toads fire-bellied-toad.png /home/fred/pictures/fire-bellied-toad.png
-
-
-***********************
-listing files
-***********************
-
-For seeing what files are already uploaded to a bucket, use the :code:`ls` command:
-
-.. code-block:: shell
-
-    b2 ls pictures-of-toads
-
-you will see:
-
-.. code-block:: shell
-
-    fire-bellied-toad.png
-    indo-european-toads/
-
-if you need to know the contents of a directory, you can specify it
-
-.. code-block:: shell
-
-    b2 ls pictures-of-toads indo-european-toads
-
-
-.. code-block:: shell
-
-    indo-european-toads/fire-bellied-toad.png
-
-
-Or even browse everything in one go:
-
-.. code-block:: shell
-
-    b2 ls pictures-of-toads --recursive
-
-.. code-block:: shell
-
-    fire-bellied-toad.png
-    indo-european-toads/fire-bellied-toad.png
-
-
-***********************
-reupload
-***********************
-
-If you happen to upload a file again (with the same name in the same bucket):
-
-.. code-block:: shell
-
-    b2 upload-file pictures-of-toads /home/todd/pictures/fire-bellied-toad-v2.png fire-bellied-toad.png
-
-you will only see the new one when listing files:
-
-.. code-block:: shell
-
-    b2 ls pictures-of-toads
-
-you will see:
-
-.. code-block:: shell
-
-    fire-bellied-toad.png
-    indo-european-toads/
-
-also the new file will be downloaded if you try it:
-
-.. code-block:: shell
-
-    b2 download-file-by-name pictures-of-toads fire-bellied-toad.png /home/fred/pictures/fire-bellied-toad.png
-
-but the "old version" is not gone (unlike on local drive). B2 Cloud Storage holds versions of files. If you "reupload"
-a file, the new version "covers" the old one, but the old one can still be accessed:
-
-.. code-block:: shell
-
-    b2 ls pictures-of-toads --versions --long
-
-.. code-block:: shell
-
-   4_z7786dd31f6631c2a7cc8071c_f410587b5929a76ac_d20230921_m195738_c000_v0001061_t0047_u01695326258129  upload  2023-09-21  19:57:38          5  fire-bellied-toad.png
-   4_z7786dd31f6631c2a7cc8071c_f402fafdefdfb97f9_d20230921_m191948_c000_v0001049_t0047_u01695323988977  upload  2023-09-21  19:19:48          5  fire-bellied-toad.png
-                                                                                  -       -           -         -          0  indo-european-toads/
-
-.. code-block:: shell
-
-    b2 ls download-file-by-id 4_z7786dd31f6631c2a7cc8071c_f402fafdefdfb97f9_d20230921_m191948_c000_v0001049_t0047_u01695323988977 /home/fred/pictures/fire-bellied-toad.png
-
-(Notice how `bucket_name` is not specified for this download operation, that's because and `id` uniquely identifies
-a file in B2 Cloud Storage).
-
-Because the "old" file is still accessible, it still incurs storage costs.
-
-***********************
-directory upload
-***********************
-
-There is a separate command for uploading directories
-
-.. code-block:: shell
-
-    b2 sync /home/fred/pictures/ b2://pictures-of-toads/some-directory/
-
-
-***********************
-directory download
-***********************
-
-As well as for downloading
-
-.. code-block:: shell
-
-    b2 sync b2://pictures-of-toads/some-directory/ /home/fred/pictures/
-
-
-***********************
-hiding files
-***********************
-
-Hiding files allows for making them invisible to `ls` and `sync` commands, while leaving the ability to download them
-by id.
-
-.. code-block:: shell
-
-    b2 hide-file pictures-of-toads fire-bellied-toad.png
-
-***********************
-deleting files
-***********************
-It is possible to irreversibly delete a file, though that requires fetching it's `id` first:
-
-.. code-block:: shell
-
-    b2 delete-file-version fire-bellied-toad.png 4_z7786dd31f6631c2a7cc8071c_f402fafdefdfb97f9_d20230921_m191948_c000_v0001049_t0047_u01695323988977
-
-*********************************************************************
-deleting buckets
-*********************************************************************
-
