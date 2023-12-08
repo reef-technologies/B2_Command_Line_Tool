@@ -110,7 +110,7 @@ No installation required.
 
 .. code-block:: shell
 
-    pip install b2
+    $ pip install b2
 
 
 .. raw:: html
@@ -128,7 +128,7 @@ Follow instructions here: `https://docs.aws.amazon.com/cli/latest/userguide/gett
 
 .. code-block:: shell
 
-    pip install b2sdk
+    $ pip install b2sdk
 
 
 .. raw:: html
@@ -139,7 +139,7 @@ Follow instructions here: `https://docs.aws.amazon.com/cli/latest/userguide/gett
 
 .. code-block:: shell
 
-    pip install boto3
+    $ pip install boto3
 
 .. raw:: html
 
@@ -203,7 +203,7 @@ No authorization, past the login screen, required.
 
 .. code-block:: shell
 
-    B2_APPLICATION_KEY_ID=keyId B2_APPLICATION_KEY=applicationKey b2 authorize-account
+    $ B2_APPLICATION_KEY_ID=keyId B2_APPLICATION_KEY=applicationKey b2 authorize-account
     # After this operation, your CLI tool is authorized and
     # all following commands will operate in the
     # context of this account.
@@ -216,20 +216,20 @@ No authorization, past the login screen, required.
 
 .. code-block:: shell
 
-    aws configure --profile b2tutorial
+    $ aws configure --profile b2tutorial
     # fill in the prompting inputs as follows:
     # AWS Access Key ID [None]: keyId
     # AWS Secret Access Key [None]: applicationKey
     # Default region name [None]:
     # Default output format [None]: json
-    aws configure --profile b2tutorial set default.s3.signature_version s3v4
+    $ aws configure --profile b2tutorial set default.s3.signature_version s3v4
 
 In order to interact with B2 using :code:`aws` CLI you will need to provide the :code:`--profile` and
 :code:`--endpoint-url` parameters with each invocation, e.g.
 
 .. code-block:: shell
 
-    aws –-profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api list-buckets
+    $ aws –-profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api list-buckets
 
 To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
@@ -241,9 +241,9 @@ To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
 .. code-block:: python
 
-    from b2sdk.v2 import B2Api
-    b2_api = B2Api(info)
-    b2_api.authorize_account("production", keyId, applicationKey)
+    >>> from b2sdk.v2 import B2Api
+    >>> b2_api = B2Api(info)
+    >>> b2_api.authorize_account("production", keyId, applicationKey)
     # from now on, any operation you make on `b2api` will be executed in the context of your account
 
 
@@ -255,18 +255,18 @@ To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
 .. code-block:: python
 
-    import boto3
-    from botocore.client import Config
-    b2 = boto3.resource(
-        service_name='s3',
-        endpoint_url='https://s3.us-west-004.backblazeb2.com',
-        aws_access_key_id=keyId,
-        aws_secret_access_key=applicationKey,
-        config=Config(signature_version='s3v4'),
-    )
+    >>> import boto3
+    >>> from botocore.client import Config
+    >>> b2 = boto3.resource(
+    >>>     service_name='s3',
+    >>>     endpoint_url='https://s3.us-west-004.backblazeb2.com',
+    >>>     aws_access_key_id=keyId,
+    >>>     aws_secret_access_key=applicationKey,
+    >>>     config=Config(signature_version='s3v4'),
+    >>> )
 
 
-To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
+To get your :code:`endpoint_url` follow `this guide <./s3_endpoint_url.html>`_
 
 .. raw:: html
 
@@ -322,8 +322,9 @@ As presented in `Authorization`_
 
 .. code-block:: shell
 
-    b2 create-key --allCapabilities toad-enthusiast
-    # you will see keyId and applicationKey
+    $ b2 create-key --allCapabilities toad-enthusiast
+    00065c162cfd19c00000001e2 J00OKxzpcjUmApKB9Gu92sJd07Dp8/k
+    # these are keyId and applicationKey, respectively
 
 .. raw:: html
 
@@ -339,9 +340,12 @@ Not supported.
 
 .. code-block:: python
 
-    from b2sdk.v2 import ALL_CAPABILITIES
-    key = b2_api.create_key(ALL_CAPABILITIES, 'toad-enthusiast')
-    print(key.id_, key.application_key)
+    >>> from b2sdk.v2 import ALL_CAPABILITIES
+    >>> key = b2_api.create_key(ALL_CAPABILITIES, 'toad-enthusiast')
+    >>> print(key.id_)
+    00065c162cfd19c00000001e2
+    >>> print(key.application_key)
+    J00OKxzpcjUmApKB9Gu92sJd07Dp8/k
 
 
 .. raw:: html
@@ -411,8 +415,8 @@ Hit "create bucket" and fill out the details.
 
 .. code-block:: shell
 
-    b2 create-bucket pictures-of-toads allPrivate
-
+    $ b2 create-bucket pictures-of-toads allPrivate
+    b7a68d2136f34cba8cc9072c
 
 .. raw:: html
 
@@ -421,7 +425,11 @@ Hit "create bucket" and fill out the details.
 
 .. code-block:: shell
 
-    aws --profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api create-bucket --bucket pictures-of-toads
+    $ aws --profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api create-bucket --bucket pictures-of-toads
+    {
+        "Location": "/pictures-of-toads"
+    }
+
 
 .. raw:: html
 
@@ -430,7 +438,7 @@ Hit "create bucket" and fill out the details.
 
 .. code-block:: python
 
-    bucket = b2api.create_bucket('pictures-of-toads', 'allPrivate')
+    >>> bucket = b2api.create_bucket('pictures-of-toads', 'allPrivate')
 
 
 .. raw:: html
@@ -441,7 +449,7 @@ Hit "create bucket" and fill out the details.
 
 .. code-block:: python
 
-    b2.create_bucket(Bucket='pictures-of-toads', ACL='private')
+    >>> b2.create_bucket(Bucket='pictures-of-toads', ACL='private')
 
 .. raw:: html
 
@@ -510,7 +518,32 @@ Upload your file.
 
 .. code-block:: shell
 
-    b2 upload-file pictures-of-toads /home/todd/pictures/fire-bellied-toad.png fire-bellied-toad.png
+    $ b2 upload-file pictures-of-toads /home/todd/pictures/fire-bellied-toad.png fire-bellied-toad.png
+    {
+        "accountId": "65c162cfd19c",
+        "action": "upload",
+        "bucketId": "b7a68d2136f34cba8cc9072c",
+        "contentMd5": "0000a90a157406758a376754d33f7be9",
+        "contentSha1": "acf4509193a8d65c4055b8daa3009a36d9e0dca4",
+        "contentType": "application/octet-stream",
+        "fileId": "4_z7786dd31f6631c2a7cc8071c_f119173cdfdf860d9_d21231208_m210735_c000_v0001057_t0037_u01702069655441",
+        "fileInfo": {
+            "src_last_modified_millis": "1700423992612"
+        },
+        "fileName": "fire-bellied-toad.png",
+        "fileRetention": {
+            "mode": null,
+            "retainUntilTimestamp": null
+        },
+        "legalHold": null,
+        "replicationStatus": null,
+        "serverSideEncryption": {
+            "mode": "none"
+        },
+        "size": 2224,
+        "uploadTimestamp": 1702069655441
+    }
+
 
 
 .. raw:: html
@@ -520,8 +553,13 @@ Upload your file.
 
 .. code-block:: shell
 
-    aws --profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api put-object \
+    $ aws --profile b2tutorial --endpoint-url https://s3.us-west-004.backblazeb2.com s3api put-object \
       --bucket pictures-of-toads --key fire-bellied-toad.png --body /home/todd/pictures/fire-bellied-toad.png
+    {
+        "ETag": "\"0000a90a147406758a376764d33f7be9\"",
+        "VersionId": "4_z7786dd31f6631c2a7cc8071c_f119173cdfdf860d9_d21231208_m210735_c000_v0001057_t0037_u01702069655441"
+    }
+
 
 .. raw:: html
 
@@ -530,8 +568,8 @@ Upload your file.
 
 .. code-block:: python
 
-    bucket = b2api.get_bucket_by_name('pictures-of-toads')
-    bucket.upload_local_file('/home/todd/pictures/fire-bellied-toad.png', 'fire-bellied-toad.png')
+    >>> bucket = b2api.get_bucket_by_name('pictures-of-toads')
+    >>> bucket.upload_local_file('/home/todd/pictures/fire-bellied-toad.png', 'fire-bellied-toad.png')
 
 
 .. raw:: html
@@ -542,11 +580,11 @@ Upload your file.
 
 .. code-block:: python
 
-    with open('/home/todd/pictures/fire-bellied-toad.png', 'br') as file:
-        b2.Object(  # TODO: this doesn't work, need to figure out why
-            'fire-bellied-toad.png',
-            'pictures-of-toads',
-        ).put(Body=file)
+    >>> with open('/home/todd/pictures/fire-bellied-toad.png', 'br') as file:
+    >>>     b2.Object(  # TODO: this doesn't work, need to figure out why
+    >>>         'fire-bellied-toad.png',
+    >>>         'pictures-of-toads',
+    >>>     ).put(Body=file)
 
 .. raw:: html
 
