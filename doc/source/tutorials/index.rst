@@ -380,7 +380,7 @@ To get your :code:`endpoint_url` follow `this guide <./s3_endpoint_url.html>`_
 
     b2, err := b2.NewClient(ctx, keyId, applicationKey)
     if err != nil {
-    	log.Fatalln(e)
+        log.Fatalln(e)
     }
 
 .. raw:: html
@@ -392,18 +392,18 @@ To get your :code:`endpoint_url` follow `this guide <./s3_endpoint_url.html>`_
 .. code-block:: go
 
     import (
-    	"log"
-    	"github.com/minio/minio-go/v7"
-    	"github.com/minio/minio-go/v7/pkg/credentials"
+        "log"
+        "github.com/minio/minio-go/v7"
+        "github.com/minio/minio-go/v7/pkg/credentials"
     )
 
     minioClient, err := minio.New(endpoint_url, &minio.Options{
-		Creds:  credentials.NewStaticV4(keyID, applicationKey, ""),
-		Secure: true,
-	})
+        Creds:  credentials.NewStaticV4(keyID, applicationKey, ""),
+        Secure: true,
+    })
     if err != nil {
-		log.Fatalln(err)
-	}
+        log.Fatalln(err)
+    }
 
 To get your :code:`endpoint_url` follow `this guide <./s3_endpoint_url.html>`_
 
@@ -741,8 +741,8 @@ Hit "create bucket" and fill out the details.
     ctx := context.Background()
     err = minioClient.MakeBucket(ctx, "pictures-of-toads")
     if err != nil {
-		log.Fatalln(err)
-	}
+        log.Fatalln(err)
+    }
 
 .. raw:: html
 
@@ -912,7 +912,7 @@ Upload your file.
     import "os"
     f, err := os.Open("/home/todd/pictures/fire-bellied-toad.png")
     if err != nil {
-    	log.Fatalln(e)
+        log.Fatalln(e)
     }
 
     obj := bucket.Object("fire-bellied-toad.png")
