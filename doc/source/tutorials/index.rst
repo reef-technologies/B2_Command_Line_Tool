@@ -82,18 +82,33 @@ installation instructions below.
                     Command line
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
                 </div>
             </div>
             <div class="btn-group btn-secondary" style="margin-left: 4px;">
                 <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                    SDK
+                    B2 SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-java')" data-language="b2-sdk-java">b2-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'blazer-golang')" data-language="blazer-golang">blazer-golang</button>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    AWS SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3-python')"
+                     data-language="boto3-python">boto3-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'aws-sdk-java')"
+                     data-language="aws-sdk-java">aws-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'minio-go')"
+                     data-language="minio-go">minio-go</button>
                 </div>
             </div>
         </div>
@@ -135,12 +150,78 @@ Follow instructions here: `https://docs.aws.amazon.com/cli/latest/userguide/gett
 .. raw:: html
 
     </div>
-    <div data-language="boto3" class="tabcontent">
+    <div data-language="boto3-python" class="tabcontent">
 
 
 .. code-block:: shell
 
     $ pip install boto3
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="blazer-golang" class="tabcontent">
+
+
+.. code-block:: shell
+
+    $ go get github.com/Backblaze/blazer/b2
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="minio-go" class="tabcontent">
+
+
+.. code-block:: shell
+
+    $ go get github.com/minio/minio-go/v7
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2-sdk-java" class="tabcontent">
+
+(copied from https://github.com/Backblaze/b2-sdk-java#how-to-use)
+
+Add the jars to your build. In the following examples, replace N.N.N with the version of the sdk you're using.
+
+If you're using gradle, here are the dependency lines to use the sdk with our Apache HttpClient-based B2WebApiClient:
+
+.. code-block::
+
+    compile 'com.backblaze.b2:b2-sdk-core:N.N.N'
+    compile 'com.backblaze.b2:b2-sdk-httpclient:N.N.N'
+
+If you're using maven, here are the dependency tags to use the sdk with our Apache Commons HttpClient-based
+B2WebApiClient:
+
+.. code-block::
+
+    <dependency>
+      <groupId>com.backblaze.b2</groupId>
+      <artifactId>b2-sdk-core</artifactId>
+      <version>N.N.N</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.backblaze.b2</groupId>
+      <artifactId>b2-sdk-httpclient</artifactId>
+      <version>N.N.N</version>
+      <scope>compile</scope>
+    </dependency>
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="aws-sdk-java" class="tabcontent">
+
+
+Follow instructions here: https://aws.amazon.com/sdk-for-java/.
 
 .. raw:: html
 
@@ -175,18 +256,33 @@ Take note of the presented `keyId` and `applicationKey`.
                     Command line
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
                 </div>
             </div>
             <div class="btn-group btn-secondary" style="margin-left: 4px;">
                 <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                    SDK
+                    B2 SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-java')" data-language="b2-sdk-java">b2-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'blazer-golang')" data-language="blazer-golang">blazer-golang</button>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    AWS SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3-python')"
+                     data-language="boto3-python">boto3-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'aws-sdk-java')"
+                     data-language="aws-sdk-java">aws-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'minio-go')"
+                     data-language="minio-go">minio-go</button>
                 </div>
             </div>
         </div>
@@ -251,7 +347,7 @@ To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 .. raw:: html
 
     </div>
-    <div data-language="boto3" class="tabcontent">
+    <div data-language="boto3-python" class="tabcontent">
 
 
 .. code-block:: python
@@ -268,6 +364,72 @@ To get your :code:`--endpoint-url` follow `this guide <./s3_endpoint_url.html>`_
 
 
 To get your :code:`endpoint_url` follow `this guide <./s3_endpoint_url.html>`_
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="blazer-golang" class="tabcontent">
+
+
+.. code-block:: go
+
+    import "github.com/Backblaze/blazer/b2"
+
+    ctx := context.Background()
+
+    b2, err := b2.NewClient(ctx, keyId, applicationKey)
+    if err != nil {
+    	log.Fatalln(e)
+    }
+
+.. raw:: html
+
+    </div>
+    <div data-language="minio-go" class="tabcontent">
+
+
+.. code-block:: go
+
+    import (
+    	"log"
+    	"github.com/minio/minio-go/v7"
+    	"github.com/minio/minio-go/v7/pkg/credentials"
+    )
+
+    minioClient, err := minio.New(endpoint_url, &minio.Options{
+		Creds:  credentials.NewStaticV4(keyID, applicationKey, ""),
+		Secure: true,
+	})
+    if err != nil {
+		log.Fatalln(err)
+	}
+
+To get your :code:`endpoint_url` follow `this guide <./s3_endpoint_url.html>`_
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    B2StorageClient client = B2StorageClientFactory
+             .createDefaultFactory()
+             .create(keyId, applicationKey);
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="aws-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    TODO
 
 .. raw:: html
 
@@ -294,18 +456,33 @@ Key creation
                     Command line
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
                 </div>
             </div>
             <div class="btn-group btn-secondary" style="margin-left: 4px;">
                 <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                    SDK
+                    B2 SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-java')" data-language="b2-sdk-java">b2-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'blazer-golang')" data-language="blazer-golang">blazer-golang</button>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    AWS SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3-python')"
+                     data-language="boto3-python">boto3-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'aws-sdk-java')"
+                     data-language="aws-sdk-java">aws-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'minio-go')"
+                     data-language="minio-go">minio-go</button>
                 </div>
             </div>
         </div>
@@ -352,7 +529,63 @@ Not supported.
 .. raw:: html
 
     </div>
-    <div data-language="boto3" class="tabcontent">
+    <div data-language="blazer-golang" class="tabcontent">
+
+
+.. code-block:: go
+
+    import "fmt"
+
+    capabilities := []string{"listKeys", "writeKeys", "deleteKeys",
+                             "listBuckets", "listAllBucketNames", "readBuckets",
+                             "writeBuckets", "deleteBuckets", "readBucketEncryption",
+                             "writeBucketEncryption", "readBucketRetentions",
+                             "writeBucketRetentions", "readFileRetentions",
+                             "writeFileRetentions", "readFileLegalHolds",
+                             "writeFileLegalHolds", "readBucketReplications",
+                             "writeBucketReplications", "bypassGovernance",
+                             "listFiles", "readFiles", "shareFiles",
+                             "writeFiles", "deleteFiles"}
+
+    key, err := b2.CreateKey(ctx, "toad-enthusiast", b2.KeyOption(capabilities))
+    if err != nil {
+        log.Fatalln(e)
+    }
+
+    fmt.Println("Created Key ID:", key.ID)
+    fmt.Println("Created Key:", key.Key)
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    B2CreatedApplicationKey applicationKey = client.createKey(B2CreateKeyRequest.builder(capabilities, "testKey").build());
+    writer.println("key id: " + applicationKey.getApplicationKeyId() + "   key: " + applicationKey.getApplicationKey());
+
+.. raw:: html
+
+    </div>
+    <div data-language="boto3-python" class="tabcontent">
+
+Not supported.
+
+.. raw:: html
+
+    </div>
+    <div data-language="minio-go" class="tabcontent">
+
+
+Not supported.
+
+.. raw:: html
+
+    </div>
+    <div data-language="aws-sdk-java" class="tabcontent">
 
 
 Not supported.
@@ -381,18 +614,33 @@ Before you start uploading and downloading objects (files) you must create a buc
                     Command line
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
                 </div>
             </div>
             <div class="btn-group btn-secondary" style="margin-left: 4px;">
                 <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                    SDK
+                    B2 SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-java')" data-language="b2-sdk-java">b2-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'blazer-golang')" data-language="blazer-golang">blazer-golang</button>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    AWS SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3-python')"
+                     data-language="boto3-python">boto3-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'aws-sdk-java')"
+                     data-language="aws-sdk-java">aws-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'minio-go')"
+                     data-language="minio-go">minio-go</button>
                 </div>
             </div>
         </div>
@@ -445,12 +693,66 @@ Hit "create bucket" and fill out the details.
 .. raw:: html
 
     </div>
-    <div data-language="boto3" class="tabcontent">
+    <div data-language="boto3-python" class="tabcontent">
 
 
 .. code-block:: python
 
     >>> b2.create_bucket(Bucket='pictures-of-toads', ACL='private')
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="blazer-golang" class="tabcontent">
+
+
+.. code-block:: go
+
+    bucket, err := b2c.CreateBucket(ctx, "pictures-of-toads", "allPrivate")
+    if err != nil {
+        log.Fatalln(e)
+    }
+
+    fmt.Println("Created Bucket Name:", bucket.Name)
+    fmt.Println("Created Bucket ID:", bucket.ID)
+    fmt.Println("Bucket Type:", bucket.Type)
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    B2Bucket bucket = client.createBucket("pictures-of-toads", B2Bucket.privateBucket());
+
+
+.. raw:: html
+
+    </div>
+    <div data-language="minio-go" class="tabcontent">
+
+
+.. code-block:: go
+
+    ctx := context.Background()
+    err = minioClient.MakeBucket(ctx, "pictures-of-toads")
+    if err != nil {
+		log.Fatalln(err)
+	}
+
+.. raw:: html
+
+    </div>
+    <div data-language="aws-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    TODO
 
 .. raw:: html
 
@@ -462,9 +764,6 @@ focus on private buckets.
 ***********************
 Simple upload
 ***********************
-
-Now, on any machine that ran :code:`b2 authorize-account` with the same key you can upload a file to
-:code:`pictures-of-toads`:
 
 .. raw:: html
 
@@ -480,18 +779,33 @@ Now, on any machine that ran :code:`b2 authorize-account` with the same key you 
                     Command line
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'B2 CLI')" data-language="B2 CLI">B2 CLI</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'AWS CLI')" data-language="AWS CLI">AWS CLI</button>
                 </div>
             </div>
             <div class="btn-group btn-secondary" style="margin-left: 4px;">
                 <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
                         aria-haspopup="true" aria-expanded="false">
-                    SDK
+                    B2 SDK
                 </button>
                 <div class="dropdown-menu">
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</a>
-                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3')" data-language="boto3">boto3</a>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-python')" data-language="b2-sdk-python">b2-sdk-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'b2-sdk-java')" data-language="b2-sdk-java">b2-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'blazer-golang')" data-language="blazer-golang">blazer-golang</button>
+                </div>
+            </div>
+            <div class="btn-group btn-secondary" style="margin-left: 4px;">
+                <button type="button" class="top-level-selector btn btn-secondary dropdown-toggle" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
+                    AWS SDK
+                </button>
+                <div class="dropdown-menu">
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'boto3-python')"
+                     data-language="boto3-python">boto3-python</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'aws-sdk-java')"
+                     data-language="aws-sdk-java">aws-sdk-java</button>
+                    <button class="dropdown-item" onclick="unfoldCodeSnippets(event, 'minio-go')"
+                     data-language="minio-go">minio-go</button>
                 </div>
             </div>
         </div>
@@ -576,7 +890,7 @@ Upload your file.
 .. raw:: html
 
     </div>
-    <div data-language="boto3" class="tabcontent">
+    <div data-language="boto3-python" class="tabcontent">
 
 
 .. code-block:: python
@@ -586,6 +900,67 @@ Upload your file.
     >>>         'fire-bellied-toad.png',
     >>>         'pictures-of-toads',
     >>>     ).put(Body=file)
+
+.. raw:: html
+
+    </div>
+    <div data-language="blazer-golang" class="tabcontent">
+
+
+.. code-block:: go
+
+    import "os"
+    f, err := os.Open("/home/todd/pictures/fire-bellied-toad.png")
+    if err != nil {
+    	log.Fatalln(e)
+    }
+
+    obj := bucket.Object("fire-bellied-toad.png")
+    w := obj.NewWriter(ctx)
+    if _, err := io.Copy(w, f); err != nil {
+        w.Close()
+    }
+
+.. raw:: html
+
+    </div>
+    <div data-language="minio-go" class="tabcontent">
+
+
+.. code-block:: go
+
+    info, err := minioClient.FPutObject(ctx, "pictures-of-toads", "fire-bellied-toad.png",
+                                        "/home/todd/pictures/fire-bellied-toad.png")
+    if err != nil {
+        log.Fatalln(err)
+    }
+
+.. raw:: html
+
+    </div>
+    <div data-language="b2-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    File fileOnDisk = new File("/home/todd/pictures/fire-bellied-toad.png");
+    B2ContentSource source = B2FileContentSource.build(fileOnDisk);
+
+    B2UploadFileRequest request = B2UploadFileRequest
+            .builder(bucket.getBucketId(), "fire-bellied-toad.png", B2ContentTypes.B2_AUTO, source)
+            .setCustomField("color", "blue")
+            .build();
+    client.uploadSmallFile(request);
+
+.. raw:: html
+
+    </div>
+    <div data-language="aws-sdk-java" class="tabcontent">
+
+
+.. code-block:: java
+
+    TODO
 
 .. raw:: html
 
