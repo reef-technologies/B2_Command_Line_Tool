@@ -115,10 +115,11 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {
+html_theme_options = {
 #     'prev_next_buttons_location': 'both',
 #     'collapse_navigation': True,
-# }
+    'fixed_sidebar': True
+}
 
 autodoc_default_options = {
     'member-order': 'bysource',
