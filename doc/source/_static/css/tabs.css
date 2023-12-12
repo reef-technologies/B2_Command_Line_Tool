@@ -24,7 +24,9 @@ body {
 }
 
 div.sphinxsidebar {
-    width: 220px;
+    width: 220px !important;
+    margin: 0 0 0 0 !important;
+    padding: 0 0 0 0 !important;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -50,6 +52,16 @@ div.body p, div.body dd, div.body li  {
     line-height: 150% !important;
     color: #33335c !important;
 }
+
+
+div.sphinxsidebarwrapper {
+    background-color: #fff !important;
+}
+
+div.sphinxsidebar {
+    background-color: #fff !important;
+}
+
 
 div.sphinxsidebarwrapper p.blurb {
     margin-top: 0;
@@ -148,4 +160,5 @@ a.footnote-reference {
 
 .document {
     padding-top: 136px;
+    margin-top: 30px !important;
 }
