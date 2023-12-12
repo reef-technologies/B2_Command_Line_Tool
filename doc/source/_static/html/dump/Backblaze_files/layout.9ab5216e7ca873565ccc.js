@@ -1,0 +1,1 @@
+/MSIE \d|Trident.*rv:/.test(navigator.userAgent)&&document.write('<script src="https://polyfill.io/v3/polyfill.min.js?features=default%2CArray.prototype.find%2CArray.prototype.includes%2CPromise%2CObject.assign%2CObject.entries"><\/script>');
