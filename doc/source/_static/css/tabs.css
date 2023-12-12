@@ -69,10 +69,14 @@ div.sphinxsidebarwrapper p.blurb {
     color: #33335c !important;
 }
 
+div.sphinxsidebar h1 {
+    font-size: 240%;
+}
+
 div.sphinxsidebar h3,
 div.sphinxsidebar h4 {
     font-family: "DM Sans", sans-serif;
-    font-size: 24px;
+    font-size: 180%;
     font-weight: normal;
     margin: 0 0 5px 0;
     padding: 0;
