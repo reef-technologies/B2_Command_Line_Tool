@@ -10,6 +10,25 @@
 
 # ruff: noqa: F405
 from b2._internal._b2v4.registry import *  # noqa
+from b2._internal._b2v4.registry import CopyFileById as CopyFileByIdV4  # noqa
+from b2._internal._b2v4.registry import UploadFile as UploadFileV4  # noqa
+from b2._internal._b2v4.registry import UploadUnboundStream as UploadUnboundStreamV4  # noqa
+
+
+class CopyFileById(CopyFileByIdV4):
+    __doc__ = CopyFileByIdV4.__doc__
+    DISALLOWED_IN_FILE_INFO = ()
+
+
+class UploadFile(UploadFileV4):
+    __doc__ = UploadFileV4.__doc__
+    DISALLOWED_IN_FILE_INFO = ()
+
+
+class UploadUnboundStream(UploadUnboundStreamV4):
+    __doc__ = UploadUnboundStreamV4.__doc__
+    DISALLOWED_IN_FILE_INFO = ()
+
 
 B2.register_subcommand(AuthorizeAccount)
 B2.register_subcommand(CancelAllUnfinishedLargeFiles)
