@@ -2737,7 +2737,8 @@ def test_cat(b2_tool, bucket_name, sample_filepath, tmp_path, uploaded_sample_fi
                                   ],).replace("\r", "") == sample_filepath.read_text()
 
 
-def test_header_arguments(b2_tool, bucket_name, sample_filepath, tmp_path):
+@pytest.mark.cli_version(to_version=3)
+def test_header_arguments_v3(b2_tool, bucket_name, sample_filepath, tmp_path):
     # yapf: disable
     args = [
         '--cache-control', 'max-age=3600',
@@ -2796,3 +2797,29 @@ def test_header_arguments(b2_tool, bucket_name, sample_filepath, tmp_path):
     assert re.search(r'ContentEncoding: *gzip', download_output)
     assert re.search(r'ContentLanguage: *en', download_output)
     assert re.search(r'Expires: *Thu, 01 Dec 2050 16:00:00 GMT', download_output)
+
+
+@pytest.mark.cli_version(from_version=4)
+def test_header_rejected_from_info(b2_tool, bucket_name, sample_filepath):
+    special_headers = [
+        'cache-control',
+        'content-disposition',
+        'content-encoding',
+        'content-language',
+        'expires',
+    ]
+
+    for header in special_headers:
+        b2_tool.should_fail(
+            [
+                'upload-file',
+                '--quiet',
+                '--noProgress',
+                bucket_name,
+                str(sample_filepath),
+                'sample_file',
+                '--info',
+                f'b2-{header}=dummy',
+            ],
+            f"ValueError: Please use --{header} flag instead of passing b2-{header} to --info",
+        )
