@@ -445,7 +445,14 @@ class HeaderFlagsMixin(Described):
         """Construct an updated file_info dictionary.
         Print a warning if any of file_info items will be overwritten by explicit header arguments.
         """
-        self._validate_file_info(file_info)
+        for key in self.DISALLOWED_IN_FILE_INFO:
+            if key in file_info:
+                raise ValueError(
+                    "Please use --{} flag instead of passing {} to --info".format(
+                        key.lstrip('b2-'), key
+                    )
+                )
+
         add_file_info = {}
         overwritten = []
         if args.cache_control is not None:
@@ -472,15 +479,6 @@ class HeaderFlagsMixin(Described):
         if add_file_info:
             return {**(file_info or {}), **add_file_info}
         return file_info
-
-    def _validate_file_info(self, file_info: dict[str, str] | None) -> None:
-        for key in self.DISALLOWED_IN_FILE_INFO:
-            if key in file_info:
-                raise ValueError(
-                    "Please use --{} flag instead of passing {} to --info".format(
-                        key.lstrip('b2-'), key
-                    )
-                )
 
 
 class LegalHoldMixin(Described):
