@@ -410,9 +410,14 @@ class HeaderFlagsMixin(Described):
         'b2-content-language',
         'b2-expires',
     )
+    WARN_SPECIAL_FILE_INFO_HEADERS = False
 
     @classmethod
     def _setup_parser(cls, parser: argparse.ArgumentParser) -> None:
+        parser.add_argument(
+            '--allow-special-info', action='store_true', default=False,
+            help='allow passing special file info headers through --info'
+        )
         parser.add_argument(
             '--cache-control',
             help=
@@ -446,12 +451,15 @@ class HeaderFlagsMixin(Described):
         Print a warning if any of file_info items will be overwritten by explicit header arguments.
         """
         for key in self.DISALLOWED_IN_FILE_INFO:
-            if key in file_info:
-                raise ValueError(
-                    "Please use --{} flag instead of passing {} to --info".format(
-                        key.lstrip('b2-'), key
+            if file_info is not None and key in file_info:
+                error_msg = "Use --{} flag instead of passing {} to --info".format(key.lstrip('b2-'), key)
+                if self.WARN_SPECIAL_FILE_INFO_HEADERS or args.allow_special_info:
+                    self._print_stderr(
+                        f'WARNING: Passing special file info headers through --info is deprecated'
+                        f' and may be removed in a future minor release. {error_msg}'
                     )
-                )
+                else:
+                    raise ValueError(error_msg)
 
         add_file_info = {}
         overwritten = []

@@ -2737,8 +2737,7 @@ def test_cat(b2_tool, bucket_name, sample_filepath, tmp_path, uploaded_sample_fi
                                   ],).replace("\r", "") == sample_filepath.read_text()
 
 
-@pytest.mark.cli_version(to_version=3)
-def test_header_arguments_v3(b2_tool, bucket_name, sample_filepath, tmp_path):
+def test_header_arguments(b2_tool, bucket_name, sample_filepath, tmp_path, cli_int_version):
     # yapf: disable
     args = [
         '--cache-control', 'max-age=3600',
@@ -2748,6 +2747,11 @@ def test_header_arguments_v3(b2_tool, bucket_name, sample_filepath, tmp_path):
         '--expires', 'Thu, 01 Dec 2050 16:00:00 GMT',
     ]
     # yapf: enable
+
+    # For >=v4, explicitly allow passing special headers through --info flag
+    if cli_int_version >= 4:
+        args.append('--allow-special-info')
+
     expected_file_info = {
         'b2-cache-control': 'max-age=3600',
         'b2-content-disposition': 'attachment',
@@ -2780,6 +2784,9 @@ def test_header_arguments_v3(b2_tool, bucket_name, sample_filepath, tmp_path):
     # Since we used both --info and --content-disposition to set b2-content-disposition,
     # a warning should be emitted
     assert 'will be overwritten' in stderr and 'b2-content-disposition = attachment' in stderr
+
+    # Since we passed a special file info header through --info, a deprecation warning should be emitted.
+    assert 'Passing special file info headers through --info is deprecated' in stderr
 
     copied_version = b2_tool.should_succeed_json(
         [

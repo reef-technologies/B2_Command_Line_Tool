@@ -17,17 +17,17 @@ from b2._internal._b2v4.registry import UploadUnboundStream as UploadUnboundStre
 
 class CopyFileById(CopyFileByIdV4):
     __doc__ = CopyFileByIdV4.__doc__
-    DISALLOWED_IN_FILE_INFO = ()
+    WARN_SPECIAL_FILE_INFO_HEADERS = True
 
 
 class UploadFile(UploadFileV4):
     __doc__ = UploadFileV4.__doc__
-    DISALLOWED_IN_FILE_INFO = ()
+    WARN_SPECIAL_FILE_INFO_HEADERS = True
 
 
 class UploadUnboundStream(UploadUnboundStreamV4):
     __doc__ = UploadUnboundStreamV4.__doc__
-    DISALLOWED_IN_FILE_INFO = ()
+    WARN_SPECIAL_FILE_INFO_HEADERS = True
 
 
 B2.register_subcommand(AuthorizeAccount)
