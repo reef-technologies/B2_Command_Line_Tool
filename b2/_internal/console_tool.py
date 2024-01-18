@@ -415,7 +415,7 @@ class HeaderFlagsMixin(Described):
     @classmethod
     def _setup_parser(cls, parser: argparse.ArgumentParser) -> None:
         parser.add_argument(
-            '--allow-special-info',
+            '--allow-headers-in-info',
             action='store_true',
             default=False,
             help='allow passing special file info headers through --info'
@@ -455,7 +455,7 @@ class HeaderFlagsMixin(Described):
         for key in self.DISALLOWED_IN_FILE_INFO:
             if file_info is not None and key in file_info:
                 error_msg = f"Use --{key.lstrip('b2-')} flag instead of passing {key} to --info"
-                if not self.ERROR_ON_HEADERS_AS_FILE_INFO or args.allow_special_info:
+                if not self.ERROR_ON_HEADERS_AS_FILE_INFO or args.allow_headers_in_info:
                     self._print_stderr(
                         f'WARNING: Passing special file info headers through --info is deprecated'
                         f' and may be removed in a future minor release. {error_msg}'

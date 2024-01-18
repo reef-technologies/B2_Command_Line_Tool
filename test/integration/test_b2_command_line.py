@@ -2750,7 +2750,7 @@ def test_header_arguments(b2_tool, bucket_name, sample_filepath, tmp_path, cli_i
 
     # For >=v4, explicitly allow passing special headers through --info flag
     if cli_int_version >= 4:
-        args.append('--allow-special-info')
+        args.append('--allow-headers-in-info')
 
     expected_file_info = {
         'b2-cache-control': 'max-age=3600',
