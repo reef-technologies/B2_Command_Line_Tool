@@ -2828,5 +2828,5 @@ def test_header_rejected_from_info(b2_tool, bucket_name, sample_filepath):
                 '--info',
                 f'b2-{header}=dummy',
             ],
-            f"ValueError: Please use --{header} flag instead of passing b2-{header} to --info",
+            f"ValueError: Use --{header} flag instead of passing b2-{header} to --info",
         )

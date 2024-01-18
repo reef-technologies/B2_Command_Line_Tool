@@ -454,9 +454,7 @@ class HeaderFlagsMixin(Described):
         """
         for key in self.DISALLOWED_IN_FILE_INFO:
             if file_info is not None and key in file_info:
-                error_msg = "Use --{} flag instead of passing {} to --info".format(
-                    key.lstrip('b2-'), key
-                )
+                error_msg = f"Use --{key.lstrip('b2-')} flag instead of passing {key} to --info"
                 if not self.ERROR_ON_HEADERS_AS_FILE_INFO or args.allow_special_info:
                     self._print_stderr(
                         f'WARNING: Passing special file info headers through --info is deprecated'
