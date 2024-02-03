@@ -30,7 +30,9 @@ echo ">>>>>>> Listing files in the bucket"
 # Copy a file by ID
 echo
 echo ">>>>>>> Copying file by ID"
+#./dist/b2 copy-file-by-id $FILE_ID $BUCKET_NAME $COPY_FILE_NAME
 COPIED_FILE_JSON=$(./dist/b2 copy-file-by-id $FILE_ID $BUCKET_NAME $COPY_FILE_NAME)
+echo $COPIED_FILE_JSON | jq '.'
 COPIED_FILE_ID=$(echo "$COPIED_FILE_JSON" | jq -r '.fileId')
 
 # Delete the copied file version
