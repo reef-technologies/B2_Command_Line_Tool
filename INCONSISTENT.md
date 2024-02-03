@@ -16,7 +16,8 @@ check this
 Even: introduce a possible value of "mode": "unknown" and for buckets with no default encryption use "mode": null.
 
 
-4. delete-bucket, copy-file, succesed silently
+4. delete-bucket, succesed silently
+
 deleting file version with delete-file-version ouputs json
 
 5. creating new bucket does not return json, just the bucket id
