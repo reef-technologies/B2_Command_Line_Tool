@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Check dependencies
+if ! command -v jq &> /dev/null; then
+    echo "jq could not be found, please install jq to parse JSON outputs."
+    exit 1
+fi
+
+# Load B2 credentials and configurations
+if [ -f ".env" ]; then
+    source .env
+else
+    echo ".env file not found, please ensure it exists with the necessary configurations."
+    exit 1
+fi
+
 # Load B2 credentials and configurations
 source .env
 
@@ -11,6 +25,7 @@ B2_FILE_NAME="b2_test_file.pdf" # Name for the file in B2
 COPY_FILE_NAME="copied_${B2_FILE_NAME}"
 DOWNLOAD_PATH="downloaded_${B2_FILE_NAME}"
 FOLDER_NAME="sample_folder"
+EMPTY_FOLDER="/home/michal/dev/B2/empty"
 KEY_NAME="myKey"
 KEY_TO_DELETE="keyIdToDelete"
 
@@ -39,8 +54,8 @@ echo "./dist/b2 list-buckets"
 # Upload a file
 echo
 echo ">>>>>>> Uploading a file to B2"
-echo "./dist/b2 upload-file $BUCKET_NAME $LOCAL_FILE_PATH $B2_FILE_NAME"
-./dist/b2 upload-file $BUCKET_NAME $LOCAL_FILE_PATH $B2_FILE_NAME
+echo "./dist/b2 upload-file --noProgress $BUCKET_NAME $LOCAL_FILE_PATH $B2_FILE_NAME"
+./dist/b2 upload-file --noProgress $BUCKET_NAME $LOCAL_FILE_PATH $B2_FILE_NAME
 
 # List files in a bucket
 echo
@@ -65,14 +80,14 @@ echo "./dist/b2 delete-file-version $COPY_FILE_NAME $COPIED_FILE_ID"
 # Download a file by id
 echo
 echo ">>>>>>> Downloading a file with download-file-by-id"
-echo "./dist/b2 download-file-by-id $FILE_ID $DOWNLOAD_PATH"
-./dist/b2 download-file-by-id $FILE_ID $DOWNLOAD_PATH
+echo "./dist/b2 download-file-by-id --noProgress $FILE_ID $DOWNLOAD_PATH"
+./dist/b2 download-file-by-id --noProgress $FILE_ID $DOWNLOAD_PATH
 
 # Download a file
 echo
 echo ">>>>>>> Downloading a file with download-file"
-echo "./dist/b2 download-file b2id://$FILE_ID $DOWNLOAD_PATH"
-./dist/b2 download-file b2id://$FILE_ID $DOWNLOAD_PATH
+echo "./dist/b2 download-file --noProgress b2id://$FILE_ID $DOWNLOAD_PATH"
+./dist/b2 download-file --noProgress b2id://$FILE_ID $DOWNLOAD_PATH
 
 # Get file info
 echo
@@ -157,5 +172,44 @@ echo "./dist/b2 delete-key $KEY_ID"
 ./dist/b2 delete-key $KEY_ID
 echo "Application key with ID $KEY_ID has been deleted."
 
+# Sync empty folder, to clean up the bucket
+echo
+echo ">>>>>>> Synchronizing empty folder with B2 bucket"
+echo "./dist/b2 sync --noProgress --allowEmptySource --delete $EMPTY_FOLDER $B2_DIR_PATH"
+./dist/b2 sync --noProgress --allowEmptySource --delete $EMPTY_FOLDER $B2_DIR_PATH
+
 echo
 echo ">>>>>>> Done with B2 CLI operations."
+
+## TODO: Add more operations to test the B2 CLI
+# echo "Listing all application keys:"
+# ./dist/b2 list-keys
+
+# echo "Listing all versions of a file:"
+# ./dist/b2 ls --versions "$BUCKET_NAME" "$B2_FILE_NAME"
+
+
+# echo "Starting a large file upload (simulated):"
+# You would need to simulate or actually start a large file upload here
+
+# echo "Listing parts of the large file upload:"
+#./dist/b2 list-parts "$LARGE_FILE_ID"
+
+#echo "Canceling the large file upload:"
+#./dist/b2 cancel-large-file "$LARGE_FILE_ID"
+
+#echo "Setting up replication:"
+# Use replication-setup with appropriate parameters here
+
+#echo "Checking replication status:"
+./dist/b2 replication-status "$SOURCE_BUCKET_NAME"
+
+#echo "Updating bucket with lifecycle rules:"
+# This requires a JSON string for lifecycle rules
+#./dist/b2 update-bucket --lifecycleRules '[{"fileNamePrefix":"","daysFromUploadingToHiding":30,"daysFromHidingToDeleting":365}]' "$BUCKET_NAME" allPrivate
+
+#echo "Updating file legal hold:"
+./dist/b2 update-file-legal-hold "$B2_FILE_NAME" "$FILE_ID" on
+
+#echo "Updating file retention settings:"
+#./dist/b2 update-file-retention --retainUntil "2024-01-01" "$B2_FILE_NAME" "$FILE_ID" compliance
