@@ -158,19 +158,6 @@ def enable_camel_case_arguments():
     SUPPORT_CAMEL_CASE_ARGUMENTS = True
 
 
-def make_deprecated_action_call(action):
-    def deprecated_action_call(self, parser, namespace, values, option_string=None, **kwargs):
-        action.__call__(self, parser, namespace, values, option_string, **kwargs)
-        if option_string:
-            kebab_option_string = _camel_to_kebab(option_string)
-            print(
-                f"The '{option_string}' argument is deprecated. Use '{kebab_option_string}' instead.",
-                file=sys.stderr
-            )
-
-    return deprecated_action_call
-
-
 _kebab_to_snake_pattern = re.compile(r'-')
 _camel_to_kebab_pattern = re.compile(r'(?<=[a-z])([A-Z])')
 _kebab_to_camel_pattern = re.compile(r'-(\w)')
@@ -212,10 +199,17 @@ def add_normalized_argument(parser, param_name, *args, **kwargs):
     else:
         action = argparse._StoreAction
 
-    kwargs_camel['action'] = type(
-        'DeprecatedAction', (action, DeprecatedActionMarker),
-        {'__call__': make_deprecated_action_call(action)}
-    )
+    class DeprecatedAction(action, DeprecatedActionMarker):
+        def __call__(self, parser, namespace, values, option_string, **kwargs):
+            super().__call__(parser, namespace, values, option_string, **kwargs)
+            if option_string:
+                kebab_option_string = _camel_to_kebab(option_string)
+                print(
+                    f"WARNING: The '{option_string}' argument is deprecated. Use '{kebab_option_string}' instead.",
+                    file=sys.stderr
+                )
+
+    kwargs_camel['action'] = DeprecatedAction
 
     parser.add_argument(f'{param_name_kebab}', *args, **kwargs_kebab)
 
