@@ -36,6 +36,7 @@ import pathlib
 import platform
 import queue
 import re
+import shlex
 import signal
 import subprocess
 import sys
@@ -162,6 +163,38 @@ SEPARATOR = '=' * 40
 # Enable to get 0.* behavior in the command-line tool.
 # Disable for 1.* behavior.
 VERSION_0_COMPATIBILITY = False
+
+UNPRINTABLE_PATTERN = re.compile(r'[\x00-\x1f\x7f-\x9f]')
+
+ESCAPE_CONTROL_CHARACTERS_DEFAULT = 2
+
+def disable_control_characters_escaping():
+    global ESCAPE_CONTROL_CHARACTERS_DEFAULT
+    ESCAPE_CONTROL_CHARACTERS_DEFAULT = 0
+
+
+def unprintable_to_hex(s):
+    def hexify(match):
+        return fr'\x{ord(match.group()):02x}'
+    if s:
+        return UNPRINTABLE_PATTERN.sub(hexify, s)
+    return None
+
+def escape_control_chars(s):
+    if s:
+        return shlex.quote(unprintable_to_hex(s))
+    return None
+
+class NoControlCharactersStdout:
+    def __init__(self, stdout):
+        self.stdout = stdout
+
+    def __getattr__(self, attr):
+        return getattr(self.stdout, attr)
+
+    def write(self, s):
+        if s:
+            self.stdout.write(UNPRINTABLE_PATTERN.sub('', s))
 
 # The name of an executable entry point
 NAME = os.path.basename(sys.argv[0])
@@ -863,6 +896,13 @@ class Command(Described, metaclass=ABCMeta):
                 common_parser.add_argument(
                     '-q', '--quiet', action='store_true', default=False, help=argparse.SUPPRESS
                 )
+                common_parser.add_argument(
+                    '--escape-control-characters',
+                    choices=(0,1,2),
+                    default=ESCAPE_CONTROL_CHARACTERS_DEFAULT,
+                    type=int,
+                    help=argparse.SUPPRESS
+                )
                 parents = [common_parser]
 
             subparsers = parser.add_subparsers(
@@ -902,12 +942,22 @@ class Command(Described, metaclass=ABCMeta):
 
     def _print_json(self, data) -> None:
         return self._print(
-            json.dumps(data, indent=4, sort_keys=True, cls=B2CliJsonEncoder), enforce_output=True
+            json.dumps(data, indent=4, sort_keys=True, ensure_ascii=True, cls=B2CliJsonEncoder),
+            enforce_output=True
         )
 
-    def _print(self, *args, enforce_output: bool = False, end: str | None = None) -> None:
+    def _print(
+        self,
+        *args,
+        enforce_output: bool = False,
+        end: str | None = None,
+    ) -> None:
         return self._print_standard_descriptor(
-            self.stdout, "stdout", *args, enforce_output=enforce_output, end=end
+            self.stdout,
+            "stdout",
+            *args,
+            enforce_output=enforce_output,
+            end=end,
         )
 
     def _print_stderr(self, *args, end: str | None = None) -> None:
@@ -2194,6 +2244,9 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         generator = self._get_ls_generator(args)
 
         for file_version, folder_name in generator:
+            if args.escape_control_characters == 1:
+                folder_name = escape_control_chars(folder_name)
+                file_version.file_name = escape_control_chars(file_version.file_name)
             self._print_file_version(args, file_version, folder_name)
 
     def _print_file_version(
@@ -2202,7 +2255,8 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         file_version: FileVersion,
         folder_name: str | None,
     ) -> None:
-        self._print(folder_name or file_version.file_name)
+        name = folder_name or file_version.file_name
+        self._print(name)
 
     def _get_ls_generator(self, args):
         b2_uri = self.get_b2_uri_from_arg(args)
@@ -2270,6 +2324,10 @@ class BaseLs(AbstractLsCommand, metaclass=ABCMeta):
         file_version: FileVersion,
         folder_name: str | None,
     ) -> None:
+        if args.escape_control_characters == 1:
+            file_version.file_name = escape_control_chars(file_version.file_name)
+            folder_name = escape_control_chars(folder_name)
+
         if not args.long:
             super()._print_file_version(args, file_version, folder_name)
         elif folder_name is not None:
@@ -4027,6 +4085,13 @@ class ConsoleTool:
         args = parser.parse_args(argv[1:])
         self._setup_logging(args, argv)
 
+        if args.escape_control_characters == 2:
+            args.escape_control_characters = 1 if sys.stdout.isatty() else 0
+
+        if args.escape_control_characters == 1:
+            # in case any control characters slip through escaping, just delete them
+            self.stdout = NoControlCharactersStdout(self.stdout)
+            self.stderr = NoControlCharactersStdout(self.stderr)
         if self.api:
             if (
                 args.profile or getattr(args, 'write_buffer_size', None) or

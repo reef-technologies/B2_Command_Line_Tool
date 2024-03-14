@@ -10,7 +10,10 @@
 
 # ruff: noqa: F405
 from b2._internal._b2v4.registry import *  # noqa
+from b2._internal.console_tool import disable_control_characters_escaping
 from .rm import Rm
+
+disable_control_characters_escaping()
 
 
 class Ls(B2URIBucketNFolderNameArgMixin, BaseLs):
