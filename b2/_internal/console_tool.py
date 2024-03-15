@@ -886,8 +886,12 @@ class Command(Described, metaclass=ABCMeta):
                     '-q', '--quiet', action='store_true', default=False, help=argparse.SUPPRESS
                 )
                 common_parser.add_argument(
-                    '--escape-control-characters',
-                    action=argparse.BooleanOptionalAction,
+                    '--escape-control-characters', action='store_true', help=argparse.SUPPRESS
+                )
+                common_parser.add_argument(
+                    '--no-escape-control-characters',
+                    dest='escape_control_characters',
+                    action='store_false',
                     help=argparse.SUPPRESS
                 )
                 parents = [common_parser]

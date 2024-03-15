@@ -15,6 +15,7 @@ import re
 import unittest.mock as mock
 from io import StringIO
 from itertools import chain, product
+from test.helpers import skip_on_windows
 from typing import List, Optional
 
 import pytest
@@ -2466,6 +2467,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             expected_stdout,
         )
 
+    @skip_on_windows
     def test_escape_c0_char_on_sync_stack_trace(self):
         self._authorize_account()
         self._run_command(['create-bucket', 'my-bucket-0', 'allPrivate'], 'bucket_0\n', '', 0)
