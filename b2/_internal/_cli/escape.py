@@ -31,6 +31,6 @@ def escape_control_chars(s):
 
 
 def substitute_control_chars(s):
-    match_result = UNPRINTABLE_PATTERN.match(s)
+    match_result = UNPRINTABLE_PATTERN.search(s)
     s = UNPRINTABLE_PATTERN.sub('�', s)
     return (s, match_result is not None)
