@@ -79,7 +79,7 @@ def b2uri_file_completer(prefix: str, parsed_args, **kwargs):
             with_wildcard=True,
         )
         return [
-            f"b2://{unprintable_to_hex(bucket.name)}/{unprintable_to_hex(file_version.file_name)}"
+            unprintable_to_hex(f"b2://{bucket.name}/{file_version.file_name}")
             for file_version, folder_name in islice(file_versions, LIST_FILE_NAMES_MAX_LIMIT)
             if file_version
         ]
