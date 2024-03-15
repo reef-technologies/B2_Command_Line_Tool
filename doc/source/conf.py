@@ -42,7 +42,6 @@ from b2._internal.version_listing import LATEST_STABLE_VERSION
 
 B2 = importlib.import_module(f'b2._internal.{LATEST_STABLE_VERSION}.registry').B2
 
-
 # -- General configuration ------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -53,12 +52,8 @@ B2 = importlib.import_module(f'b2._internal.{LATEST_STABLE_VERSION}.registry').B
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.ifconfig',
-    'sphinx.ext.viewcode',
-    'sphinx.ext.coverage',
-    'sphinxarg.ext'
+    'sphinx.ext.autodoc', 'sphinx.ext.intersphinx', 'sphinx.ext.ifconfig', 'sphinx.ext.viewcode',
+    'sphinx.ext.coverage', 'sphinxarg.ext'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -208,7 +203,6 @@ texinfo_documents = [
 
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'python3': ('https://docs.python.org/3', None)}
-
 
 white_spaces_start = re.compile(r'^\s*')
 

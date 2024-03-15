@@ -264,6 +264,7 @@ class TestTTYConsoleTool(BaseConsoleToolTest):
         class FakeStringIO(StringIO):
             def isatty(self):
                 return True
+
         stdout = FakeStringIO()
         stderr = FakeStringIO()
         return stdout, stderr
@@ -283,8 +284,7 @@ class TestTTYConsoleTool(BaseConsoleToolTest):
             )
 
             self._run_command(
-                ['ls', *self.b2_uri_args('my-bucket-cc')],
-                expected_part_of_stdout=escaped_bad_str
+                ['ls', *self.b2_uri_args('my-bucket-cc')], expected_part_of_stdout=escaped_bad_str
             )
 
 
@@ -2526,14 +2526,14 @@ class TestConsoleTool(BaseConsoleToolTest):
     def test_escape_c0_char_on_key_restricted_path(self):
         self._authorize_account()
         self._run_command(['create-bucket', 'my-bucket-0', 'allPublic'], 'bucket_0\n', '', 0)
-        cc_name = "$'\x1b[31mC\x1b[32mC\x1b[33mI\x1b[0m'" 
+        cc_name = "$'\x1b[31mC\x1b[32mC\x1b[33mI\x1b[0m'"
         escaped_error = "ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'\\x1b[31mC\\x1b[32mC\\x1b[33mI\\x1b[0m'' (unauthorized)\n"
 
         # Create a key
         self._run_command(
             [
-                'create-key', '--bucket', 'my-bucket-0', '--namePrefix', cc_name
-                , 'key1', 'listBuckets,listKeys'
+                'create-key', '--bucket', 'my-bucket-0', '--namePrefix', cc_name, 'key1',
+                'listBuckets,listKeys'
             ],
             'appKeyId0 appKey0\n',
             expected_status=0,
@@ -2570,9 +2570,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             escaped_cc_filename = '\\x9bT\\x9bE\\x9bS\\x9bTtest.txt'
 
             self._run_command(
-                [
-                    'upload-file', '--noProgress', 'my-bucket-0', local_file, cc_filename
-                ]
+                ['upload-file', '--noProgress', 'my-bucket-0', local_file, cc_filename]
             )
 
         self._run_command(
@@ -2581,8 +2579,7 @@ class TestConsoleTool(BaseConsoleToolTest):
         )
 
         self._run_command(
-            ['ls', '--long', *self.b2_uri_args('my-bucket-0')],
-            expected_part_of_stdout=cc_filename
+            ['ls', '--long', *self.b2_uri_args('my-bucket-0')], expected_part_of_stdout=cc_filename
         )
 
         self._run_command(
@@ -2612,8 +2609,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             )
 
             self._run_command(
-                ['ls', *self.b2_uri_args('my-bucket-cc')],
-                expected_part_of_stdout=bad_str
+                ['ls', *self.b2_uri_args('my-bucket-cc')], expected_part_of_stdout=bad_str
             )
 
             self._run_command(
