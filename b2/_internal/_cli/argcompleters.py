@@ -14,7 +14,7 @@
 
 from itertools import islice
 
-from b2._internal._utils import unprintable_to_hex
+from b2._internal._cli.escape import unprintable_to_hex
 
 
 def bucket_name_completer(prefix, parsed_args, **kwargs):
@@ -62,7 +62,10 @@ def b2uri_file_completer(prefix: str, parsed_args, **kwargs):
     if prefix.startswith('b2://'):
         prefix_without_scheme = removeprefix(prefix, 'b2://')
         if '/' not in prefix_without_scheme:
-            return [f"b2://{unprintable_to_hex(bucket.name)}/" for bucket in api.list_buckets(use_cache=True)]
+            return [
+                f"b2://{unprintable_to_hex(bucket.name)}/"
+                for bucket in api.list_buckets(use_cache=True)
+            ]
 
         b2_uri = parse_b2_uri(prefix)
         bucket = api.get_bucket_by_name(b2_uri.bucket_name)

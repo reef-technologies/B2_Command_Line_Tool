@@ -145,7 +145,7 @@ def uploaded_file_with_control_chars(b2_cli, bucket_info, local_file):
         'bucket': bucket_info["bucketName"],
         'bucketId': bucket_info["bucketId"],
         'fileName': filename,
-        'escapedFileName': '\\x9bC\\x9bC\\x9bIfile.txt',
+        'escapedFileName': '\\\\x9bC\\\\x9bC\\\\x9bIfile.txt',
         'fileId': '1111',
         'content': local_file.read_text(),
     }

@@ -143,9 +143,13 @@ from b2._internal._cli.const import (
     CREATE_BUCKET_TYPES,
     DEFAULT_THREADS,
 )
+from b2._internal._cli.escape import (
+    escape_control_chars,
+    substitute_control_chars,
+    unprintable_to_hex,
+)
 from b2._internal._cli.obj_loads import validated_loads
 from b2._internal._cli.shell import detect_shell
-from b2._internal._utils import escape_control_chars, substitute_control_chars
 from b2._internal._utils.uri import B2URI, B2FileIdURI, B2URIAdapter, B2URIBase
 from b2._internal.arg_parser import B2ArgumentParser
 from b2._internal.json_encoder import B2CliJsonEncoder
@@ -165,6 +169,7 @@ SEPARATOR = '=' * 40
 # Disable for 1.* behavior.
 VERSION_0_COMPATIBILITY = False
 
+
 class NoControlCharactersStdout:
     def __init__(self, stdout):
         self.stdout = stdout
@@ -178,6 +183,7 @@ class NoControlCharactersStdout:
             if cc_present:
                 logger.warning('WARNING: Control Characters were detected in the output')
             self.stdout.write(s)
+
 
 # The name of an executable entry point
 NAME = os.path.basename(sys.argv[0])
@@ -2241,14 +2247,19 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         self._print(name)
 
     def _get_ls_generator(self, args):
-        b2_uri = self.get_b2_uri_from_arg(args)
-        yield from self.api.list_file_versions_by_uri(
-            b2_uri,
-            latest_only=not args.versions,
-            recursive=args.recursive,
-            with_wildcard=args.withWildcard,
-            filters=args.filters,
-        )
+        try:
+            b2_uri = self.get_b2_uri_from_arg(args)
+            yield from self.api.list_file_versions_by_uri(
+                b2_uri,
+                latest_only=not args.versions,
+                recursive=args.recursive,
+                with_wildcard=args.withWildcard,
+                filters=args.filters,
+            )
+        except Exception as err:
+            if args.escape_control_characters:
+                err = unprintable_to_hex(str(err))
+            raise CommandError(str(err))
 
     def get_b2_uri_from_arg(self, args: argparse.Namespace) -> B2URI:
         raise NotImplementedError
@@ -4061,6 +4072,17 @@ class ConsoleTool:
         self.stdout = stdout
         self.stderr = stderr
 
+    def _get_default_escape_cc_setting(self):
+        escape_cc_env_var = os.environ.get(B2_ESCAPE_CONTROL_CHARACTERS, None)
+        if escape_cc_env_var is not None:
+            if int(escape_cc_env_var) in (0, 1):
+                return int(escape_cc_env_var) == 1
+            else:
+                logger.warning(
+                    "WARNING: invalid value for {B2_ESCAPE_CONTROL_CHARACTERS} environment variable, available options are 0 or 1 - will assume variable is not set"
+                )
+        return sys.stdout.isatty()
+
     def run_command(self, argv):
         signal.signal(signal.SIGINT, keyboard_interrupt_handler)
         parser = B2.create_parser(name=argv[0])
@@ -4069,8 +4091,7 @@ class ConsoleTool:
         self._setup_logging(args, argv)
 
         if args.escape_control_characters is None:
-            escape_cc_env_var = os.environ.get(B2_ESCAPE_CONTROL_CHARACTERS, None)
-            args.escape_control_characters = int(escape_cc_env_var) == 1 if escape_cc_env_var else sys.stdout.isatty()
+            args.escape_control_characters = self._get_default_escape_cc_setting()
 
         if args.escape_control_characters:
             # in case any control characters slip through escaping, just delete them
