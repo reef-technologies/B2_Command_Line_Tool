@@ -52,11 +52,6 @@ import b2sdk
 import requests
 import rst2ansi
 from b2sdk.v2 import (
-    escape_control_chars,
-    substitute_control_chars,
-    unprintable_to_hex,
-)
-from b2sdk.v2 import (
     ALL_CAPABILITIES,
     B2_ACCOUNT_INFO_DEFAULT_FILE,
     B2_ACCOUNT_INFO_ENV_VAR,
@@ -101,10 +96,13 @@ from b2sdk.v2 import (
     TqdmProgressListener,
     UploadMode,
     current_time_millis,
+    escape_control_chars,
     get_included_sources,
     make_progress_listener,
     parse_sync_folder,
     points_to_fifo,
+    substitute_control_chars,
+    unprintable_to_hex,
 )
 from b2sdk.v2.exception import (
     B2Error,
