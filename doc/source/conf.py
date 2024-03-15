@@ -74,10 +74,10 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'B2_Command_Line_Tool'
+project = 'B2_Command_Line_Tool'
 
 year = datetime.date.today().strftime("%Y")
-author = u'Backblaze'
+author = 'Backblaze'
 copyright = f'{year}, {author}'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -181,8 +181,8 @@ latex_elements = {
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     (
-        master_doc, 'B2_Command_Line_Tool.tex', u'B2\\_Command\\_Line\\_Tool Documentation',
-        u'Backblaze', 'manual'
+        master_doc, 'B2_Command_Line_Tool.tex', 'B2\\_Command\\_Line\\_Tool Documentation',
+        'Backblaze', 'manual'
     ),
 ]
 
@@ -191,7 +191,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'b2_command_line_tool', u'B2_Command_Line_Tool Documentation', [author], 1)
+    (master_doc, 'b2_command_line_tool', 'B2_Command_Line_Tool Documentation', [author], 1)
 ]
 
 # -- Options for Texinfo output -------------------------------------------
@@ -201,7 +201,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (
-        master_doc, 'B2_Command_Line_Tool', u'B2_Command_Line_Tool Documentation', author,
+        master_doc, 'B2_Command_Line_Tool', 'B2_Command_Line_Tool Documentation', author,
         'B2_Command_Line_Tool', 'One line description of project.', 'Miscellaneous'
     ),
 ]
@@ -224,7 +224,7 @@ def setup(_):
 
     main_help_path = path.join(path.dirname(__file__), 'main_help.rst')
     if path.exists(main_help_path):
-        with open(main_help_path, 'r') as main_help_file:
+        with open(main_help_path) as main_help_file:
             if main_help_file.read() == main_help_text:
                 return
     with open(main_help_path, 'w') as main_help_file:

@@ -14,11 +14,13 @@
 
 from itertools import islice
 
+from b2._internal._utils import unprintable_to_hex
+
 
 def bucket_name_completer(prefix, parsed_args, **kwargs):
     from b2._internal._cli.b2api import _get_b2api_for_profile
     api = _get_b2api_for_profile(getattr(parsed_args, 'profile', None))
-    res = [bucket.name for bucket in api.list_buckets(use_cache=True)]
+    res = [unprintable_to_hex(bucket.name) for bucket in api.list_buckets(use_cache=True)]
     return res
 
 
@@ -41,7 +43,7 @@ def file_name_completer(prefix, parsed_args, **kwargs):
         fetch_count=LIST_FILE_NAMES_MAX_LIMIT,
     )
     return [
-        folder_name or file_version.file_name
+        unprintable_to_hex(folder_name or file_version.file_name)
         for file_version, folder_name in islice(file_versions, LIST_FILE_NAMES_MAX_LIMIT)
     ]
 
@@ -60,7 +62,7 @@ def b2uri_file_completer(prefix: str, parsed_args, **kwargs):
     if prefix.startswith('b2://'):
         prefix_without_scheme = removeprefix(prefix, 'b2://')
         if '/' not in prefix_without_scheme:
-            return [f"b2://{bucket.name}/" for bucket in api.list_buckets(use_cache=True)]
+            return [f"b2://{unprintable_to_hex(bucket.name)}/" for bucket in api.list_buckets(use_cache=True)]
 
         b2_uri = parse_b2_uri(prefix)
         bucket = api.get_bucket_by_name(b2_uri.bucket_name)
@@ -72,7 +74,7 @@ def b2uri_file_completer(prefix: str, parsed_args, **kwargs):
             with_wildcard=True,
         )
         return [
-            f"b2://{bucket.name}/{file_version.file_name}"
+            f"b2://{unprintable_to_hex(bucket.name)}/{unprintable_to_hex(file_version.file_name)}"
             for file_version, folder_name in islice(file_versions, LIST_FILE_NAMES_MAX_LIMIT)
             if file_version
         ]

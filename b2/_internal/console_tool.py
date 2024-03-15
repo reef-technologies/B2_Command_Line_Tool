@@ -36,7 +36,6 @@ import pathlib
 import platform
 import queue
 import re
-import shlex
 import signal
 import subprocess
 import sys
@@ -138,6 +137,7 @@ from b2._internal._cli.const import (
     B2_DESTINATION_SSE_C_KEY_B64_ENV_VAR,
     B2_DESTINATION_SSE_C_KEY_ID_ENV_VAR,
     B2_ENVIRONMENT_ENV_VAR,
+    B2_ESCAPE_CONTROL_CHARACTERS,
     B2_SOURCE_SSE_C_KEY_B64_ENV_VAR,
     B2_USER_AGENT_APPEND_ENV_VAR,
     CREATE_BUCKET_TYPES,
@@ -145,6 +145,7 @@ from b2._internal._cli.const import (
 )
 from b2._internal._cli.obj_loads import validated_loads
 from b2._internal._cli.shell import detect_shell
+from b2._internal._utils import escape_control_chars, substitute_control_chars
 from b2._internal._utils.uri import B2URI, B2FileIdURI, B2URIAdapter, B2URIBase
 from b2._internal.arg_parser import B2ArgumentParser
 from b2._internal.json_encoder import B2CliJsonEncoder
@@ -164,27 +165,6 @@ SEPARATOR = '=' * 40
 # Disable for 1.* behavior.
 VERSION_0_COMPATIBILITY = False
 
-UNPRINTABLE_PATTERN = re.compile(r'[\x00-\x1f\x7f-\x9f]')
-
-ESCAPE_CONTROL_CHARACTERS_DEFAULT = 2
-
-def disable_control_characters_escaping():
-    global ESCAPE_CONTROL_CHARACTERS_DEFAULT
-    ESCAPE_CONTROL_CHARACTERS_DEFAULT = 0
-
-
-def unprintable_to_hex(s):
-    def hexify(match):
-        return fr'\x{ord(match.group()):02x}'
-    if s:
-        return UNPRINTABLE_PATTERN.sub(hexify, s)
-    return None
-
-def escape_control_chars(s):
-    if s:
-        return shlex.quote(unprintable_to_hex(s))
-    return None
-
 class NoControlCharactersStdout:
     def __init__(self, stdout):
         self.stdout = stdout
@@ -194,7 +174,10 @@ class NoControlCharactersStdout:
 
     def write(self, s):
         if s:
-            self.stdout.write(UNPRINTABLE_PATTERN.sub('', s))
+            s, cc_present = substitute_control_chars(s)
+            if cc_present:
+                logger.warning('WARNING: Control Characters were detected in the output')
+            self.stdout.write(s)
 
 # The name of an executable entry point
 NAME = os.path.basename(sys.argv[0])
@@ -898,9 +881,7 @@ class Command(Described, metaclass=ABCMeta):
                 )
                 common_parser.add_argument(
                     '--escape-control-characters',
-                    choices=(0,1,2),
-                    default=ESCAPE_CONTROL_CHARACTERS_DEFAULT,
-                    type=int,
+                    action=argparse.BooleanOptionalAction,
                     help=argparse.SUPPRESS
                 )
                 parents = [common_parser]
@@ -1060,6 +1041,8 @@ class B2(Command):
     If the directory ``{XDG_CONFIG_HOME_ENV_VAR}/b2`` does not exist (and is needed), it is created.
     Please note that the above rules may be changed in next versions of b2sdk, and in order to get
     reliable authentication file location you should use ``b2 get-account-info``.
+
+    You can disable control character escaping by using ``--no-escape-control-chars`` option.
 
     You can suppress command stdout & stderr output by using ``--quiet`` option.
     To supress only progress bar, use ``--noProgress`` option.
@@ -2244,9 +2227,6 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         generator = self._get_ls_generator(args)
 
         for file_version, folder_name in generator:
-            if args.escape_control_characters == 1:
-                folder_name = escape_control_chars(folder_name)
-                file_version.file_name = escape_control_chars(file_version.file_name)
             self._print_file_version(args, file_version, folder_name)
 
     def _print_file_version(
@@ -2256,6 +2236,8 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         folder_name: str | None,
     ) -> None:
         name = folder_name or file_version.file_name
+        if args.escape_control_characters:
+            name = escape_control_chars(name)
         self._print(name)
 
     def _get_ls_generator(self, args):
@@ -2324,23 +2306,21 @@ class BaseLs(AbstractLsCommand, metaclass=ABCMeta):
         file_version: FileVersion,
         folder_name: str | None,
     ) -> None:
-        if args.escape_control_characters == 1:
-            file_version.file_name = escape_control_chars(file_version.file_name)
-            folder_name = escape_control_chars(folder_name)
-
         if not args.long:
             super()._print_file_version(args, file_version, folder_name)
         elif folder_name is not None:
-            self._print(self.format_folder_ls_entry(folder_name, args.replication))
+            self._print(self.format_folder_ls_entry(args, folder_name, args.replication))
         else:
-            self._print(self.format_ls_entry(file_version, args.replication))
+            self._print(self.format_ls_entry(args, file_version, args.replication))
 
-    def format_folder_ls_entry(self, name, replication: bool):
+    def format_folder_ls_entry(self, args, name, replication: bool):
+        if args.escape_control_characters:
+            name = escape_control_chars(name)
         if replication:
             return self.LS_ENTRY_TEMPLATE_REPLICATION % ('-', '-', '-', '-', 0, '-', name)
         return self.LS_ENTRY_TEMPLATE % ('-', '-', '-', '-', 0, name)
 
-    def format_ls_entry(self, file_version: FileVersion, replication: bool):
+    def format_ls_entry(self, args, file_version: FileVersion, replication: bool):
         dt = datetime.datetime.fromtimestamp(
             file_version.upload_timestamp / 1000, datetime.timezone.utc
         )
@@ -2358,7 +2338,10 @@ class BaseLs(AbstractLsCommand, metaclass=ABCMeta):
         if replication:
             replication_status = file_version.replication_status
             parameters.append(replication_status.value if replication_status else '-')
-        parameters.append(file_version.file_name)
+        name = file_version.file_name
+        if args.escape_control_characters:
+            name = escape_control_chars(name)
+        parameters.append(name)
         return template % tuple(parameters)
 
 
@@ -4085,10 +4068,11 @@ class ConsoleTool:
         args = parser.parse_args(argv[1:])
         self._setup_logging(args, argv)
 
-        if args.escape_control_characters == 2:
-            args.escape_control_characters = 1 if sys.stdout.isatty() else 0
+        if args.escape_control_characters is None:
+            escape_cc_env_var = os.environ.get(B2_ESCAPE_CONTROL_CHARACTERS, None)
+            args.escape_control_characters = int(escape_cc_env_var) == 1 if escape_cc_env_var else sys.stdout.isatty()
 
-        if args.escape_control_characters == 1:
+        if args.escape_control_characters:
             # in case any control characters slip through escaping, just delete them
             self.stdout = NoControlCharactersStdout(self.stdout)
             self.stderr = NoControlCharactersStdout(self.stderr)

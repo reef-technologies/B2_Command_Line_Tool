@@ -2476,7 +2476,7 @@ class TestConsoleTool(BaseConsoleToolTest):
             _ = self._make_local_file(temp_dir, "\x1b[32mC\x1b[33mC\x1b[34mI\x1b[0m")
             self._run_command(
                 [
-                    'sync', '--noProgress', '--escape-control-characters=0',
+                    'sync', '--noProgress', '--no-escape-control-characters',
                     temp_dir, 'b2://my-bucket-0'
                 ],
                 expected_part_of_stdout='\x1b[32m',
@@ -2484,11 +2484,11 @@ class TestConsoleTool(BaseConsoleToolTest):
             )
             self._run_command(
                 [
-                    'sync', '--noProgress', '--escape-control-characters=1',
+                    'sync', '--noProgress', '--escape-control-characters',
                     temp_dir, 'b2://my-bucket-1'
                 ],
                 # control chars are coming from sdk which does not escape them, so they are deleted
-                expected_part_of_stdout="[32mC[33mC[34mI[0m",
+                expected_part_of_stdout="�[32mC�[33mC�[34mI�[0m",
                 expected_status=0,
                 unexpected_part_of_stdout='\x1b[32m',
             )
@@ -2510,14 +2510,14 @@ class TestConsoleTool(BaseConsoleToolTest):
         # Authorize with the key
         self._run_command(['authorize-account', 'appKeyId0', 'appKey0'],expected_status = 0)
 
-        self._run_command(['ls', *self.b2_uri_args('my-bucket-0'), '--escape-control-characters=0'],
+        self._run_command(['ls', *self.b2_uri_args('my-bucket-0'), '--no-escape-control-characters'],
                             expected_status=1,
                             expected_stderr="ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'\x1b[31mC\x1b[32mC\x1b[33mI\x1b[0m'' (unauthorized)\n"
                           )
 
-        self._run_command(['ls', *self.b2_uri_args('my-bucket-0'), '--escape-control-characters=1'],
+        self._run_command(['ls', *self.b2_uri_args('my-bucket-0'), '--escape-control-characters'],
                             expected_status=1,
-                            expected_stderr="ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'[31mC[32mC[33mI[0m'' (unauthorized)",
+                            expected_stderr="ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'�[31mC�[32mC�[33mI�[0m'' (unauthorized)\n",
                           )
 
     def test_escape_c1_char_on_ls_long(self):
@@ -2535,12 +2535,12 @@ class TestConsoleTool(BaseConsoleToolTest):
             )
 
         self._run_command(
-            ['ls', '--long', '--escape-control-characters=0', *self.b2_uri_args('my-bucket-0')],
+            ['ls', '--long', '--no-escape-control-characters', *self.b2_uri_args('my-bucket-0')],
             expected_part_of_stdout='\u009bT\u009bE\u009bS\u009bTtest.txt',
         )
 
         self._run_command(
-            ['ls', '--long', '--escape-control-characters=1', *self.b2_uri_args('my-bucket-0')],
+            ['ls', '--long', '--escape-control-characters', *self.b2_uri_args('my-bucket-0')],
             expected_part_of_stdout='\\x9bT\\x9bE\\x9bS\\x9bTtest.txt',
             unexpected_part_of_stdout='\u009bT\u009bE\u009bS\u009bTtest.txt'
         )
@@ -2569,11 +2569,11 @@ class TestConsoleTool(BaseConsoleToolTest):
                 ]
             )
 
-            self._run_command(['ls', *self.b2_uri_args('my-bucket-cc'), '--escape-control-characters=0'],
+            self._run_command(['ls', *self.b2_uri_args('my-bucket-cc'), '--no-escape-control-characters'],
                                 expected_part_of_stdout=bad_str
                               )
 
-            self._run_command(['ls', *self.b2_uri_args('my-bucket-cc'), '--escape-control-characters=1'],
+            self._run_command(['ls', *self.b2_uri_args('my-bucket-cc'), '--escape-control-characters'],
                                 expected_part_of_stdout=escaped_bad_str
                               )
 
