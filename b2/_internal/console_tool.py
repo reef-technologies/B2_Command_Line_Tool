@@ -1052,7 +1052,9 @@ class B2(Command):
     Please note that the above rules may be changed in next versions of b2sdk, and in order to get
     reliable authentication file location you should use ``b2 get-account-info``.
 
-    You can disable control character escaping by using ``--no-escape-control-chars`` option.
+    Control characters escaping is turned on if running under terminal.
+    You can override it by explicitly using `--escape-control-chars`/`--no-escape-control-chars`` option,
+    or by setting `B2_ESCAPE_CONTROL_CHARACTERS` environment variable to either `1` or `0`.
 
     You can suppress command stdout & stderr output by using ``--quiet`` option.
     To supress only progress bar, use ``--noProgress`` option.
