@@ -259,6 +259,35 @@ class BaseConsoleToolTest(TestBase):
         bucket.upload(data, 'c/test.tsv')
 
 
+class TestTTYConsoleTool(BaseConsoleToolTest):
+    def _get_stdouterr(self):
+        class FakeStringIO(StringIO):
+            def isatty(self):
+                return True
+        stdout = FakeStringIO()
+        stderr = FakeStringIO()
+        return stdout, stderr
+
+    def test_e_c1_char_ls_default_escape_control_chars_setting(self):
+        self._authorize_account()
+        self._run_command(['create-bucket', 'my-bucket-cc', 'allPrivate'], 'bucket_0\n', '', 0)
+
+        with TempDir() as temp_dir:
+            local_file = self._make_local_file(temp_dir, "x")
+            bad_str = "\u009b2K\u009b7Gb\u009b24Gx\u009b4GH"
+            escaped_bad_str = "\\x9b2K\\x9b7Gb\\x9b24Gx\\x9b4GH"
+
+            self._run_command(['upload-file', '--noProgress', 'my-bucket-cc', local_file, bad_str])
+            self._run_command(
+                ['upload-file', '--noProgress', 'my-bucket-cc', local_file, "some_normal_text"]
+            )
+
+            self._run_command(
+                ['ls', *self.b2_uri_args('my-bucket-cc')],
+                expected_part_of_stdout=escaped_bad_str
+            )
+
+
 class TestConsoleTool(BaseConsoleToolTest):
     def test_create_key_and_authorize_with_it(self):
         # Start with authorizing with the master key
@@ -2497,12 +2526,14 @@ class TestConsoleTool(BaseConsoleToolTest):
     def test_escape_c0_char_on_key_restricted_path(self):
         self._authorize_account()
         self._run_command(['create-bucket', 'my-bucket-0', 'allPublic'], 'bucket_0\n', '', 0)
+        cc_name = "$'\x1b[31mC\x1b[32mC\x1b[33mI\x1b[0m'" 
+        escaped_error = "ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'\\x1b[31mC\\x1b[32mC\\x1b[33mI\\x1b[0m'' (unauthorized)\n"
 
         # Create a key
         self._run_command(
             [
-                'create-key', '--bucket', 'my-bucket-0', '--namePrefix',
-                "$'\x1b[31mC\x1b[32mC\x1b[33mI\x1b[0m'", 'key1', 'listBuckets,listKeys'
+                'create-key', '--bucket', 'my-bucket-0', '--namePrefix', cc_name
+                , 'key1', 'listBuckets,listKeys'
             ],
             'appKeyId0 appKey0\n',
             expected_status=0,
@@ -2514,15 +2545,19 @@ class TestConsoleTool(BaseConsoleToolTest):
         self._run_command(
             ['ls', *self.b2_uri_args('my-bucket-0'), '--no-escape-control-characters'],
             expected_status=1,
-            expected_stderr=
-            "ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'\x1b[31mC\x1b[32mC\x1b[33mI\x1b[0m'' (unauthorized)\n"
+            expected_stderr=escaped_error
         )
 
         self._run_command(
             ['ls', *self.b2_uri_args('my-bucket-0'), '--escape-control-characters'],
             expected_status=1,
-            expected_stderr=
-            "ERROR: unauthorized for application key with capabilities 'listBuckets,listKeys', restricted to bucket 'my-bucket-0', restricted to files that start with '$'\\x1b[31mC\\x1b[32mC\\x1b[33mI\\x1b[0m'' (unauthorized)\n"
+            expected_stderr=escaped_error
+        )
+
+        self._run_command(
+            ['ls', *self.b2_uri_args('my-bucket-0')],
+            expected_status=1,
+            expected_stderr=escaped_error
         )
 
     def test_escape_c1_char_on_ls_long(self):
@@ -2530,24 +2565,30 @@ class TestConsoleTool(BaseConsoleToolTest):
         self._run_command(['create-bucket', 'my-bucket-0', 'allPrivate'], 'bucket_0\n', '', 0)
 
         with TempDir() as temp_dir:
-            local_file1 = self._make_local_file(temp_dir, 'file1.txt')
+            local_file = self._make_local_file(temp_dir, 'file1.txt')
+            cc_filename = '\u009bT\u009bE\u009bS\u009bTtest.txt'
+            escaped_cc_filename = '\\x9bT\\x9bE\\x9bS\\x9bTtest.txt'
 
             self._run_command(
                 [
-                    'upload-file', '--noProgress', 'my-bucket-0', local_file1,
-                    '\u009bT\u009bE\u009bS\u009bTtest.txt'
+                    'upload-file', '--noProgress', 'my-bucket-0', local_file, cc_filename
                 ]
             )
 
         self._run_command(
             ['ls', '--long', '--no-escape-control-characters', *self.b2_uri_args('my-bucket-0')],
-            expected_part_of_stdout='\u009bT\u009bE\u009bS\u009bTtest.txt',
+            expected_part_of_stdout=cc_filename,
+        )
+
+        self._run_command(
+            ['ls', '--long', *self.b2_uri_args('my-bucket-0')],
+            expected_part_of_stdout=cc_filename
         )
 
         self._run_command(
             ['ls', '--long', '--escape-control-characters', *self.b2_uri_args('my-bucket-0')],
-            expected_part_of_stdout='\\x9bT\\x9bE\\x9bS\\x9bTtest.txt',
-            unexpected_part_of_stdout='\u009bT\u009bE\u009bS\u009bTtest.txt'
+            expected_part_of_stdout=escaped_cc_filename,
+            unexpected_part_of_stdout=cc_filename
         )
 
     def test_escape_c1_char_ls(self):
@@ -2555,18 +2596,23 @@ class TestConsoleTool(BaseConsoleToolTest):
         self._run_command(['create-bucket', 'my-bucket-cc', 'allPrivate'], 'bucket_0\n', '', 0)
 
         with TempDir() as temp_dir:
-            local_file1 = self._make_local_file(temp_dir, "x")
+            local_file = self._make_local_file(temp_dir, "x")
             bad_str = "\u009b2K\u009b7Gb\u009b24Gx\u009b4GH"
             escaped_bad_str = "\\x9b2K\\x9b7Gb\\x9b24Gx\\x9b4GH"
 
-            self._run_command(['upload-file', '--noProgress', 'my-bucket-cc', local_file1, bad_str])
+            self._run_command(['upload-file', '--noProgress', 'my-bucket-cc', local_file, bad_str])
 
             self._run_command(
-                ['upload-file', '--noProgress', 'my-bucket-cc', local_file1, "some_normal_text"]
+                ['upload-file', '--noProgress', 'my-bucket-cc', local_file, "some_normal_text"]
             )
 
             self._run_command(
                 ['ls', *self.b2_uri_args('my-bucket-cc'), '--no-escape-control-characters'],
+                expected_part_of_stdout=bad_str
+            )
+
+            self._run_command(
+                ['ls', *self.b2_uri_args('my-bucket-cc')],
                 expected_part_of_stdout=bad_str
             )
 

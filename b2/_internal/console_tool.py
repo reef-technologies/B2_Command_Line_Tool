@@ -885,6 +885,7 @@ class Command(Described, metaclass=ABCMeta):
                 common_parser.add_argument(
                     '-q', '--quiet', action='store_true', default=False, help=argparse.SUPPRESS
                 )
+
                 common_parser.add_argument(
                     '--escape-control-characters', action='store_true', help=argparse.SUPPRESS
                 )
@@ -894,6 +895,8 @@ class Command(Described, metaclass=ABCMeta):
                     action='store_false',
                     help=argparse.SUPPRESS
                 )
+
+                common_parser.set_defaults(escape_control_characters=None)
                 parents = [common_parser]
 
             subparsers = parser.add_subparsers(
@@ -4085,7 +4088,7 @@ class ConsoleTool:
                 logger.warning(
                     "WARNING: invalid value for {B2_ESCAPE_CONTROL_CHARACTERS} environment variable, available options are 0 or 1 - will assume variable is not set"
                 )
-        return sys.stdout.isatty()
+        return self.stdout.isatty()
 
     def run_command(self, argv):
         signal.signal(signal.SIGINT, keyboard_interrupt_handler)
