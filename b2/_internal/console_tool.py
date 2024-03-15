@@ -2263,9 +2263,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
                 filters=args.filters,
             )
         except Exception as err:
-            if args.escape_control_characters:
-                err = unprintable_to_hex(str(err))
-            raise CommandError(str(err))
+            raise CommandError(unprintable_to_hex(str(err))) from err
 
     def get_b2_uri_from_arg(self, args: argparse.Namespace) -> B2URI:
         raise NotImplementedError
