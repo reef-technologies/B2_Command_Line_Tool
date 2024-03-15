@@ -182,7 +182,7 @@ class NoControlCharactersStdout:
             s, cc_present = substitute_control_chars(s)
             if cc_present:
                 logger.warning('WARNING: Control Characters were detected in the output')
-            self.stdout.write(s)
+        self.stdout.write(s)
 
 
 # The name of an executable entry point
