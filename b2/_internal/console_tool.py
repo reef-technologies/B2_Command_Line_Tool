@@ -51,7 +51,7 @@ from typing import Any, BinaryIO, List
 import b2sdk
 import requests
 import rst2ansi
-from b2sdk._v3 import (
+from b2sdk.v2 import (
     escape_control_chars,
     substitute_control_chars,
     unprintable_to_hex,
