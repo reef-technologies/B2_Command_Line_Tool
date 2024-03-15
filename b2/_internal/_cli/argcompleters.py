@@ -14,10 +14,10 @@
 
 from itertools import islice
 
-from b2._internal._cli.escape import unprintable_to_hex
-
 
 def bucket_name_completer(prefix, parsed_args, **kwargs):
+    from b2sdk._v3 import unprintable_to_hex
+
     from b2._internal._cli.b2api import _get_b2api_for_profile
     api = _get_b2api_for_profile(getattr(parsed_args, 'profile', None))
     res = [unprintable_to_hex(bucket.name) for bucket in api.list_buckets(use_cache=True)]
@@ -30,6 +30,7 @@ def file_name_completer(prefix, parsed_args, **kwargs):
 
     To limit delay & cost only lists files returned from by single call to b2_list_file_names
     """
+    from b2sdk._v3 import unprintable_to_hex
     from b2sdk.v2 import LIST_FILE_NAMES_MAX_LIMIT
 
     from b2._internal._cli.b2api import _get_b2api_for_profile
@@ -52,6 +53,7 @@ def b2uri_file_completer(prefix: str, parsed_args, **kwargs):
     """
     Complete B2 URI pointing to a file-like object in a bucket.
     """
+    from b2sdk._v3 import unprintable_to_hex
     from b2sdk.v2 import LIST_FILE_NAMES_MAX_LIMIT
 
     from b2._internal._cli.b2api import _get_b2api_for_profile

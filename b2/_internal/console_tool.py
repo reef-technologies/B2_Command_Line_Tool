@@ -51,6 +51,11 @@ from typing import Any, BinaryIO, List
 import b2sdk
 import requests
 import rst2ansi
+from b2sdk._v3 import (
+    escape_control_chars,
+    substitute_control_chars,
+    unprintable_to_hex,
+)
 from b2sdk.v2 import (
     ALL_CAPABILITIES,
     B2_ACCOUNT_INFO_DEFAULT_FILE,
@@ -142,11 +147,6 @@ from b2._internal._cli.const import (
     B2_USER_AGENT_APPEND_ENV_VAR,
     CREATE_BUCKET_TYPES,
     DEFAULT_THREADS,
-)
-from b2._internal._cli.escape import (
-    escape_control_chars,
-    substitute_control_chars,
-    unprintable_to_hex,
 )
 from b2._internal._cli.obj_loads import validated_loads
 from b2._internal._cli.shell import detect_shell
