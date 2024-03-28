@@ -158,9 +158,9 @@ class ZshAutocompleteInstaller(BashLikeAutocompleteInstaller):
     def get_rc_section(self, completion_script: Path) -> str:
         return textwrap.dedent(
             f"""\
-        if [[ -z "$_comps" ]] && [[ -t 0 ]]; then autoload -Uz compinit && compinit -i -D; fi
-        source {quote(str(completion_script))}
-        """
+            if [[ -z "$_comps" ]] && [[ -t 0 ]]; then autoload -Uz compinit && compinit -i -D; fi
+            source {quote(str(completion_script))}
+            """
         )
 
     def get_script_path(self) -> Path:
@@ -259,7 +259,8 @@ def _silent_success_run(cmd: list[str], timeout: int = 30, env: dict | None = No
         stdout, stderr = p.communicate(timeout=1)
         logger.warning("Command %r timed out, stdout: %r, stderr: %r", cmd, stdout, stderr)
     else:
-        (logger.debug if p.returncode == 0 else logger.warning)(
+        logger.log(
+            logging.DEBUG if p.returncode == 0 else logging.WARNING,
             "Command %r exited with code %r, stdout: %r, stderr: %r", cmd, p.returncode, stdout,
             stderr
         )
@@ -288,8 +289,10 @@ def _silent_success_run_with_pty(
     finally:
         child.close()
 
-    (logger.debug if child.exitstatus == 0 else logger.warning
-    )("Command %r exited with code %r, output: %r", cmd, child.exitstatus, output.getvalue())
+    logger.log(
+        logging.DEBUG if child.exitstatus == 0 else logging.WARNING,
+        "Command %r exited with code %r, output: %r", cmd, child.exitstatus, output.getvalue()
+    )
     return child.exitstatus == 0
 
 
