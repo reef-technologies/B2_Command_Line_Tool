@@ -311,6 +311,23 @@ class Described:
         return DescriptionGetter(cls, **kwargs)
 
 
+class JSONOptionMixin(Described):
+    """
+    Use ``--json`` to get machine-readable output.
+    Unless ``--json`` is used, the output is human-readable, and may change from one minor version to the next.
+    Therefore, for scripting, it is strongly encouraged to use ``--json``.
+    Data serialized in JSON is guaranteed to be stable across minor versions.
+    New fields may be added in new minor versions, but existing fields will not be removed or changed.
+    """
+
+    @classmethod
+    def _setup_parser(cls, parser):
+        parser.add_argument(
+            '--json', action='store_true', help='output in JSON format to use in scripts'
+        )
+        super()._setup_parser(parser)  # noqa
+
+
 class DefaultSseMixin(Described):
     """
     If you want server-side encryption for all of the files that are uploaded to a bucket,
@@ -2089,7 +2106,7 @@ class HideFile(Command):
         return 0
 
 
-class ListBuckets(Command):
+class ListBuckets(JSONOptionMixin, Command):
     """
     Lists all of the buckets in the current account.
 
@@ -2100,18 +2117,12 @@ class ListBuckets(Command):
 
         98c960fd1cb4390c5e0f0519  allPublic   my-bucket
 
-    Alternatively, the ``--json`` option produces machine-readable output
-    similar (but not identical) to the server api response format.
+    {JSONOptionMixin}
 
     Requires capability:
 
     - **listBuckets**
     """
-
-    @classmethod
-    def _setup_parser(cls, parser):
-        parser.add_argument('--json', action='store_true')
-        super()._setup_parser(parser)
 
     def _run(self, args):
         return self.__class__.run_list_buckets(self, json_=args.json)
@@ -2325,7 +2336,7 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
         raise NotImplementedError
 
 
-class BaseLs(AbstractLsCommand, metaclass=ABCMeta):
+class BaseLs(JSONOptionMixin, AbstractLsCommand, metaclass=ABCMeta):
     """
     Using the file naming convention that ``/`` separates folder
     names from their contents, returns a list of the files
@@ -2338,8 +2349,7 @@ class BaseLs(AbstractLsCommand, metaclass=ABCMeta):
     name.  Folders don't really exist in B2, so folders are
     shown with ``-`` in each of the fields other than the name.
 
-    The ``--json`` option produces machine-readable output similar to
-    the server api response format.
+    {JSONOptionMixin}
 
     The ``--replication`` option adds replication status
 
@@ -2353,7 +2363,6 @@ class BaseLs(AbstractLsCommand, metaclass=ABCMeta):
     @classmethod
     def _setup_parser(cls, parser):
         parser.add_argument('--long', action='store_true')
-        parser.add_argument('--json', action='store_true')
         parser.add_argument('--replication', action='store_true')
         super()._setup_parser(parser)
 
