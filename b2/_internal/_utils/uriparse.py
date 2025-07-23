@@ -8,6 +8,7 @@
 #
 ######################################################################
 import re
+from collections import namedtuple
 
 _CONTROL_CHARACTERS_AND_SPACE = '\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f '
 _B2_URL_RE = re.compile(
@@ -22,41 +23,7 @@ _B2_URL_RE = re.compile(
     re.VERBOSE | re.IGNORECASE,
 )
 
-
-class SplitB2Result:
-    def __init__(self, scheme, netloc, path):
-        self._parts = (scheme, netloc, path)
-
-    def __iter__(self):
-        return iter(self._parts)
-
-    def __getitem__(self, key):
-        return self._parts[key]
-
-    def __len__(self):
-        return len(self._parts)
-
-    def replace(self, scheme=None, netloc=None, path=None):
-        return SplitB2Result(
-            scheme=self.scheme if scheme is None else scheme,
-            netloc=self.netloc if netloc is None else netloc,
-            path=self.path if path is None else path,
-        )
-
-    @property
-    def scheme(self):
-        return self._parts[0]
-
-    @property
-    def netloc(self):
-        return self._parts[1]
-
-    @property
-    def path(self):
-        return self._parts[2]
-
-    def __repr__(self):
-        return f'SplitB2Result(scheme={self.scheme!r}, netloc={self.netloc!r}, path={self.path!r})'
+SplitB2Result = namedtuple("SplitB2Result", "scheme,netloc,path")
 
 
 def b2_urlsplit(url: str) -> SplitB2Result:
