@@ -10,10 +10,10 @@
 from __future__ import annotations
 
 import dataclasses
-import pathlib
+import re
 from functools import singledispatchmethod
 from pathlib import Path
-from typing import Sequence
+from typing import Literal, Sequence, overload
 
 from b2sdk.v3 import (
     B2Api,
@@ -23,8 +23,9 @@ from b2sdk.v3 import (
 )
 from b2sdk.v3.exception import B2Error
 
-from b2._internal._utils import uriparse
-from b2._internal._utils.python_compat import removeprefix
+_B2ID_PATTERN = re.compile(r'^b2id://(?P<file_id>[a-zA-Z0-9:_-]+)$', re.IGNORECASE)
+_B2_PATTERN = re.compile(r'^b2://(?P<bucket>[a-z0-9-]*)(?P<path>/.*)?$', re.IGNORECASE)
+_SCHEME_PATTERN = re.compile(r'(?P<scheme>[a-z0-9]*)://.*', re.IGNORECASE)
 
 
 class B2URIBase:
@@ -92,10 +93,7 @@ def parse_uri(uri: str, *, allow_all_buckets: bool = False) -> Path | B2URI | B2
     """
     if not uri:
         raise ValueError('URI cannot be empty')
-    parsed = uriparse.b2_urlsplit(uri)
-    if parsed.scheme == '':
-        return pathlib.Path(uri)
-    return _parse_b2_uri(uri, parsed, allow_all_buckets=allow_all_buckets)
+    return _parse_b2_uri(uri, allow_all_buckets=allow_all_buckets)
 
 
 def parse_b2_uri(
@@ -110,33 +108,74 @@ def parse_b2_uri(
     :return: B2 URI
     :raises ValueError: if the URI is invalid
     """
-    parsed = uriparse.b2_urlsplit(uri)
-    return _parse_b2_uri(uri, parsed, allow_all_buckets=allow_all_buckets, allow_b2id=allow_b2id)
+    return _parse_b2_uri(
+        uri, allow_all_buckets=allow_all_buckets, allow_b2id=allow_b2id, allow_path=False
+    )
+
+
+@overload
+def _parse_b2_uri(
+    uri,
+    *,
+    allow_all_buckets: bool = False,
+    allow_b2id: bool = True,
+    allow_path: Literal[False],
+) -> B2URI | B2FileIdURI: ...
+
+
+@overload
+def _parse_b2_uri(
+    uri,
+    *,
+    allow_all_buckets: bool = False,
+    allow_b2id: bool = True,
+    allow_path: Literal[True] = True,
+) -> B2URI | B2FileIdURI | Path: ...
 
 
 def _parse_b2_uri(
     uri,
-    parsed: uriparse.SplitB2Result,
     *,
     allow_all_buckets: bool = False,
     allow_b2id: bool = True,
-) -> B2URI | B2FileIdURI:
-    if parsed.scheme in ('b2', 'b2id'):
-        if not parsed.netloc:
+    allow_path: bool = True,
+) -> B2URI | B2FileIdURI | Path:
+    # Clean URI
+    original_uri = uri
+    uri = uri.lstrip(''.join(chr(i) for i in range(33)))
+    for i in ['\n', '\r', '\t']:
+        uri = uri.replace(i, '')
+
+    if uri.lower().startswith('b2://'):
+        match = _B2_PATTERN.fullmatch(uri)
+        if not match:
+            raise ValueError(f'Invalid B2 URI: {uri!r}')
+
+        bucket = match.group('bucket')
+        path = match.group('path')
+        if not bucket:
             if allow_all_buckets:
-                if parsed.path:
+                if path:
                     raise ValueError(
-                        f"Invalid B2 URI: all buckets URI doesn't allow non-empty path, but {parsed.path!r} was provided"
+                        f"Invalid B2 URI: all buckets URI doesn't allow non-empty path, but {path!r} was provided"
                     )
                 return B2URI(bucket_name='')
             raise ValueError(f'Invalid B2 URI: {uri!r}')
+        return B2URI(bucket_name=bucket, path=path[1:] if path else '')
 
-        if parsed.scheme == 'b2':
-            return B2URI(bucket_name=parsed.netloc, path=removeprefix(parsed.path, '/'))
-        elif parsed.scheme == 'b2id' and allow_b2id:
-            return B2FileIdURI(file_id=parsed.netloc)
-    else:
-        raise ValueError(f'Unsupported URI scheme: {parsed.scheme!r}')
+    if allow_b2id and uri.lower().startswith('b2id://'):
+        match = _B2ID_PATTERN.fullmatch(uri)
+        if not match:
+            raise ValueError(f'Invalid B2 URI: {uri!r}')
+        return B2FileIdURI(file_id=match.group('file_id'))
+
+    if match := _SCHEME_PATTERN.fullmatch(uri):
+        raise ValueError(f'Unsupported URI scheme: {match.group("scheme")!r}')
+
+    if allow_path:
+        return Path(original_uri)
+
+    raise ValueError(f'Invalid B2 URI: {uri!r}')
 
 
 class B2URIAdapter:
