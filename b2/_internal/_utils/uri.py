@@ -13,7 +13,7 @@ import dataclasses
 import re
 from functools import singledispatchmethod
 from pathlib import Path
-from typing import Literal, Sequence, overload
+from typing import Sequence
 
 from b2sdk.v3 import (
     B2Api,
@@ -26,6 +26,7 @@ from b2sdk.v3.exception import B2Error
 _B2ID_PATTERN = re.compile(r'^b2id://(?P<file_id>[a-zA-Z0-9:_-]+)$', re.IGNORECASE)
 _B2_PATTERN = re.compile(r'^b2://(?P<bucket>[a-z0-9-]*)(?P<path>/.*)?$', re.IGNORECASE)
 _SCHEME_PATTERN = re.compile(r'(?P<scheme>[a-z0-9]*)://.*', re.IGNORECASE)
+_CONTROL_CHARACTERS_AND_SPACE = '\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f '
 
 
 class B2URIBase:
@@ -93,7 +94,10 @@ def parse_uri(uri: str, *, allow_all_buckets: bool = False) -> Path | B2URI | B2
     """
     if not uri:
         raise ValueError('URI cannot be empty')
-    return _parse_b2_uri(uri, allow_all_buckets=allow_all_buckets)
+
+    if _SCHEME_PATTERN.fullmatch(uri):
+        return _parse_b2_uri(uri, allow_all_buckets=allow_all_buckets)
+    return Path(uri)
 
 
 def parse_b2_uri(
@@ -108,29 +112,7 @@ def parse_b2_uri(
     :return: B2 URI
     :raises ValueError: if the URI is invalid
     """
-    return _parse_b2_uri(
-        uri, allow_all_buckets=allow_all_buckets, allow_b2id=allow_b2id, allow_path=False
-    )
-
-
-@overload
-def _parse_b2_uri(
-    uri,
-    *,
-    allow_all_buckets: bool = False,
-    allow_b2id: bool = True,
-    allow_path: Literal[False],
-) -> B2URI | B2FileIdURI: ...
-
-
-@overload
-def _parse_b2_uri(
-    uri,
-    *,
-    allow_all_buckets: bool = False,
-    allow_b2id: bool = True,
-    allow_path: Literal[True] = True,
-) -> B2URI | B2FileIdURI | Path: ...
+    return _parse_b2_uri(uri, allow_all_buckets=allow_all_buckets, allow_b2id=allow_b2id)
 
 
 def _parse_b2_uri(
@@ -138,12 +120,10 @@ def _parse_b2_uri(
     *,
     allow_all_buckets: bool = False,
     allow_b2id: bool = True,
-    allow_path: bool = True,
-) -> B2URI | B2FileIdURI | Path:
+) -> B2URI | B2FileIdURI:
     # Clean URI
-    original_uri = uri
-    uri = uri.lstrip(''.join(chr(i) for i in range(33)))
-    for i in ['\n', '\r', '\t']:
+    uri = uri.lstrip(_CONTROL_CHARACTERS_AND_SPACE)
+    for i in ('\n', '\r', '\t'):
         uri = uri.replace(i, '')
 
     if uri.lower().startswith('b2://'):
@@ -160,20 +140,14 @@ def _parse_b2_uri(
                         f"Invalid B2 URI: all buckets URI doesn't allow non-empty path, but {path!r} was provided"
                     )
                 return B2URI(bucket_name='')
-            raise ValueError(f'Invalid B2 URI: {uri!r}')
-        return B2URI(bucket_name=bucket, path=path[1:] if path else '')
-
-    if allow_b2id and uri.lower().startswith('b2id://'):
+        else:
+            return B2URI(bucket_name=bucket, path=path[1:] if path else '')
+    elif allow_b2id and uri.lower().startswith('b2id://'):
         match = _B2ID_PATTERN.fullmatch(uri)
-        if not match:
-            raise ValueError(f'Invalid B2 URI: {uri!r}')
-        return B2FileIdURI(file_id=match.group('file_id'))
-
-    if match := _SCHEME_PATTERN.fullmatch(uri):
+        if match:
+            return B2FileIdURI(file_id=match.group('file_id'))
+    elif match := _SCHEME_PATTERN.fullmatch(uri):
         raise ValueError(f'Unsupported URI scheme: {match.group("scheme")!r}')
-
-    if allow_path:
-        return Path(original_uri)
 
     raise ValueError(f'Invalid B2 URI: {uri!r}')
 
