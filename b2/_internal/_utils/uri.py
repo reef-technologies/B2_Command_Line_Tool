@@ -95,7 +95,7 @@ def parse_uri(uri: str, *, allow_all_buckets: bool = False) -> Path | B2URI | B2
     if not uri:
         raise ValueError('URI cannot be empty')
 
-    if _SCHEME_PATTERN.fullmatch(uri):
+    if _SCHEME_PATTERN.fullmatch(_clean_uri(uri)):
         return _parse_b2_uri(uri, allow_all_buckets=allow_all_buckets)
     return Path(uri)
 
@@ -115,17 +115,21 @@ def parse_b2_uri(
     return _parse_b2_uri(uri, allow_all_buckets=allow_all_buckets, allow_b2id=allow_b2id)
 
 
+def _clean_uri(uri: str) -> str:
+    # Clean URI
+    uri = uri.lstrip(_CONTROL_CHARACTERS_AND_SPACE)
+    for i in ('\n', '\r', '\t'):
+        uri = uri.replace(i, '')
+    return uri
+
+
 def _parse_b2_uri(
     uri,
     *,
     allow_all_buckets: bool = False,
     allow_b2id: bool = True,
 ) -> B2URI | B2FileIdURI:
-    # Clean URI
-    uri = uri.lstrip(_CONTROL_CHARACTERS_AND_SPACE)
-    for i in ('\n', '\r', '\t'):
-        uri = uri.replace(i, '')
-
+    uri = _clean_uri(uri)
     if uri.lower().startswith('b2://'):
         match = _B2_PATTERN.fullmatch(uri)
         if not match:

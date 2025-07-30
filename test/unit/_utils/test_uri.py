@@ -63,6 +63,7 @@ def test_b2fileuri_str():
         ('./some/local/path', Path('some/local/path')),
         ('.', Path('')),
         ('b2://bucket', B2URI(bucket_name='bucket')),
+        (' b2://bucket', B2URI(bucket_name='bucket')),
         ('b2://bucket/', B2URI(bucket_name='bucket')),
         ('b2://bucket/path/to/dir/', B2URI(bucket_name='bucket', path='path/to/dir/')),
         ('b2id://file123', B2FileIdURI(file_id='file123')),
@@ -106,6 +107,7 @@ def test_parse_uri__allow_all_buckets():
         ),
         # Test cases for unsupported URI schemes
         ('unknown://bucket/path', "Unsupported URI scheme: 'unknown'"),
+        (' unknown://bucket/path', "Unsupported URI scheme: 'unknown'"),
     ],
 )
 def test_parse_uri_exceptions(uri, expected_exception_message):
