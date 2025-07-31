@@ -171,7 +171,7 @@ jobs:
     env:
       B2_TEST_APPLICATION_KEY: ${{ secrets.B2_TEST_APPLICATION_KEY }}
       B2_TEST_APPLICATION_KEY_ID: ${{ secrets.B2_TEST_APPLICATION_KEY_ID }}
-      WORKFLOW_ID: ${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}    runs-on: ${{ matrix.os }}
+      WORKFLOW_ID: ${{ github.run_id }}-${{ github.run_attempt }}-${{ github.job }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -191,6 +191,11 @@ jobs:
           sudo apt-get -y install patchelf scons
           python -m pip install --upgrade nox pdm
           git config --global --add safe.directory '*'
+      - name: Setup tmate session
+        if: matrix.os == 'ubuntu-22.04-arm'
+        uses: mxschmitt/action-tmate@v3
+        with:
+          limit-access-to-actor: true
       - name: Bundle the distribution
         id: bundle
         shell: bash
