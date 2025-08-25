@@ -216,8 +216,13 @@ def auto_change_account_info_dir(monkeysession) -> str:
 
 
 @pytest.fixture(scope='session')
-def bucket_name_prefix():
-    return bucket_name_part(8)
+def general_bucket_name_prefix():
+    return 'clitst'
+
+
+@pytest.fixture(scope='session')
+def bucket_name_prefix(general_bucket_name_prefix):
+    return f'{general_bucket_name_prefix}{bucket_name_part(8)}'
 
 
 @pytest.fixture(scope='session')
