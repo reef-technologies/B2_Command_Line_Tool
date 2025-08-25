@@ -217,7 +217,7 @@ def auto_change_account_info_dir(monkeysession) -> str:
 
 @pytest.fixture(scope='session')
 def general_bucket_name_prefix():
-    return 'clitst'
+    return 'tst'
 
 
 @pytest.fixture(scope='session')
