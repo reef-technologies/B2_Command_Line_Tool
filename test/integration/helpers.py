@@ -88,7 +88,7 @@ def get_seed() -> str:
             os.getenv('PYTEST_XDIST_WORKER', 'gw0'),
         )
     )
-    return sha256(seed.encode()).hexdigest()[:16]
+    return sha256(seed.encode()).hexdigest()[:32]  # 32 is the default entropy in python secrets module - 256 bits
 
 
 RNG_SEED = get_seed()
