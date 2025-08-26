@@ -17,17 +17,14 @@ import pathlib
 import platform
 import random
 import re
-import secrets
 import shutil
 import string
 import subprocess
 import sys
 import threading
-import time
 import warnings
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from hashlib import sha256
 from os import environ, linesep
 from pathlib import Path
 from tempfile import mkdtemp, mktemp
@@ -72,26 +69,7 @@ BUCKET_CREATED_AT_MILLIS = 'created_at_millis'
 NODE_DESCRIPTION = f'{platform.node()}: {platform.platform()} {platform.python_version()}'
 
 
-def get_seed() -> str:
-    """
-    Get seed for random number generator.
-
-    The `WORKFLOW_ID` variable has to be set in the CI to uniquely identify
-    the current workflow (including the attempt)
-    """
-    seed = ''.join(
-        (
-            secrets.token_hex(),
-            str(time.time_ns()),
-            os.getenv('WORKFLOW_ID', ''),
-            NODE_DESCRIPTION,
-            os.getenv('PYTEST_XDIST_WORKER', 'gw0'),
-        )
-    )
-    return sha256(seed.encode()).hexdigest()[:32]  # 32 is the default entropy in python secrets module - 256 bits
-
-
-RNG_SEED = get_seed()
+RNG_SEED = os.urandom(32).hex()
 RNG = random.Random(RNG_SEED)
 RNG_COUNTER = 0
 
