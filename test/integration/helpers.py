@@ -17,15 +17,17 @@ import pathlib
 import platform
 import random
 import re
+import secrets
 import shutil
 import string
 import subprocess
 import sys
 import threading
-import urllib.request
+import time
 import warnings
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from hashlib import sha256
 from os import environ, linesep
 from pathlib import Path
 from tempfile import mkdtemp, mktemp
@@ -70,26 +72,27 @@ BUCKET_CREATED_AT_MILLIS = 'created_at_millis'
 NODE_DESCRIPTION = f'{platform.node()}: {platform.platform()} {platform.python_version()}'
 
 
-def get_seed() -> int:
+def get_seed() -> str:
     """
     Get seed for random number generator.
-    """
 
-    url = 'https://www.random.org/integers/?num=1&min=0&max=1000000000&col=1&base=10&format=plain&rnd=new'
-    try:
-        with urllib.request.urlopen(url, timeout=5) as response:
-            value = response.read().decode('utf-8').strip()
-            if not value:
-                raise ValueError()
-            return int(value)
-    except Exception:
-        rand_bytes = os.urandom(4)  # 4 bytes = 32 bits
-        return int.from_bytes(rand_bytes, 'big') % (1_000_000_000 + 1)
+    The `WORKFLOW_ID` variable has to be set in the CI to uniquely identify
+    the current workflow (including the attempt)
+    """
+    seed = ''.join(
+        (
+            secrets.token_hex(),
+            str(time.time_ns()),
+            os.getenv('WORKFLOW_ID', ''),
+            NODE_DESCRIPTION,
+            os.getenv('PYTEST_XDIST_WORKER', 'gw0'),
+        )
+    )
+    return sha256(seed.encode()).hexdigest()
 
 
 RNG_SEED = get_seed()
 RNG = random.Random(RNG_SEED)
-RNG_COUNTER = 0
 
 if sys.version_info < (3, 9):
     RNG.randbytes = lambda n: RNG.getrandbits(n * 8).to_bytes(n, 'little')
@@ -115,18 +118,16 @@ SSE_C_AES_2 = EncryptionSetting(
 
 
 def random_token(length: int, chars=string.ascii_letters) -> str:
-    return ''.join(RNG.choice(chars) for _ in range(length))
+    seed = get_seed()
+    logger.info('random_token seed: %s', seed)
+    rng = random.Random(seed)
+    return ''.join(rng.choice(chars) for _ in range(length))
 
 
 def bucket_name_part(length: int) -> str:
     assert length >= 1
-    global RNG_COUNTER
-    RNG_COUNTER += 1
     name_part = random_token(length, BUCKET_NAME_CHARS_UNIQ)
-    logger.info('RNG_SEED: %s', RNG_SEED)
-    logger.info('RNG_COUNTER: %i, length: %i', RNG_COUNTER, length)
     logger.info('name_part: %s', name_part)
-    logger.info('WORKFLOW_ID: %s', os.getenv('WORKFLOW_ID'))
     return name_part
 
 
