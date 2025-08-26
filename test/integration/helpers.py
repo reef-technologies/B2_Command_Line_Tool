@@ -22,6 +22,7 @@ import string
 import subprocess
 import sys
 import threading
+import urllib.request
 import warnings
 from dataclasses import dataclass
 from datetime import datetime, timedelta
@@ -69,7 +70,24 @@ BUCKET_CREATED_AT_MILLIS = 'created_at_millis'
 NODE_DESCRIPTION = f'{platform.node()}: {platform.platform()} {platform.python_version()}'
 
 
-RNG_SEED = os.urandom(32).hex()
+def get_seed() -> int:
+    """
+    Get seed for random number generator.
+    """
+
+    url = 'https://www.random.org/integers/?num=1&min=0&max=1000000000&col=1&base=10&format=plain&rnd=new'
+    try:
+        with urllib.request.urlopen(url, timeout=5) as response:
+            value = response.read().decode('utf-8').strip()
+            if not value:
+                raise ValueError()
+            return int(value)
+    except Exception:
+        rand_bytes = os.urandom(4)  # 4 bytes = 32 bits
+        return int.from_bytes(rand_bytes, 'big') % (1_000_000_000 + 1)
+
+
+RNG_SEED = get_seed()
 RNG = random.Random(RNG_SEED)
 RNG_COUNTER = 0
 
