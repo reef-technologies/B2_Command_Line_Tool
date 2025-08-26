@@ -81,18 +81,18 @@ def get_seed() -> str:
     """
     seed = ''.join(
         (
-            os.getenv('WORKFLOW_ID', secrets.token_hex(8)),
-            NODE_DESCRIPTION,
+            secrets.token_hex(),
             str(time.time_ns()),
+            os.getenv('WORKFLOW_ID', ''),
+            NODE_DESCRIPTION,
             os.getenv('PYTEST_XDIST_WORKER', 'gw0'),
         )
     )
-    return sha256(seed.encode()).hexdigest()[:16]
+    return sha256(seed.encode()).hexdigest()
 
 
 RNG_SEED = get_seed()
 RNG = random.Random(RNG_SEED)
-RNG_COUNTER = 0
 
 if sys.version_info < (3, 9):
     RNG.randbytes = lambda n: RNG.getrandbits(n * 8).to_bytes(n, 'little')
@@ -118,18 +118,16 @@ SSE_C_AES_2 = EncryptionSetting(
 
 
 def random_token(length: int, chars=string.ascii_letters) -> str:
-    return ''.join(RNG.choice(chars) for _ in range(length))
+    seed = get_seed()
+    logger.info('random_token seed: %s', seed)
+    rng = random.Random(seed)
+    return ''.join(rng.choice(chars) for _ in range(length))
 
 
 def bucket_name_part(length: int) -> str:
     assert length >= 1
-    global RNG_COUNTER
-    RNG_COUNTER += 1
     name_part = random_token(length, BUCKET_NAME_CHARS_UNIQ)
-    logger.info('RNG_SEED: %s', RNG_SEED)
-    logger.info('RNG_COUNTER: %i, length: %i', RNG_COUNTER, length)
     logger.info('name_part: %s', name_part)
-    logger.info('WORKFLOW_ID: %s', os.getenv('WORKFLOW_ID'))
     return name_part
 
 
