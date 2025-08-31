@@ -84,10 +84,19 @@ def get_seed() -> str:
             os.getenv('WORKFLOW_ID', secrets.token_hex(8)),
             NODE_DESCRIPTION,
             str(time.time_ns()),
-            os.getenv('PYTEST_XDIST_WORKER', 'gw0'),
+            os.getenv('PYTEST_XDIST_WORKER', 'master'),
         )
     )
-    return sha256(seed.encode()).hexdigest()[:16]
+    logger.error('RNG seed (raw): %s', seed)
+
+    seed_hash = sha256(seed.encode()).hexdigest()[:16]
+
+    logger.error('WORKFLOW_ID: %s', os.getenv('WORKFLOW_ID'))
+    logger.error('NODE_DESCRIPTION: %s', NODE_DESCRIPTION)
+    logger.error('PYTEST_XDIST_WORKER: %s', os.getenv('PYTEST_XDIST_WORKER'))
+    logger.error('RNG seed (hashed): %s', seed_hash)
+
+    return seed_hash
 
 
 RNG_SEED = get_seed()
@@ -126,10 +135,8 @@ def bucket_name_part(length: int) -> str:
     global RNG_COUNTER
     RNG_COUNTER += 1
     name_part = random_token(length, BUCKET_NAME_CHARS_UNIQ)
-    logger.info('RNG_SEED: %s', RNG_SEED)
-    logger.info('RNG_COUNTER: %i, length: %i', RNG_COUNTER, length)
-    logger.info('name_part: %s', name_part)
-    logger.info('WORKFLOW_ID: %s', os.getenv('WORKFLOW_ID'))
+    logger.error('RNG_COUNTER: %i, length: %i', RNG_COUNTER, length)
+    logger.error('name_part: %s', name_part)
     return name_part
 
 
