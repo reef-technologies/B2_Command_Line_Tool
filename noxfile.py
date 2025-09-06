@@ -231,8 +231,11 @@ def run_integration_test(session, pytest_posargs):
         'test/integration',
         '-n',
         '2' if CI else 'auto',
+        '-s',
         '--log-level',
-        'INFO',
+        'ERROR',
+        '--log-cli-level',
+        'error',
         '-W',
         'ignore::DeprecationWarning:rst2ansi.visitor:',
         *PYTEST_GLOBAL_ARGS,
@@ -278,15 +281,15 @@ def test(session):
 @nox.session(python=PYTHON_DEFAULT_VERSION)
 def cleanup_buckets(session):
     """Remove buckets from previous test runs."""
-    pdm_install(session, 'test')
-    session.run(
-        'pytest',
-        '-s',
-        '-x',
-        *PYTEST_GLOBAL_ARGS,
-        *session.posargs,
-        'test/integration/cleanup_buckets.py',
-    )
+    # pdm_install(session, 'test')
+    # session.run(
+    #     'pytest',
+    #     '-s',
+    #     '-x',
+    #     *PYTEST_GLOBAL_ARGS,
+    #     *session.posargs,
+    #     'test/integration/cleanup_buckets.py',
+    # )
 
 
 @nox.session
