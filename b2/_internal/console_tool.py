@@ -118,7 +118,6 @@ from b2sdk.v3.exception import (
     UnableToCreateDirectory,
 )
 from b2sdk.version import VERSION as b2sdk_version
-from class_registry import ClassRegistry
 from tabulate import tabulate
 
 from b2._internal._cli.arg_parser_types import (
@@ -163,6 +162,7 @@ from b2._internal._cli.obj_loads import validated_loads
 from b2._internal._cli.shell import detect_shell, resolve_short_call_name
 from b2._internal._utils.uri import B2URI, B2FileIdURI, B2URIAdapter, B2URIBase
 from b2._internal.arg_parser import B2ArgumentParser, add_normalized_argument
+from b2._internal.class_registry import ClassRegistry
 from b2._internal.json_encoder import B2CliJsonEncoder
 from b2._internal.version import VERSION
 

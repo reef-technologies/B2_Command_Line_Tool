@@ -28,12 +28,10 @@ dependencies = [
     "b2sdk>=2.10.2,<3",
     "docutils>=0.18.1,<0.22",
     "idna~=3.4; platform_system == 'Java'",
-    "phx-class-registry>=4.0,<5",
     "rst2ansi==0.1.5",
     "tabulate==0.9.0",
     "tqdm>=4.65.0,<5",
     "platformdirs>=3.11.0,<5",
-    "setuptools>=60,<80; python_version < '3.10'",  # required by phx-class-registry<4.1
 ]
 
 [project.optional-dependencies]

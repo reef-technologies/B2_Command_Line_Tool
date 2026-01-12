@@ -25,7 +25,8 @@ from pathlib import Path
 from shlex import quote
 
 import argcomplete
-from class_registry import ClassRegistry, RegistryKeyError
+
+from b2._internal.class_registry import ClassRegistry, RegistryKeyError
 
 logger = logging.getLogger(__name__)
 
