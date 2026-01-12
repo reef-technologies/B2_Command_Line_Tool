@@ -14,6 +14,7 @@ import pexpect
 import pytest
 
 from test.helpers import patched_spawn, skip_on_windows
+from test.integration.conftest import GENERAL_BUCKET_NAME_PREFIX
 
 TIMEOUT = 120  # CI can be slow at times when parallelization is extreme
 
@@ -100,7 +101,11 @@ def test_autocomplete_b2__download_file__b2uri(
         pytest.skip('Not supported on Docker')
     shell.send(f'{cli_version} file download \t\t')
     shell.expect_exact('b2://', timeout=TIMEOUT)
-    shell.send('b2://\t\t')
+
+    prefix_len = len(GENERAL_BUCKET_NAME_PREFIX) + 4
+    prefix = bucket_name[:prefix_len]
+    shell.send(f'b2://{prefix}\t\t')
     shell.expect_exact(bucket_name, timeout=TIMEOUT)
+
     shell.send(f'{bucket_name}/\t\t')
     shell.expect_exact(file_name, timeout=TIMEOUT)
