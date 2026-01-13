@@ -4,8 +4,6 @@
 .eggs/
 .idea
 .nox/
-.pdm-build/
-.pdm-python
 .python-version
 b2_cli.log
 b2.egg-info

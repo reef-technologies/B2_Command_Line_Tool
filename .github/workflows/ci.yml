@@ -24,8 +24,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
-        run: python -m pip install --upgrade nox pdm==2.26.2
+        run: python -m pip install --upgrade nox
       - name: Run linters
         run: nox -vs lint
       - name: Validate new changelog entries
@@ -46,8 +47,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
-        run: python -m pip install --upgrade nox pdm==2.26.2
+        run: python -m pip install --upgrade nox
       - name: Build the distribution
         run: nox -vs build
   cleanup_buckets:
@@ -68,9 +70,11 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
           cache: "pip"
+      - uses: astral-sh/setup-uv@v7
+        if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}  # TODO: skip this whole job instead
       - name: Install dependencies
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}  # TODO: skip this whole job instead
-        run: python -m pip install --upgrade nox pdm==2.26.2
+        run: python -m pip install --upgrade nox
       - name: Find and remove old buckets
         if: ${{ env.B2_TEST_APPLICATION_KEY != '' && env.B2_TEST_APPLICATION_KEY_ID != '' }}  # TODO: skip this whole job instead
         run: nox -vs cleanup_buckets
@@ -100,6 +104,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install test binary dependencies
         if: startsWith(matrix.os, 'ubuntu')
         run: |
@@ -111,7 +116,7 @@ jobs:
         run: |
           brew install fish
       - name: Install dependencies
-        run: python -m pip install --upgrade nox pdm==2.26.2
+        run: python -m pip install --upgrade nox
       - name: Run unit tests
         run: nox -vs unit -p ${{ matrix.python-version }}
       - name: Run integration tests (without secrets)
@@ -136,8 +141,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
-        run: python -m pip install --upgrade nox pdm==2.26.2
+        run: python -m pip install --upgrade nox
       - name: Generate Dockerfile
         run: nox -vs generate_dockerfile
       - name: Set up QEMU
@@ -174,11 +180,12 @@ jobs:
         uses: deadsnakes/action@v3.2.0  # staticx doesn't work with python installed by setup-python action
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
         run: |
           sudo apt-get -y update
           sudo apt-get -y install patchelf scons
-          python -m pip install --upgrade nox pdm==2.26.2
+          python -m pip install --upgrade nox
           git config --global --add safe.directory '*'
       - name: Bundle the distribution
         id: bundle
@@ -216,8 +223,9 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
-        run: python -m pip install --upgrade nox pdm==2.26.2
+        run: python -m pip install --upgrade nox
       - name: Bundle the distribution
         id: bundle
         shell: bash
@@ -250,12 +258,13 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_DEFAULT_VERSION }}
+      - uses: astral-sh/setup-uv@v7
       - name: Install dependencies
         env:
           DEBIAN_FRONTEND: noninteractive
         run: |
           sudo apt-get update -y
           sudo apt-get install -y graphviz plantuml
-          python -m pip install --upgrade nox pdm==2.26.2
+          python -m pip install --upgrade nox
       - name: Build the docs
         run: nox --non-interactive -vs doc
