@@ -97,13 +97,10 @@ class B2ArgumentParser(argparse.ArgumentParser):
         :param for_docs: is this parser used for generating docs
         :param custom_deprecated: is this command deprecated?
         """
-        self._raw_description = None
-        self._description = None
+        self._raw_description: str | None = None
+        self._description: str | None = None
         self._for_docs = for_docs
         self.deprecated = custom_deprecated
-        self._short_description = self._make_short_description(
-            kwargs.get('usage', ''), kwargs.get('description', '')
-        )
         kwargs.setdefault('formatter_class', B2RawTextHelpFormatter)
         super().__init__(*args, **kwargs)
 
@@ -139,17 +136,13 @@ class B2ArgumentParser(argparse.ArgumentParser):
                 # TODO-REMOVE-BY: When rst2ansi is updated or replaced
                 return textwrap.dedent(value)
 
-    def _make_short_description(self, usage: str, raw_description: str) -> str:
-        if usage:
-            return usage
-
-        if not raw_description:
+    def _get_short_description(self) -> str:
+        if not self._raw_description:
             return ''
-
-        for line in raw_description.splitlines():
-            if line.strip():
-                return self._encode_description(line.strip())
-
+        for line in str(self._raw_description).splitlines():
+            cleaned_line = line.strip()
+            if cleaned_line:
+                return self._encode_description(cleaned_line)
         return ''
 
     def error(self, message):
@@ -217,11 +210,15 @@ class B2ArgumentParser(argparse.ArgumentParser):
         action.choices = original_choices
 
     def format_usage(self, use_short_description: bool = False, col_length: int = 16):
-        if not use_short_description or not self._short_description:
+        if not use_short_description:
+            return super().format_usage()
+
+        short_description = self._get_short_description()
+        if not short_description:
             return super().format_usage()
 
         formatter = self._get_formatter()
-        formatter.add_text(f'{self.prog:{col_length + 2}} {self._short_description}')
+        formatter.add_text(f'{self.prog:{col_length + 2}} {short_description}')
         return formatter.format_help()
 
 
