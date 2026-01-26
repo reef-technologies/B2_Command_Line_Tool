@@ -1,1 +1,0 @@
-Avoid eager calculation of command help during parser construction.
