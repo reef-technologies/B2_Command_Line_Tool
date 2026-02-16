@@ -645,7 +645,7 @@ class SourceSseMixin(Described):
 
 class WriteBufferSizeMixin(Described):
     """
-    Use --write-buffer-size to set the size (in bytes) of the buffer used to write files.
+    Use ``--write-buffer-size`` to set the size (in bytes) of the buffer used to write files.
     """
 
     @classmethod
@@ -656,7 +656,7 @@ class WriteBufferSizeMixin(Described):
 
 class SkipHashVerificationMixin(Described):
     """
-    Use --skip-hash-verification to disable hash check on downloaded files.
+    Use ``--skip-hash-verification`` to disable hash check on downloaded files.
     """
 
     @classmethod
@@ -669,7 +669,7 @@ class SkipHashVerificationMixin(Described):
 
 class MaxDownloadStreamsMixin(Described):
     """
-    Use --max-download-streams-per-file to set max num of streams for parallel downloader.
+    Use ``--max-download-streams-per-file`` to set max num of streams for parallel downloader.
     """
 
     @classmethod
@@ -828,7 +828,7 @@ class B2IDURIMixin:
 
 class UploadModeMixin(Described):
     """
-    Use --incremental-mode to allow for incremental file uploads to safe bandwidth.  This will only affect files, which
+    Use ``--incremental-mode`` to allow for incremental file uploads to safe bandwidth.  This will only affect files, which
     have been appended to since last upload.
     """
 
@@ -892,7 +892,7 @@ class LifecycleRulesMixin(Described):
 
 class ThreadsMixin(Described):
     """
-    Use --threads to manually adjust the number of threads used in the operation.
+    Use ``--threads`` to manually adjust the number of threads used in the operation.
     Otherwise, the number of threads will be automatically chosen.
     """
 
@@ -2480,8 +2480,8 @@ class AbstractLsCommand(Command, metaclass=ABCMeta):
     wildcard and range of characters. It requires the ``--recursive`` option.
     Remember to quote ``folderName`` to avoid shell expansion.
 
-    The --include and --exclude flags can be used to filter the files returned
-    from the server using wildcards. You can specify multiple --include and --exclude filters.
+    The ``--include`` and ``--exclude`` flags can be used to filter the files returned
+    from the server using wildcards. You can specify multiple ``--include`` and ``--exclude`` filters.
     The order of filters matters. The *last* matching filter decides whether a file
     is included or excluded. If the given list of filters contains only INCLUDE filters,
     then it is assumed that all files are excluded by default.
@@ -2702,7 +2702,7 @@ class BaseRm(ThreadsMixin, AbstractLsCommand, metaclass=ABCMeta):
         be deleted (as "latest") instead of the one present when the ``rm`` run has started.
 
     If a file is in governance retention mode, and the retention period has not expired,
-    adding --bypass-governance is required.
+    adding ``--bypass-governance`` is required.
 
     To list (but not remove) files to be deleted, use ``--dry-run``.  You can also
     list files via ``ls`` command - the listing behaviour is exactly the same.
@@ -2910,7 +2910,7 @@ class Rm(B2IDOrB2URIMixin, BaseRm):
 
     - **listFiles**
     - **deleteFiles**
-    - **bypassGovernance** (if --bypass-governance is used)
+    - **bypassGovernance** (if ``--bypass-governance`` is used)
     """
 
 
@@ -2921,7 +2921,7 @@ class FileUrlBase(Command):
     Prints an URL that can be used to download the given file, if
     it is public.
 
-    If it is private, you can use --with-auth to include an authorization
+    If it is private, you can use ``--with-auth`` to include an authorization
     token in the URL that allows downloads from the given bucket for files
     whose names start with the given file name. NOTE: This param can only be used with
     filename urls.
@@ -2936,7 +2936,7 @@ class FileUrlBase(Command):
 
     Requires capability:
 
-    - **shareFiles** (if using --with-auth)
+    - **shareFiles** (if using ``--with-auth``)
     """
 
     @classmethod
@@ -3001,8 +3001,8 @@ class Sync(
 
     You can alternatively control number of threads per each operation.
     The number of files processed in parallel is set by ``--sync-threads``,
-    the number of files/file parts downloaded in parallel is set by``--download-threads``,
-    and the number of files/file parts uploaded in parallel is set by `--upload-threads``.
+    the number of files/file parts downloaded in parallel is set by ``--download-threads``,
+    and the number of files/file parts uploaded in parallel is set by ``--upload-threads``.
     All the three parameters can be set to the same value by ``--threads``.
     Experiment with parameters if the defaults are not working well.
 
@@ -3761,7 +3761,7 @@ class FileUpdateBase(B2URIFileArgMixin, LegalHoldMixin, Command):
     - **readFiles**
     - **writeFileLegalHolds** (if updating legal holds)
     - **writeFileRetentions** (if updating retention)
-    - **bypassGovernance** (if --bypass-governance is used)
+    - **bypassGovernance** (if ``--bypass-governance`` is used)
     """
 
     @classmethod
@@ -4079,16 +4079,16 @@ class ReplicationStatusBase(Command):
     Please be aware that only latest file versions are inspected, so any previous
     file versions are not represented in these statistics.
 
-    --output-format
+    ``--output-format``
     "Console" output format is meant to be human-readable and is subject to change
     in any further release. One should use "json" for reliable "no-breaking-changes"
     output format. When piping "csv" format to some .csv file, it's handy to use
-    --no-progress flag which will disable interactive reporting output, otherwise it will
+    ``--no-progress`` flag which will disable interactive reporting output, otherwise it will
     also go to target csv file's first line.
 
-    --columns
+    ``--columns``
     Comma-separated list of columns to be shown. The rows are still grouped by _all_
-    columns, no matter which of them are shown / hidden when using --columns flag.
+    columns, no matter which of them are shown / hidden when using ``--columns`` flag.
     """
 
     @classmethod
@@ -4461,7 +4461,7 @@ class InstallAutocomplete(Command):
     Autocomplete is installed for the current user only and will become available after shell reload.
     Any existing autocomplete configuration for same executable name will be overwritten.
 
-    --shell SHELL
+    ``--shell SHELL``
     Shell to install autocomplete for. Autodetected if not specified.
     Manually specify "bash" to force bash autocomplete installation when running under different shell.
 
