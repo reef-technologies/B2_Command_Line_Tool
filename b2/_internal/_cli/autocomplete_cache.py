@@ -122,6 +122,11 @@ class AutocompleteCache:
             return
 
     def _clean_parser(self, parser: argparse.ArgumentParser) -> None:
+        # Python 3.14 caches a validation formatter on parsers. The cached formatter can
+        # contain non-picklable color helpers (local lambdas), so drop it before pickling.
+        if hasattr(parser, '_cached_formatter'):
+            parser._cached_formatter = None
+
         parser.register('type', None, identity)
 
         def _get_deprecated_actions(actions):
