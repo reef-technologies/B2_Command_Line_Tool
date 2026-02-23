@@ -4261,7 +4261,7 @@ class Version(Command):
         if args.short:
             self._print(VERSION)
         else:
-            self._print('b2 command line tool, version', VERSION)
+            self._print('b2 command line tool, version', VERSION, '(b2sdk version', b2sdk_version + ')')
         return 0
 
 
