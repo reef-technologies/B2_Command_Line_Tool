@@ -1,1 +1,0 @@
-Fixed autocomplete parser cache on Python 3.14.2+ by clearing argparse's cached validation formatter before pickling the parser. This avoids failures caused by non-picklable color formatting lambdas stored in the cached formatter.
