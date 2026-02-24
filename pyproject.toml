@@ -25,7 +25,7 @@ classifiers = [
 dependencies = [
     "argcomplete>=3.5.2,<4",
     "arrow>=1.0.2,<2.0.0",
-    "b2sdk>=2.10.2,<3",
+    "b2sdk>=2.10.3,<3",
     "docutils>=0.18.1,<0.22",
     "idna~=3.4; platform_system == 'Java'",
     "rst2ansi==0.1.5",
@@ -92,6 +92,7 @@ authorized_licenses = [
     "mit license",
     "mozilla public license 2.0 (mpl 2.0)",
     "mpl-2.0",
+    "mpl-2.0 and mit",
     "psf",
     "psf-2.0",
     "python software foundation",
