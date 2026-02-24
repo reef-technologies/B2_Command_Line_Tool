@@ -32,6 +32,7 @@ from b2sdk.v3 import (
     fix_windows_path_limit,
 )
 from b2sdk.v3.exception import Conflict  # Any error for testing fast-fail of the rm command.
+from b2sdk.version import VERSION as b2sdk_version
 from more_itertools import one
 
 from b2._internal._cli.const import (
@@ -3759,4 +3760,7 @@ class TestRmConsoleTool(BaseConsoleToolTest):
 class TestVersionConsoleTool(BaseConsoleToolTest):
     def test_version(self):
         self._run_command(['version', '--short'], expected_stdout=f'{VERSION}\n')
-        self._run_command(['version'], expected_stdout=f'b2 command line tool, version {VERSION}\n')
+        self._run_command(
+            ['version'],
+            expected_stdout=f'b2 command line tool, version {VERSION} (b2sdk version {b2sdk_version})\n',
+        )
