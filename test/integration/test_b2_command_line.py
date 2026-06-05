@@ -305,6 +305,23 @@ def test_download(b2_tool, persistent_bucket, sample_filepath, uploaded_sample_f
     assert output_b.read_text() == sample_filepath.read_text()
 
 
+def test_download__period_in_bucket_name(b2_tool, schedule_bucket_cleanup, sample_filepath, tmp_path):
+    bucket_name = b2_tool.generate_bucket_name()
+    bucket_name = bucket_name[:-2] + ".x"
+    schedule_bucket_cleanup(bucket_name)
+    b2_tool.should_succeed(
+        ['bucket', 'create', bucket_name, 'allPrivate', *b2_tool.get_bucket_info_args()]
+    )
+    b2_tool.should_succeed_json(
+        ['file', 'upload', '--quiet', bucket_name, str(sample_filepath), 'kitten.jpg']
+    )
+    output = tmp_path / 'kitten.jpg'
+    b2_tool.should_succeed(
+        ['file', 'download', '--quiet', f'b2://{bucket_name}/kitten.jpg', str(output)]
+    )
+    assert output.read_text() == sample_filepath.read_text()
+
+
 def test_basic(b2_tool, persistent_bucket, sample_file, tmp_path, b2_uri_args, apiver_int):
     bucket_name = persistent_bucket.bucket_name
     subfolder = f'{persistent_bucket.subfolder}/'

@@ -63,6 +63,8 @@ def test_b2fileuri_str():
         ('./some/local/path', Path('some/local/path')),
         ('.', Path('')),
         ('b2://bucket', B2URI(bucket_name='bucket')),
+        ('b2://one.two/kitten.jpg', B2URI(bucket_name='one.two', path='kitten.jpg')),
+        ('b2://one.two', B2URI(bucket_name='one.two')),
         (' b2://bucket', B2URI(bucket_name='bucket')),
         ('b2://bucket/', B2URI(bucket_name='bucket')),
         ('b2://bucket/path/to/dir/', B2URI(bucket_name='bucket', path='path/to/dir/')),
